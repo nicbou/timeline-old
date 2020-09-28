@@ -16,7 +16,7 @@ readonly DATETIME="$(date '+%Y-%m-%d_%H:%M:%S')"
 readonly BACKUP_PATH="${BACKUPS_ROOT}/${DATETIME}"
 readonly LATEST_BACKUP_LINK="${BACKUPS_ROOT}/latest"
 
-mkdir -p "${BACKUPS_ROOT}"
+mkdir -p "${BACKUP_PATH}/files"
 
 # Sync files to /[backups root]/[date]/files
 rsync -av --delete \
