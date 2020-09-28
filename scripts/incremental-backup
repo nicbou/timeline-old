@@ -1,0 +1,30 @@
+#!/bin/bash
+# Performs incremental backups using rsync
+# Usage:
+#    incremental-backup [src-dir] [dest-dir]
+# Arguments:
+#    - src-dir is a regular path, preferably absolute
+#    - dest-dir is a relative path to the root backup dir, e.g. "servers/test.com"
+
+set -o errexit
+set -o nounset
+set -o pipefail
+
+readonly SOURCE_DIR="$1"
+readonly BACKUPS_ROOT="/var/backups/$2"
+readonly DATETIME="$(date '+%Y-%m-%d_%H:%M:%S')"
+readonly BACKUP_PATH="${BACKUPS_ROOT}/${DATETIME}"
+readonly LATEST_BACKUP_LINK="${BACKUPS_ROOT}/latest"
+
+mkdir -p "${BACKUPS_ROOT}"
+
+# Sync files to /[backups root]/[date]/files
+rsync -av --delete \
+  "${SOURCE_DIR}/" \
+  --link-dest "${LATEST_BACKUP_LINK}/files" \
+  --exclude=".cache" \
+  "${BACKUP_PATH}/files"
+
+# Link /[backups root]/latest to this backup
+rm -rf "${LATEST_BACKUP_LINK}"
+ln -s "${BACKUP_PATH}" "${LATEST_BACKUP_LINK}"
