@@ -12,7 +12,7 @@ set -o pipefail
 
 readonly SOURCE_DIR="$1"
 readonly BACKUPS_ROOT="/var/backups/$2"
-readonly DATETIME="$(date '+%Y-%m-%d_%H:%M:%S')"
+readonly DATETIME="$(date '+%Y-%m-%d_%H:%M')"
 readonly BACKUP_PATH="${BACKUPS_ROOT}/${DATETIME}"
 readonly LATEST_BACKUP_LINK="${BACKUPS_ROOT}/latest"
 
