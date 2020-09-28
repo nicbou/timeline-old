@@ -2,6 +2,32 @@
 
 These scripts help me backup data on remote machines, and organize those backups.
 
+## tl;dr
+
+0. Set up SSH keys for `backups@home.nicolasbouliane.com`.
+1. Install the scripts as described below.
+1. On the source machine, call `backup-to-homeserver [src-dir] [remote-dir]`. It will backup `[src-dir]` to `home.nicolasbouliane.com:/home/backups/[remote-dir]`
+2. On the home server, call `incremental-backup /home/backups [dest-dir]`. It will incrementally backup `/home/backups` (all your backups) to `/var/backups/[dest-dir]`.
+
+## Setup
+
+### On the source machine
+```
+curl --remote-name https://raw.githubusercontent.com/nicbou/backups/master/scripts/backup-to-homeserver -o backup-to-homeserver && chmod a+x backup-to-homeserver && mv backup-to-homeserver /usr/bin/backup-to-homeserver
+```
+
+Then you can just call `backup-to-home-server [source-dir] [remote-destination-dir]`.
+
+### On the destination machine
+```
+curl --remote-name https://raw.githubusercontent.com/nicbou/backups/master/scripts/incremental-backup -o incremental-backup && chmod a+x incremental-backup && mv incremental-backup /usr/bin/incremental-backup
+```
+
+Then you can just call `incremental-backup [source-dir] [destination-subdir]`.
+
+
+## Available scripts
+
 ### backup-to-homeserver
 
 **Plain English:** This script backs up different machines to my home server. It copies a local folder to a predefined remote machine. It ignores any files you mention in an `.rsyncignore` file.
@@ -11,7 +37,7 @@ These scripts help me backup data on remote machines, and organize those backups
 **Example:**
 
 ```
-backup /home/nicolas home-backup
+backup-to-homeserver /home/nicolas home-backup
 
 $ ls /home/nicolas
 
@@ -48,4 +74,5 @@ $ ls /var/backups
 ---- /2020-09-28 17:45
 ------ /files
 -------- hello.txt
+---- /latest -> /2020-09-28 17:45
 ```
