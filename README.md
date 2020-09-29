@@ -2,51 +2,53 @@
 
 These scripts help me backup data on remote machines, and organize those backups.
 
-## tl;dr
-
-0. Set up SSH keys for `backups@home.nicolasbouliane.com`.
-1. Install the scripts as described below.
-1. On the source machine, call `backup-to-homeserver [src-dir] [remote-dir]`. It will backup `[src-dir]` to `home.nicolasbouliane.com:/home/backups/[remote-dir]`
-2. On the home server, call `incremental-backup /home/backups [dest-dir]`. It will incrementally backup `/home/backups` (all your backups) to `/var/backups/[dest-dir]`.
+I use rsync to copy the files. It only transfers the files that changed, saving time and bandwidth.
 
 ## Setup
 
 ### On the source machine
 ```
-curl --remote-name https://raw.githubusercontent.com/nicbou/backups/master/scripts/backup-to-homeserver -o backup-to-homeserver && chmod a+x backup-to-homeserver && mv backup-to-homeserver /usr/local/bin/backup-to-homeserver
+curl --remote-name https://raw.githubusercontent.com/nicbou/backups/master/scripts/backup-to-remote -o backup-to-remote && chmod a+x backup-to-remote && mv backup-to-remote /usr/local/bin/backup-to-remote
 ```
 
-Then you can just call `backup-to-home-server [source-dir] [remote-destination-dir]`.
+You will also need to [copy SSH keys](https://www.digitalocean.com/community/tutorials/how-to-set-up-ssh-keys-2) so that rsync works without asking for a password.
+
+```
+ssh-copy-id user@remote-host
+```
 
 ### On the destination machine
 ```
 curl --remote-name https://raw.githubusercontent.com/nicbou/backups/master/scripts/incremental-backup -o incremental-backup && chmod a+x incremental-backup && mv incremental-backup /usr/local/bin/incremental-backup
 ```
 
-Then you can just call `incremental-backup [source-dir] [destination-subdir]`.
+## Usage
 
+### backup-to-remote
 
-## Available scripts
+**Plain English:** This script copies a local folder to another machine. It ignores any files you mention in an `.rsyncignore` file.
 
-### backup-to-homeserver
-
-**Plain English:** This script backs up different machines to my home server. It copies a local folder to a predefined remote machine. It ignores any files you mention in an `.rsyncignore` file.
-
-**Programmer:** Rsyncs a local source to a hard-coded remote destination (`home.nicolasbouliane.com`). Ignores files listed in `.rsyncignore` files.
+**Programmer:** Rsyncs a local source to a subdirectory on a remote destination. Ignores files listed in `.rsyncignore` files.
 
 **Example:**
 
 ```
-backup-to-homeserver /home/nicolas home-backup
+backup-to-homeserver \
+    -u nicolas \
+    -H home.nicolasbouliane.com \
+    -p 2222 \
+    -o rsync-log.txt \
+    /local/files \
+    backups/files-backup
 
-$ ls /home/nicolas
+$ ls /local/files
 
-/home/nicolas
+/local/files
 -- hello.txt
 
-$ ls backups@home.nicolasbouliane.com:/home/backups
+$ ls nicolas@home.nicolasbouliane.com:/home/nicolas/backups/files-backup
 
-/home/backups
+/home/nicolas/backups
 -- /home-backup
 ---- hello.txt
 ```
