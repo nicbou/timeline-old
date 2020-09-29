@@ -13,14 +13,14 @@ These scripts help me backup data on remote machines, and organize those backups
 
 ### On the source machine
 ```
-curl --remote-name https://raw.githubusercontent.com/nicbou/backups/master/scripts/backup-to-homeserver -o backup-to-homeserver && chmod a+x backup-to-homeserver && mv backup-to-homeserver /usr/bin/backup-to-homeserver
+curl --remote-name https://raw.githubusercontent.com/nicbou/backups/master/scripts/backup-to-homeserver -o backup-to-homeserver && chmod a+x backup-to-homeserver && mv backup-to-homeserver /usr/local/bin/backup-to-homeserver
 ```
 
 Then you can just call `backup-to-home-server [source-dir] [remote-destination-dir]`.
 
 ### On the destination machine
 ```
-curl --remote-name https://raw.githubusercontent.com/nicbou/backups/master/scripts/incremental-backup -o incremental-backup && chmod a+x incremental-backup && mv incremental-backup /usr/bin/incremental-backup
+curl --remote-name https://raw.githubusercontent.com/nicbou/backups/master/scripts/incremental-backup -o incremental-backup && chmod a+x incremental-backup && mv incremental-backup /usr/local/bin/incremental-backup
 ```
 
 Then you can just call `incremental-backup [source-dir] [destination-subdir]`.
