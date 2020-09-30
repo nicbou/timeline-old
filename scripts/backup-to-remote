@@ -8,6 +8,10 @@ import sys
 default_log_file = '/var/log/rsync-backup.log'
 
 logger = logging.getLogger(__name__)
+log_handler = logging.StreamHandler(sys.stdout)
+log_handler.setLevel(logging.INFO)
+logger.addHandler(log_handler)
+logger.setLevel(logging.INFO)
 
 arg_parser = argparse.ArgumentParser(description='Backup local files to a remote host using rsync. Respects a .rsyncignore file.')
 arg_parser.add_argument(
@@ -58,6 +62,8 @@ assert os.path.isdir(source_dir)
 
 destination_dir = args.destination_dir.strip().strip('/')
 destination_path = f"{args.user}@{args.host}:~/{destination_dir}"
+
+logger.info(f'Backing up to {destination_path}...')
 
 # Run the backup
 rsync_command = [
