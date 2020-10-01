@@ -52,7 +52,7 @@ arg_parser.add_argument(
 args = arg_parser.parse_args()
 
 # Create log file directory
-log_path = os.path.abspath(args.log_path.strip().strip('/'))
+log_path = os.path.abspath(args.log_path.strip().rstrip('/'))
 os.makedirs(os.path.dirname(log_path), exist_ok=True)
 log_file = open(log_path, "w")
 
@@ -60,7 +60,7 @@ log_file = open(log_path, "w")
 source_dir = args.source_dir.strip().rstrip('/') + '/'
 assert os.path.isdir(source_dir)
 
-destination_dir = args.destination_dir.strip().strip('/')
+destination_dir = args.destination_dir.strip().strip('/')  # Always a relative path
 destination_path = f"{args.user}@{args.host}:~/{destination_dir}"
 
 logger.info(f'Backing up to {destination_path}...')
@@ -81,8 +81,8 @@ exit_code = subprocess.call(rsync_command, stdout=log_file, stderr=log_file)
 
 # Report the results
 if exit_code == 0:
-    logger.info("Rsync backup successful")
+    logger.info(f"Rsync backup successful. The rsync log is at {log_path}")
 else:
-    logger.error(f"Rsync backup failed with exit code {exit_code}")
+    logger.error(f"Rsync backup failed with exit code {exit_code}. The rsync log is at {log_path}")
 
 sys.exit(exit_code)
