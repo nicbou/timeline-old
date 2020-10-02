@@ -6,6 +6,8 @@ I use rsync to copy the files. It only transfers the files that changed, saving 
 
 ## Setup
 
+These scripts require Python 3.5+. `generate-previews` requires `ffmpeg` and `ffprobe` (included with ffmpeg).
+
 ### On the source machine
 ```
 curl --remote-name https://raw.githubusercontent.com/nicbou/backups/master/scripts/backup-to-remote -o backup-to-remote && chmod a+x backup-to-remote && mv backup-to-remote /usr/local/bin/backup-to-remote
