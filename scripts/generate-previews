@@ -48,12 +48,6 @@ def get_parent_schema(schema):
     return '.'.join(schema.split('.')[:-1])
 
 
-def generate_audio_preview(previews_dir: str, file: dict):
-    logger.info(f"Generating audio preview for {file['path']}")
-    file_path = os.path.join(previews_dir, f"{file['checksum']}.mp3")
-    os.close(os.open(file_path, os.O_CREAT))
-
-
 def generate_video_preview(previews_dir: str, file: dict):
     logger.info(f"Generating video preview for {file['path']}")
     preview_path = os.path.abspath(os.path.join(previews_dir, f"{file['checksum']}.jpg"))
@@ -65,8 +59,8 @@ def generate_video_preview(previews_dir: str, file: dict):
     ffprobe_output = ffprobe_cmd.stdout.decode('utf-8')
     try:
         total_frame_count = int(re.search('nb_frames=([0-9]+)', ffprobe_output).group(1))
-    except AttributeError:  # Frame count is N/A
-        pass
+    except AttributeError:  # Frame count is "N/A"
+        return  # There are other ways to get frame count: https://www.binpress.com/generate-video-previews-ffmpeg/
 
     preview_frame_count = 10
     frame_interval = total_frame_count // preview_frame_count
@@ -75,7 +69,6 @@ def generate_video_preview(previews_dir: str, file: dict):
     ffmpeg_cmd = subprocess.run(
         [
             'ffmpeg',
-            '-loglevel', 'panic',
             '-y',
             '-i', file['path'],
             '-frames', '1',
@@ -89,12 +82,22 @@ def generate_video_preview(previews_dir: str, file: dict):
 
 def generate_image_preview(previews_dir: str, file: dict):
     logger.info(f"Generating image preview for {file['path']}")
-    file_path = os.path.join(previews_dir, f"{file['checksum']}.jpg")
-    os.close(os.open(file_path, os.O_CREAT))
+    preview_path = os.path.abspath(os.path.join(previews_dir, f"{file['checksum']}.jpg"))
+    frame_height = 120
+    ffmpeg_cmd = subprocess.run(
+        [
+            'ffmpeg',
+            '-y',
+            '-i', file['path'],
+            '-vf', f'scale=-1:{frame_height}',
+            preview_path
+        ],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
+    print(ffmpeg_cmd.stderr.decode('utf-8'))
 
 
 preview_strategies = {
-    'file.audio': generate_audio_preview,
     'file.image': generate_image_preview,
     'file.video': generate_video_preview,
 }
