@@ -17,7 +17,7 @@ log_handler.setLevel(logging.INFO)
 logger.addHandler(log_handler)
 logger.setLevel(logging.INFO)
 
-arg_parser = argparse.ArgumentParser(description='Generates file previews from a JSON history')
+arg_parser = argparse.ArgumentParser(description='Generates file previews from a JSON history, removes obsolete previews.')
 arg_parser.add_argument(
     'input_json',
     help='The JSON history file to read',
