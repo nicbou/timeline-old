@@ -30,6 +30,12 @@ arg_parser.add_argument(
     help='The output directory where the previews will be saved',
     type=str,
 )
+arg_parser.add_argument(
+    '--preview-height',
+    default=120,
+    help='The height of preview images/videos',
+    type=str,
+)
 args = arg_parser.parse_args()
 
 assert os.path.isfile(args.input_json)
@@ -64,7 +70,7 @@ def generate_video_preview(previews_dir: str, file: dict):
 
     preview_frame_count = 10
     frame_interval = total_frame_count // preview_frame_count
-    frame_height = 120
+    frame_height = args.preview_height
 
     ffmpeg_cmd = subprocess.run(
         [
@@ -83,7 +89,7 @@ def generate_video_preview(previews_dir: str, file: dict):
 def generate_image_preview(previews_dir: str, file: dict):
     logger.info(f"Generating image preview for {file['path']}")
     preview_path = os.path.abspath(os.path.join(previews_dir, f"{file['checksum']}.jpg"))
-    frame_height = 120
+    frame_height = args.preview_height
     ffmpeg_cmd = subprocess.run(
         [
             'ffmpeg',
