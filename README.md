@@ -105,7 +105,7 @@ $ cat output.json
             "schema":"file.code.css",
             "title":"style.css",
             "description":"",
-            "dateUpdated":"2020-10-01T11:00:42.244802",
+            "dateUpdated":"2020-10-01T11:00",
             "path":"/Users/nicolas/Documents/Projects/AllAboutBerlin/source/site/craft/templates/css/style.css",
             "checksum":"b0ce67831a9b8379db6b79cbe2ec94b4500f80fd6f7e013a830cf7ba663e413f3e466ed5417f558d48d6760d13e7fe2af07c7ad59a25cadde7bd7c681726023d"
          }
@@ -115,7 +115,7 @@ $ cat output.json
             "schema":"file.code.css",
             "title":"style.css",
             "description":"",
-            "dateUpdated":"2020-09-30T18:43:02.874707",
+            "dateUpdated":"2020-09-30T18:43:02",
             "path":"/Users/nicolas/Documents/Projects/NicolasBouliane3/source/site/static/css/style.css",
             "checksum":"f4dafad10572b264ceed6b61fcf761def42cfbb8b203bf5e2dd1928a1b829ca101ea2c548e30c38b81e4b4a1b4679df4a3d561e77829e21b4ac0f4b208b16e9c"
          },
@@ -123,7 +123,7 @@ $ cat output.json
             "schema":"file.code.javascript",
             "title":"events.js",
             "description":"",
-            "dateUpdated":"2020-09-30T18:40:52.714240",
+            "dateUpdated":"2020-09-30T18:40:52",
             "path":"/Users/nicolas/Documents/Projects/NicolasBouliane3/source/site/static/js/events.js",
             "checksum":"a2f8ed83a574eb91f8981ac45b773feae17b72949a908bf7955e355926ea61241346d8af7747027cc164d6e838426b073089bbb9be2c5acf5db4c5e4bd0cd1c0"
          }
@@ -133,7 +133,7 @@ $ cat output.json
 
 ### generate-previews
 
-**Plain English:** Generates file previews for file histories created by `generate-history`. Existing previews are reused. Obsolete previews are deleted.
+**Plain English:** Generates file previews for file histories created by `generate-history`. Existing previews are reused. Obsolete previews are deleted. The previews are named after the file's checksum.
 
 **Example:**
 
