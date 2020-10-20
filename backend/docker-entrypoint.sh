@@ -10,7 +10,6 @@ python manage.py collectstatic --noinput  # Collect static files
 mkdir -p /var/log/backend
 touch /var/log/backend/gunicorn.log
 touch /var/log/backend/access.log
-touch /var/log/backend/cron.log
 tail -n 0 -f /var/log/backend/*.log &
 service rsyslog start
 

@@ -20,6 +20,7 @@ services:
       - ./backend/source:/usr/src/app
       - backups:/srv/backups
       - ./scripts:/usr/src/scripts:ro
+      - ssh_keys:/root/.ssh
     privileged: true
     userns_mode: "host"
   frontend:
@@ -42,3 +43,4 @@ services:
 volumes:
   db_persistence:
   backups:
+  ssh_keys:
