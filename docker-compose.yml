@@ -19,6 +19,7 @@ services:
     volumes:
       - ./backend/source:/usr/src/app
       - backups:/srv/backups
+      - backend_staticfiles:/srv/static
       - ./scripts:/usr/src/scripts:ro
       - ssh_keys:/root/.ssh
     privileged: true
@@ -39,8 +40,10 @@ services:
       - backend
     volumes:
       - backups:/srv/backups
+      - backend_staticfiles:/srv/static
       - "./proxy/ssl-certs:/etc/ssl/certs"
 volumes:
   db_persistence:
   backups:
   ssh_keys:
+  backend_staticfiles:

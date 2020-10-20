@@ -5,6 +5,7 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+STATIC_ROOT = '/srv/static'
 BACKUPS_ROOT = '/srv/backups'
 RSYNC_LOG_PATH = '/var/log/rsync-backup.log'
 SSH_DIR = '/root/.ssh'
