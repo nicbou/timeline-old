@@ -1,0 +1,44 @@
+version: "2.1"
+services:
+  db:
+    image: postgres:9.6
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - db_persistence:/var/lib/postgresql/data
+    userns_mode: "host"
+  backend:
+    build: backend
+    environment:
+      - BACKEND_DEBUG
+      - BACKEND_SECRET_KEY
+    depends_on:
+      - db
+    volumes:
+      - ./backend/source:/usr/src/app
+      - backups:/srv/backups
+      - ./scripts:/usr/src/scripts:ro
+    privileged: true
+    userns_mode: "host"
+  frontend:
+    image: nginx
+    volumes:
+      - ./frontend/source:/usr/share/nginx/html:ro
+    depends_on:
+      - backend
+  proxy:
+    build: proxy
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - frontend
+      - backend
+    volumes:
+      - backups:/srv/backups
+      - "./proxy/ssl-certs:/etc/ssl/certs"
+volumes:
+  db_persistence:
+  backups:
