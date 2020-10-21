@@ -1,6 +1,8 @@
 # Backup tools
 
-A web-based backend to schedule and browse backups from multiple remote machines.
+A web-based app to schedule, browse and manage backups from multiple remote machines.
+
+Basically, it's rsync with an API and a fancy GUI.
 
 ## Setup
 
@@ -17,3 +19,21 @@ COMPOSE_PROJECT_NAME=timeline
 ```
 
 2. Run `docker-compose up --build -d` to start the server.
+
+## Backing up Sources
+
+Use the API to add new sources. The supplied password will be used to copy SSH keys on the Source server. The password is not saved.
+
+Once added, Sources are backed up automatically using `rsync`. The backups are incremental. The files are only transferred once, unless they change.
+
+You can force a new backup by calling `scripts/run_backups.sh`. It will back up all the Sources.
+
+You can create `.rsyncignore` files on the Source filesystem to exclude files from the backup. It works like a `.gitignore` file.
+
+Example `.rsyncignore file`:
+```
+.git
+.DS_Store
+__pycache__
+*.iso
+```
