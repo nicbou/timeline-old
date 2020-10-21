@@ -17,6 +17,11 @@ service rsyslog start
 > /srv/cronenv
 printf "export BACKEND_SECRET_KEY=%q\n" "${BACKEND_SECRET_KEY}" >> /srv/cronenv
 
+mkfifo /tmp/stdout /tmp/stderr
+chmod 0666 /tmp/stdout /tmp/stderr
+tail -f /tmp/stdout &
+tail -f /tmp/stderr >&2 &
+
 crontab /srv/crontab
 service cron start
 
