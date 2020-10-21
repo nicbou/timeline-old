@@ -17,12 +17,21 @@ class BackupSource(models.Model):
 
     @property
     def latest_backup_path(self):
-        return os.path.join(self.backups_root, 'latest')
+        return os.path.join(self.backups_root, 'latest', 'files')
+
+    @property
+    def latest_backup_log_path(self):
+        return os.path.join(self.latest_backup_path, 'rsync.log')
 
     def backup_path_from_datetime(self, date):
-        return os.path.join(self.backups_root, date.strftime("%Y-%m-%dT%H.%M.%SZ"))
+        return os.path.join(self.backups_root, date.strftime("%Y-%m-%dT%H.%M.%SZ"), 'files')
+
+    def backup_log_path_from_datetime(self, date):
+        return os.path.join(self.backups_root, date.strftime("%Y-%m-%dT%H.%M.%SZ"), 'rsync.log')
 
     def datetime_from_backup_path(self, path):
+        if os.path.basename(path) == 'files':  # remove "/files" at the end, if necessary
+            path = os.path.dirname(path)
         return datetime.strptime(os.path.basename(path), "%Y-%m-%dT%H.%M.%SZ")
 
     def __str__(self):

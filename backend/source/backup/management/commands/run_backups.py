@@ -12,11 +12,12 @@ logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
     help = 'Backs up the remote sources one by one.'
-    rsync_log_path = settings.RSYNC_LOG_PATH
 
     def backup_source(self, source: BackupSource):
+        now = datetime.utcnow()
+
         # Log path
-        rsync_log_path = os.path.abspath(self.rsync_log_path.strip().rstrip('/'))
+        rsync_log_path = source.backup_log_path_from_datetime(now)
         os.makedirs(os.path.dirname(rsync_log_path), exist_ok=True)
         rsync_log_file = open(rsync_log_path, "w")
 
@@ -34,8 +35,8 @@ class Command(BaseCommand):
         # Run rsync
         rsync_command = [
             "rsync",
-            "-avz",
-            "--stats",
+            "-az",
+            "--itemize-changes",
             "--delete",
             "-e", f"ssh -p {source.port}",
             "--filter", ":- .rsyncignore",

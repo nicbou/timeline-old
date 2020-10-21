@@ -40,9 +40,13 @@ class BackupViewSet(viewsets.ViewSet):
         backup_paths = sorted(next(os.walk(source.backups_root))[1], reverse=True)
         for backup_path in backup_paths:
             try:
+                backup_date = source.datetime_from_backup_path(backup_path)
                 backups.append({
-                    'date': source.datetime_from_backup_path(backup_path),
-                    'path': os.path.join(source.backups_root, backup_path),
+                    'date': backup_date,
+                    'paths': {
+                        'files': source.backup_path_from_datetime(backup_date),
+                        'log': source.backup_log_path_from_datetime(backup_date),
+                    },
                 })
             except ValueError:
                 pass  # Not a backup directory
