@@ -1,15 +1,17 @@
 from .models import BackupSource
-from rest_framework import permissions
-from rest_framework import viewsets
 from .serializers import BackupSourceSerializer
 from django.core.management import call_command
+from rest_framework import permissions
+from rest_framework import viewsets
+from rest_framework.response import Response
 import logging
+import os
 
 logger = logging.getLogger(__name__)
 
 
 class BackupSourceViewSet(viewsets.ModelViewSet):
-    queryset = BackupSource.objects.all().order_by('host')
+    queryset = BackupSource.objects.all().order_by('key')
     serializer_class = BackupSourceSerializer
     permission_classes = [permissions.AllowAny]
 
@@ -22,5 +24,23 @@ class BackupSourceViewSet(viewsets.ModelViewSet):
             host=data.get('host'),
             port=data.get('port'),
         )
-        
+
         return super().perform_create(serializer)
+
+
+class BackupViewSet(viewsets.ViewSet):
+    def list(self, request):
+        backups_by_source_key = {}
+        for source in BackupSource.objects.all().order_by('key'):
+            backups_by_source_key[source.key] = []
+            backup_paths = sorted(next(os.walk(source.backups_root))[1], reverse=True)
+            for backup_path in backup_paths:
+                try:
+                    backups_by_source_key[source.key].append({
+                        'date': source.datetime_from_backup_path(backup_path),
+                        'path': os.path.join(source.backups_root, backup_path),
+                    })
+                except ValueError:
+                    pass  # Not a backup directory
+
+        return Response(backups_by_source_key)
