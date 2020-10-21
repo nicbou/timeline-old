@@ -25,14 +25,13 @@ class Command(BaseCommand):
 
         # Source path
         source_dir = source.path.strip().rstrip('/') + '/'
-        source_path = f"{source.user}@{source.host}:{source_dir}"
+        source_path = f'{source.user}@{source.host}:"{source_dir}"'
         logging.info(f"Source for {source.key} is {source_path}")
 
         # Destination paths
         destination_dir = os.path.abspath(os.path.join(settings.BACKUPS_ROOT, source.key))
         current_date = datetime.utcnow().strftime("%Y-%m-%dT%H%M%SZ")
         latest_backup_path = os.path.join(destination_dir, 'latest')
-        os.makedirs(latest_backup_path, exist_ok=True)
         current_backup_path = os.path.join(destination_dir, current_date)
         logging.info(f"Destination for {source.key} is {current_backup_path}")
         os.makedirs(current_backup_path, exist_ok=True)
@@ -64,8 +63,12 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         sources = BackupSource.objects.all()
+        logger.info(f"Backing up {len(sources)} sources")
+        failure_count = 0
         for source in sources:
             try:
                 self.backup_source(source)
             except:
                 logger.exception(f"Failed to back up {source}")
+                failure_count += 1
+        logger.info(f"Backup finished. {len(sources) - failure_count} successful, {failure_count} failed.")
