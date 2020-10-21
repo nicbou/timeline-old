@@ -15,9 +15,6 @@ RUN pip install -r requirements.txt
 
 COPY ssh_config /etc/ssh/ssh_config
 
-# Install backup scripts
-ENV PATH="/usr/src/scripts:${PATH}"
-
 # Start the backend
 WORKDIR /usr/src/app
 EXPOSE 80
