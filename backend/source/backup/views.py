@@ -11,6 +11,9 @@ logger = logging.getLogger(__name__)
 
 
 class BackupSourceViewSet(viewsets.ModelViewSet):
+    """
+    List and manage backup Sources. A Source is a remote server from which files are backed up.
+    """
     queryset = BackupSource.objects.all().order_by('key')
     serializer_class = BackupSourceSerializer
     permission_classes = [permissions.AllowAny]
@@ -29,18 +32,28 @@ class BackupSourceViewSet(viewsets.ModelViewSet):
 
 
 class BackupViewSet(viewsets.ViewSet):
-    def list(self, request):
-        backups_by_source_key = {}
-        for source in BackupSource.objects.all().order_by('key'):
-            backups_by_source_key[source.key] = []
-            backup_paths = sorted(next(os.walk(source.backups_root))[1], reverse=True)
-            for backup_path in backup_paths:
-                try:
-                    backups_by_source_key[source.key].append({
-                        'date': source.datetime_from_backup_path(backup_path),
-                        'path': os.path.join(source.backups_root, backup_path),
-                    })
-                except ValueError:
-                    pass  # Not a backup directory
+    """
+    List and manage Backups on the filesystem. A Backup is a set of files generated when a Source is backed up.
+    """
+    def get_backups_for_source(self, source):
+        backups = []
+        backup_paths = sorted(next(os.walk(source.backups_root))[1], reverse=True)
+        for backup_path in backup_paths:
+            try:
+                backups.append({
+                    'date': source.datetime_from_backup_path(backup_path),
+                    'path': os.path.join(source.backups_root, backup_path),
+                })
+            except ValueError:
+                pass  # Not a backup directory
+        return backups
 
+    def list(self, request):
+        backups_by_source_key = {
+            source.key: self.get_backups_for_source(source)
+            for source in BackupSource.objects.all().order_by('key')
+        }
         return Response(backups_by_source_key)
+
+    def retrieve(self, request, pk=None):
+        return Response(self.get_backups_for_source(BackupSource.objects.get(pk=pk)))
