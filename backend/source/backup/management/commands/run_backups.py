@@ -53,7 +53,10 @@ class Command(BaseCommand):
 
         if exit_code == 0:
             logger.info(f"{source} backup successful. The rsync log is at {rsync_log_path}")
-            os.unlink(latest_backup_path)
+            try:
+                os.unlink(latest_backup_path)
+            except FileNotFoundError:
+                pass  # Symlink does not exist on first backup
             os.symlink(current_backup_path, latest_backup_path, target_is_directory=True)
             logger.info(f"{latest_backup_path} now points to latest backup")
         else:
