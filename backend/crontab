@@ -1,0 +1,4 @@
+# Don't forget to leave a newline before the end of this file. Otherwise crontab will quietly stop working, obviously.
+SHELL=/bin/bash
+
+0 */6 * * * source /srv/cronenv; /usr/local/bin/python /usr/src/app/manage.py run_backups

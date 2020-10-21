@@ -13,6 +13,13 @@ touch /var/log/backend/access.log
 tail -n 0 -f /var/log/backend/*.log &
 service rsyslog start
 
+# Activate cron with all Django environment variables
+> /srv/cronenv
+printf "export BACKEND_SECRET_KEY=%q\n" "${BACKEND_SECRET_KEY}" >> /srv/cronenv
+
+crontab /srv/crontab
+service cron start
+
 # Start Gunicorn processes
 echo Starting Gunicorn.
 exec gunicorn backend.wsgi:application \
