@@ -79,13 +79,12 @@ DATABASES = {
 
 # Logging
 LOGGING_CONFIG = None
-LOGLEVEL = os.getenv('DJANGO_LOGLEVEL', 'info').upper()
 logging.config.dictConfig({
     'version': 1,
     'disable_existing_loggers': False,
     'formatters': {
         'console': {
-            'format': '%(asctime)s %(levelname)s [%(name)s:%(lineno)s] %(module)s %(process)d %(thread)d %(message)s',
+            'format': '%(asctime)s %(levelname)s [%(name)s:%(lineno)s] %(message)s',
         },
     },
     'handlers': {
@@ -96,7 +95,7 @@ logging.config.dictConfig({
     },
     'loggers': {
         '': {
-            'level': LOGLEVEL,
+            'level': 'INFO',
             'handlers': ['console',],
         },
     },
