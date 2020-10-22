@@ -8,11 +8,10 @@ import os
 
 
 class Backup:
-    """
-    Describes set of files created after a single backup run
-    """
-    source: 'BackupSource' = None
-    date: datetime = None
+    """Describes set of files created after a single backup run"""
+
+    source = None
+    date = None
     date_format = '%Y-%m-%dT%H.%M.%SZ'  # Using colons would break things
     latest_backup_dirname = 'latest'
 
@@ -40,6 +39,13 @@ class Backup:
     @property
     def files_path(self) -> Path:
         return self.root_path / 'files'
+
+    def changed_files(self) -> Generator[Path, None, None]:
+        for line in self.log_path.open('r').readlines():
+            is_file = line[1] == 'f'
+            has_content_changed = line[0] == '>' and not (line[3] == line[4] == '.')
+            if is_file and has_content_changed:
+                yield self.files_path / line.split(' ', 1)[1].strip()
 
 
 class BackupSource(models.Model):

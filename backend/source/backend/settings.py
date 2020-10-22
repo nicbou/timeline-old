@@ -117,6 +117,35 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+SUPPORTED_MIMETYPES = [
+    'application/epub+zip',
+    'application/gzip',
+    'application/javascript',
+    'application/json',
+    'application/msword',
+    'application/pdf',
+    'application/postscript',
+    'application/rar',
+    'application/vnd.google-earth*',
+    'application/vnd.ms-excel*',
+    'application/vnd.ms-powerpoint*',
+    'application/vnd.oasis.opendocument*',
+    'application/vnd.openxmlformats-officedocument',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/x-7z-compressed',
+    'application/x-bzip',
+    'application/x-bzip2',
+    'application/x-latex',
+    'application/x-sh',
+    'application/x-sql',
+    'application/xml',
+    'application/zip',
+    'audio',
+    'image',
+    'text',
+    'video',
+]
+
 
 # Internationalization
 LANGUAGE_CODE = 'en-us'
