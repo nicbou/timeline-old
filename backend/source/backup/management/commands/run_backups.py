@@ -1,4 +1,4 @@
-from backup.models import BackupSource
+from backup.models import BackupSource, Backup
 from datetime import datetime
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
@@ -16,20 +16,14 @@ class Command(BaseCommand):
         current_backup = Backup(source, datetime.utcnow())
         latest_backup = Backup(source)
 
-        # Log path
-        current_backup.log_path.mkdir(parents=True, exist_ok=True)
-        rsync_log_file = current_backup.log_path.open('r')
-
-        # Source path
         source_dir = source.path.strip().rstrip('/') + '/'
         source_path = f'{source.user}@{source.host}:"{source_dir}"'
 
-        # Destination path
         current_backup.files_path.mkdir(parents=True, exist_ok=True)
 
-        logger.info(f"Backing up {source.key} ({source_path}) to {current_backup.files_path}")
-
         # Run rsync
+        logger.info(f"Backing up {source.key} ({source_path}) to {str(current_backup.files_path)}")
+        log_file = current_backup.log_path.open('w+')
         rsync_command = [
             "rsync",
             "-az",
@@ -41,14 +35,14 @@ class Command(BaseCommand):
             source_path,
             str(current_backup.files_path.resolve()),
         ]
-        exit_code = subprocess.call(rsync_command, stdout=rsync_log_file, stderr=rsync_log_file)
+        exit_code = subprocess.call(rsync_command, stdout=log_file, stderr=log_file)
 
         if exit_code == 0:
-            logger.info(f"{source.key} backup successful. Rsync log is at {current_backup.log_path}")
-            latest_backup.files_path.unlink(missing_ok=True)
-            latest_backup.files_path.symlink_to(current_backup.files_path, target_is_directory=True)
+            logger.info(f"{source.key} backup successful. Rsync log is at {str(current_backup.log_path)}")
+            latest_backup.root_path.unlink(missing_ok=True)
+            latest_backup.root_path.symlink_to(current_backup.root_path, target_is_directory=True)
         else:
-            logger.error(f"{source} backup failed (exit code {exit_code}). Rsync log is at {current_backup.log_path}")
+            logger.error(f"{source} backup failed (exit code {exit_code}). Rsync log is at {str(current_backup.log_path)}")
             raise Exception("Rsync backup failed")
 
 
