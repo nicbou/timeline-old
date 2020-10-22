@@ -36,21 +36,17 @@ class BackupViewSet(viewsets.ViewSet):
     List and manage Backups on the filesystem. A Backup is a set of files generated when a Source is backed up.
     """
     def get_backups_for_source(self, source):
-        backups = []
-        backup_paths = sorted(next(os.walk(source.backups_root))[1], reverse=True)
-        for backup_path in backup_paths:
-            try:
-                backup_date = source.datetime_from_backup_path(backup_path)
-                backups.append({
-                    'date': backup_date,
-                    'paths': {
-                        'files': source.backup_path_from_datetime(backup_date),
-                        'log': source.backup_log_path_from_datetime(backup_date),
-                    },
-                })
-            except ValueError:
-                pass  # Not a backup directory
-        return backups
+        return [
+            {
+                'date': backup.date,
+                'paths': {
+                    'root': str(backup.root_path.resolve()),
+                    'files': str(backup.files_path.resolve()),
+                    'log': str(backup.log_path.resolve()),
+                },
+            }
+            for backup in source.backups
+        ]
 
     def list(self, request):
         backups_by_source_key = {

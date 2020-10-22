@@ -3,7 +3,6 @@ from datetime import datetime
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 import logging
-import os
 import subprocess
 
 
@@ -14,23 +13,21 @@ class Command(BaseCommand):
     help = 'Backs up the remote sources one by one.'
 
     def backup_source(self, source: BackupSource):
-        now = datetime.utcnow()
+        current_backup = Backup(source, datetime.utcnow())
+        latest_backup = Backup(source)
 
         # Log path
-        rsync_log_path = source.backup_log_path_from_datetime(now)
-        os.makedirs(os.path.dirname(rsync_log_path), exist_ok=True)
-        rsync_log_file = open(rsync_log_path, "w")
+        current_backup.log_path.mkdir(parents=True, exist_ok=True)
+        rsync_log_file = current_backup.log_path.open('r')
 
         # Source path
         source_dir = source.path.strip().rstrip('/') + '/'
         source_path = f'{source.user}@{source.host}:"{source_dir}"'
 
-        # Destination paths
-        latest_backup_path = source.latest_backup_path
-        current_backup_path = source.backup_path_from_datetime(datetime.utcnow())
-        os.makedirs(current_backup_path, exist_ok=True)
+        # Destination path
+        current_backup.files_path.mkdir(parents=True, exist_ok=True)
 
-        logger.info(f"Backing up {source.key} ({source_path}) to {current_backup_path}")
+        logger.info(f"Backing up {source.key} ({source_path}) to {current_backup.files_path}")
 
         # Run rsync
         rsync_command = [
@@ -40,21 +37,18 @@ class Command(BaseCommand):
             "--delete",
             "-e", f"ssh -p {source.port}",
             "--filter", ":- .rsyncignore",
-            "--link-dest", latest_backup_path,
+            "--link-dest", str(latest_backup.files_path.resolve()),
             source_path,
-            current_backup_path,
+            str(current_backup.files_path.resolve()),
         ]
         exit_code = subprocess.call(rsync_command, stdout=rsync_log_file, stderr=rsync_log_file)
 
         if exit_code == 0:
-            logger.info(f"{source.key} backup successful. Rsync log is at {rsync_log_path}")
-            try:
-                os.unlink(latest_backup_path)
-            except FileNotFoundError:
-                pass  # Symlink does not exist on first backup
-            os.symlink(current_backup_path, latest_backup_path, target_is_directory=True)
+            logger.info(f"{source.key} backup successful. Rsync log is at {current_backup.log_path}")
+            latest_backup.files_path.unlink(missing_ok=True)
+            latest_backup.files_path.symlink_to(current_backup.files_path, target_is_directory=True)
         else:
-            logger.error(f"{source} backup failed (exit code {exit_code}). Rsync log is at {rsync_log_path}")
+            logger.error(f"{source} backup failed (exit code {exit_code}). Rsync log is at {current_backup.log_path}")
             raise Exception("Rsync backup failed")
 
 

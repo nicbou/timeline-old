@@ -6,7 +6,7 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 STATIC_ROOT = '/srv/static'
-BACKUPS_ROOT = '/srv/backups'
+BACKUPS_ROOT = Path('/srv/backups').resolve()
 SSH_DIR = '/root/.ssh'
 
 
