@@ -1,14 +1,14 @@
 from timeline.models import Entry
-from backup.models import BackupSource, Backup
-from collections import namedtuple
+from backup.models import BackupSource
 from datetime import datetime
-from django.conf import settings
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from pathlib import Path
 import logging
 import mimetypes
 import os
+import pytz
 import subprocess
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +30,10 @@ class Command(BaseCommand):
                 if self.is_file_allowed(changed_file):
                     yield changed_file
 
-    def get_schema(self, file_path: Path):
+    def get_file_date(self, file_path: Path) -> datetime:
+        return datetime.fromtimestamp(file_path.stat().st_mtime, pytz.UTC)
+
+    def get_schema(self, file_path: Path) -> str:
         schema = 'file'
         guessed_type = mimetypes.guess_type(file_path, strict=False)[0]
         if not guessed_type:
@@ -51,10 +54,15 @@ class Command(BaseCommand):
         return schema
 
     def handle(self, *args, **options):
+        """
+        Deletes and recreates entries for a given source.
+        """
         sources = BackupSource.objects.all()
         logger.info(f"Generating entries for {len(sources)} backup sources")
         for source in sources:
             backups = source.backups
+            logger.info(f"Deleting existing entries for {source}")
+            Entry.objects.filter(extra_attributes__source=source.id).delete()
             logger.info(f"Generating entries for {source}")
             for backup in backups:
                 Entry.objects.bulk_create([
@@ -62,10 +70,12 @@ class Command(BaseCommand):
                         schema=self.get_schema(changed_file),
                         title=changed_file.name,
                         description='',
-                        date_on_timeline=backup.date,
+                        date_on_timeline=self.get_file_date(changed_file),
                         extra_attributes={
                             'path': str(changed_file.resolve()),
+                            'source': source.id,
                         }
                     )
                     for changed_file in backup.changed_files()
                 ])
+        logger.info(f"Backup entries generated.")
