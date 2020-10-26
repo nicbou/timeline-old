@@ -19,6 +19,7 @@ services:
     volumes:
       - ./backend/source:/usr/src/app
       - backups:/srv/backups
+      - previews:/srv/previews
       - backend_staticfiles:/srv/static
       - ./scripts:/usr/src/scripts:ro
       - ssh_keys:/root/.ssh
