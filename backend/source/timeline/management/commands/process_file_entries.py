@@ -42,6 +42,38 @@ class Command(BaseCommand):
     def set_image_exif(self, entry: Entry):
         pass
 
+    def set_pdf_previews(self, entry: Entry):
+        original_path = Path(entry.extra_attributes['path']).resolve()
+
+        logger.info(f"Generating PDF previews for #{entry.id} ({str(original_path)})")
+
+        checksum = entry.extra_attributes['checksum']
+
+        entry.extra_attributes['previews'] = {}
+        preview_root = settings.PREVIEWS_ROOT / checksum
+        preview_root.mkdir(parents=True, exist_ok=True)
+        for preview_name, preview_params in settings.IMAGE_PREVIEW_SIZES.items():
+            preview_path = (preview_root / f'{preview_name}.png').resolve()
+
+            if preview_path.exists():
+                logger.info(f'"{preview_name}" preview for #{entry.id} already exists.')
+            else:
+                try:
+                    subprocess.run(
+                        [
+                            'convert',
+                            '-resize', f"x{preview_params['height']}",
+                            f"{str(original_path)}[0]",
+                            str(preview_path),
+                        ],
+                        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                        check=True,
+                    )
+                except subprocess.CalledProcessError as exc:
+                    logger.error(f'Could not generate preview for entry #{entry.id} ({str(original_path)}).\nffmpeg output:\n{exc.stderr}')
+
+            entry.extra_attributes['previews'][preview_name] = str(preview_path)
+
     def set_image_previews(self, entry: Entry):
         original_path = Path(entry.extra_attributes['path']).resolve()
         original_media_attrs = self.get_media_attributes(original_path)
@@ -67,10 +99,9 @@ class Command(BaseCommand):
                     try:
                         subprocess.run(
                             [
-                                'ffmpeg',
-                                '-y',
-                                '-i', str(original_path),
-                                '-vf', f"scale=-1:{preview_params['height']}",
+                                'convert',
+                                '-resize', f"x{preview_params['height']}",
+                                f"{str(original_path)}[0]",
                                 str(preview_path),
                             ],
                             stdout=subprocess.PIPE, stderr=subprocess.PIPE,
@@ -141,6 +172,8 @@ class Command(BaseCommand):
             ])
         elif entry.schema.startswith('file.video'):
             tasks.append(self.set_video_previews)
+        elif entry.schema.startswith('file.document.pdf'):
+            tasks.append(self.set_pdf_previews)
 
         return tasks
 

@@ -41,15 +41,14 @@ class Command(BaseCommand):
 
         if guessed_type.startswith('image/'):
             schema += '.image'
-        
-        if guessed_type.startswith('video/'):
+        elif guessed_type.startswith('video/'):
             schema += '.video'
-        
         elif guessed_type.startswith('audio/'):
             schema += '.audio'
-        
         elif guessed_type.startswith('text/'):
             schema += '.text'
+        elif guessed_type == 'application/pdf':
+            schema += '.document.pdf'
 
         return schema
 

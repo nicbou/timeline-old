@@ -5,6 +5,8 @@ RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         cron \
         ffmpeg \
+        ghostscript \
+        imagemagick \
         mime-support \
         netcat \
         openssh-client \
@@ -18,6 +20,9 @@ RUN apt-get update \
 # openssh-client: To copy SSH keys to sources
 # rsync: To backup files
 # rsyslog: To log everything
+
+# https://stackoverflow.com/questions/52998331/imagemagick-security-policy-pdf-blocking-conversion
+RUN sed -i '/disable ghostscript format types/,+6d' /etc/ImageMagick-6/policy.xml 
 
 COPY requirements.txt ./
 RUN pip install -r requirements.txt
