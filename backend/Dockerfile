@@ -4,6 +4,7 @@ FROM python:slim
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         cron \
+        ffmpeg \
         mime-support \
         netcat \
         openssh-client \

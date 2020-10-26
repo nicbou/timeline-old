@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    help = 'Generates timeline entries for a backup'
+    help = 'Deletes and recreates timeline entries for a given source.'
 
     def is_file_allowed(self, file_path: Path):
         mimetype = mimetypes.guess_type(file_path, strict=False)
@@ -54,9 +54,6 @@ class Command(BaseCommand):
         return schema
 
     def handle(self, *args, **options):
-        """
-        Deletes and recreates entries for a given source.
-        """
         sources = BackupSource.objects.all()
         logger.info(f"Generating entries for {len(sources)} backup sources")
         for source in sources:

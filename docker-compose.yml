@@ -40,10 +40,12 @@ services:
       - backend
     volumes:
       - backups:/srv/backups
+      - previews:/srv/previews
       - backend_staticfiles:/srv/static
       - "./proxy/ssl-certs:/etc/ssl/certs"
 volumes:
   db_persistence:
   backups:
+  previews:
   ssh_keys:
   backend_staticfiles:
