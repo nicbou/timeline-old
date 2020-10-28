@@ -9,6 +9,13 @@ import subprocess
 logger = logging.getLogger(__name__)
 
 
+class SSHCredentialsError(CommandError):
+    pass
+
+class SSHTimeoutError(CommandError):
+    pass
+
+
 class Command(BaseCommand):
     help = 'Copies SSH keys to a remote host without any user input'
 
@@ -23,7 +30,7 @@ class Command(BaseCommand):
         command = [
             'ssh-keygen', '-b', '2048', '-t', 'rsa', '-f', ssh_key_path, '-q', '-N', '',
         ]
-        subprocess.run(command, check=True)
+        subprocess.check_call(command, check=True)
 
     def copy_ssh_keys(self, user, host, port, password):
         command = [
@@ -35,7 +42,7 @@ class Command(BaseCommand):
             '-i', self.get_ssh_key_path(),
             f'{user}@{host}',
         ]
-        subprocess.run(command, check=True)
+        subprocess.run(command, timeout=10, check=True)
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -65,8 +72,24 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         self.generate_ssh_keys()
+        exception = None
         try:
+            logger.info(f"Copying SSH keys to {options['host']}")
             self.copy_ssh_keys(options['user'], options['host'], options['port'], options['password'])
             logger.info(f"SSH keys copied to {options['host']}")
+        except subprocess.TimeoutExpired:
+            message = f"Failed to copy keys to {options['host']}. Request timed out."
+            logger.error(message)
+            exception = SSHTimeoutError(message)
+        except subprocess.CalledProcessError as exc:
+            message = f"Failed to copy keys to {options['host']}. Command returned exit code {exc.returncode}"
+            logger.error(message)
+            exception = SSHCredentialsError(message)
         except:
-            logger.exception(f"Failed to copy keys to {options['host']}")
+            message = f"Failed to copy keys to {options['host']}"
+            logger.error(message)
+            exception = CommandError(message)
+
+        # Raise exception separately. Leave parent exception out of stack trace, to avoid exposing command with password
+        if exception:
+            raise exception

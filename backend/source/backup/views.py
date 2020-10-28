@@ -1,8 +1,10 @@
+from .management.commands.copy_ssh_keys import SSHTimeoutError, SSHCredentialsError
 from .models import BackupSource
 from .serializers import BackupSourceSerializer
 from django.core.management import call_command
 from rest_framework import permissions
 from rest_framework import viewsets
+from rest_framework.exceptions import APIException, AuthenticationFailed
 from rest_framework.response import Response
 import logging
 import os
@@ -20,13 +22,18 @@ class BackupSourceViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         data = serializer.validated_data
-        call_command(
-            'copy_ssh_keys',
-            user=data.get('user'),
-            password=data.pop('password'),
-            host=data.get('host'),
-            port=data.get('port'),
-        )
+        try:
+            call_command(
+                'copy_ssh_keys',
+                user=data.get('user'),
+                password=data.pop('password'),
+                host=data.get('host'),
+                port=data.get('port'),
+            )
+        except SSHCredentialsError:
+            raise AuthenticationFailed('Could not fetch SSH keys. The credentials are incorrect.')
+        except SSHTimeoutError:
+            raise APIException('Could not fetch SSH keys. The operation timed out. Are the host and port correct?')
 
         return super().perform_create(serializer)
 
