@@ -32,7 +32,6 @@ export default {
       context.dispatch('getEntries', true);
     },
     async getEntries(context, forceRefresh=false) {
-      console.log(context.state.timelineDate.toString(), forceRefresh)
       if (context.state.entriesRequestStatus === RequestStatus.NONE || forceRefresh) {
         context.commit('ENTRIES_REQUEST_PENDING');
         const entriesRequestPromise = TimelineService.getEntries(context.state.timelineDate)

@@ -1,11 +1,13 @@
 import SpinnerComponent from './spinner.js';
+import TimelineNav from './timeline-nav.js';
+import { RequestStatus } from './../models/requests.js';
 
 export default Vue.component('timeline', {
   data: function() {
     return {}
   },
   computed: {
-    timelineDate: function() {
+    timelineDate: function(){
       return this.$store.state.timeline.timelineDate;
     },
     relativeTimelineDate: function() {
@@ -14,41 +16,31 @@ export default Vue.component('timeline', {
     entries: function() {
       return this.$store.state.timeline.entries;
     },
+    isLoading: function() {
+      return this.$store.state.timeline.entriesRequestStatus === RequestStatus.PENDING;
+    },
   },
   created: function () {
     this.$store.dispatch('timeline/getEntries');
   },
   methods: {
     pickTimelineDate: function(event) {
-      const newDate = moment(event.target.valueAsNumber);
-      return this.$store.dispatch('timeline/setTimelineDate', newDate);
+      this.timelineDate = moment(event.target.valueAsNumber);
     },
     moveTimelineDate: function(quantity, unit) {
-      const newDate = moment(this.$store.state.timeline.timelineDate).add(quantity, unit);
-      return this.$store.dispatch('timeline/setTimelineDate', newDate);
+      this.timelineDate = moment(this.$store.state.timeline.timelineDate).add(quantity, unit);
     },
   },
   template: `
     <div id="timeline" class="container">
-      <button @click="moveTimelineDate(-1, 'years')">-1Y</button>
-      <button @click="moveTimelineDate(-1, 'months')">-1M</button>
-      <button @click="moveTimelineDate(-1, 'weeks')">-1W</button>
-      <button @click="moveTimelineDate(-1, 'days')">-1D</button>
-      <input type="date" :value="timelineDate.format('YYYY-MM-DD')" @change="pickTimelineDate"/>
-      <button @click="moveTimelineDate(1, 'days')">+1D</button>
-      <button @click="moveTimelineDate(1, 'weeks')">+1W</button>
-      <button @click="moveTimelineDate(1, 'months')">+1M</button>
-      <button @click="moveTimelineDate(1, 'years')">+1Y</button>
+      <timeline-nav></timeline-nav>
       <h2>
-        {{ timelineDate.format('LLLL') }}
+        {{ timelineDate.format('LL') }}
         <small>{{ relativeTimelineDate }}</small>
       </h2>
+      <spinner v-if="isLoading"></spinner>
       <div class="tiles">
-        <div class="tile" v-for="entry in entries" v-if="entry.extra_attributes.previews" :key="entry.id">
-          <img
-            :alt="entry.title"
-            :src="entry.extra_attributes.previews.small"/>
-        </div>
+        <tile :entry="entry" v-for="entry in entries" :key="entry.id"></tile>
       </div>
     </div>
   `
