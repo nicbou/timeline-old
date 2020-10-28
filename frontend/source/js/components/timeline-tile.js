@@ -1,3 +1,7 @@
+function getNestedProperty(obj, ...args) {
+  return args.reduce((obj, level) => obj && obj[level], obj)
+}
+
 export default Vue.component('tile', {
   props: ['entry'],
   data: function() {
@@ -13,6 +17,16 @@ export default Vue.component('tile', {
     entries: function() {
       return this.$store.state.timeline.entries;
     },
+    tileStyle: function() {
+      if(this.entry.extra_attributes.width && this.entry.extra_attributes.height) {
+        return {
+          width: `${this.entry.extra_attributes.width / this.entry.extra_attributes.height * 200}px`,
+        }
+      }
+    },
+    tileClasses: function() {
+      return [this.entry.schema.replace('.', '-')]
+    }
   },
   created: function () {
     this.$store.dispatch('timeline/getEntries');
@@ -28,10 +42,11 @@ export default Vue.component('tile', {
     },
   },
   template: `
-    <div class="tile" v-if="entry.extra_attributes.previews">
+    <div class="tile" v-if="entry.extra_attributes.previews" :style="tileStyle" :class="tileClasses">
       <img
         :alt="entry.title"
-        :src="entry.extra_attributes.previews.small"/>
+        :src="entry.extra_attributes.previews.small"
+        loading="lazy"/>
     </div>
   `
 });

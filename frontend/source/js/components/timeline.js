@@ -1,5 +1,6 @@
 import SpinnerComponent from './spinner.js';
 import TimelineNav from './timeline-nav.js';
+import TimelineTile from './timeline-tile.js';
 import { RequestStatus } from './../models/requests.js';
 
 export default Vue.component('timeline', {
