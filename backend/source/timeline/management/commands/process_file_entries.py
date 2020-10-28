@@ -33,7 +33,7 @@ class Command(BaseCommand):
         return json.loads(ffprobe_cmd.stdout.decode('utf-8'))['streams'][0]
 
     def set_file_checksum(self, entry: Entry):
-        with open(entry.extra_attributes['path'], "rb") as f:
+        with open(Path(entry.extra_attributes['path']).resolve(), "rb") as f:
             file_hash = hashlib.blake2b()
             while chunk := f.read(8192):
                 file_hash.update(chunk)
@@ -70,13 +70,22 @@ class Command(BaseCommand):
                         check=True,
                     )
                 except subprocess.CalledProcessError as exc:
-                    logger.error(f'Could not generate preview for entry #{entry.id} ({str(original_path)}).\nffmpeg output:\n{exc.stderr}')
+                    logger.error(f'Could not generate preview for entry #{entry.id} ({str(original_path)}).\nimagemagick output:\n{exc.stderr}')
 
             entry.extra_attributes['previews'][preview_name] = str(preview_path)
 
     def set_image_previews(self, entry: Entry):
         original_path = Path(entry.extra_attributes['path']).resolve()
-        original_media_attrs = self.get_media_attributes(original_path)
+
+        try:
+            original_media_attrs = self.get_media_attributes(original_path)
+        except:
+            logger.exception(f"Could not read metadata from video #{entry.id} at {original_path}")
+            return
+
+        if 'width' not in original_media_attrs or 'height' not in original_media_attrs:
+            logger.error('Image has no width or height, ignoring.')
+            return
 
         entry.extra_attributes['width'] = int(original_media_attrs['width'])
         entry.extra_attributes['height'] = int(original_media_attrs['height'])
@@ -108,22 +117,31 @@ class Command(BaseCommand):
                             check=True,
                         )
                     except subprocess.CalledProcessError as exc:
-                        logger.error(f'Could not generate preview for entry #{entry.id} ({str(original_path)}).\nffmpeg output:\n{exc.stderr}')
+                        logger.error(f'Could not generate preview for entry #{entry.id} ({str(original_path)}).\nimagemagick output:\n{exc.stderr}')
             else:
-                logger.info(f'Preview is smaller than original. Skipping.')
+                logger.info(f'"{preview_name}" preview is smaller than original. Skipping.')
                 preview_path = original_path
 
             entry.extra_attributes['previews'][preview_name] = str(preview_path)
 
     def set_video_previews(self, entry: Entry):
         original_path = Path(entry.extra_attributes['path']).resolve()
-        original_media_attrs = self.get_media_attributes(original_path)
 
-        entry.extra_attributes['width'] = int(original_media_attrs['width'])
-        entry.extra_attributes['height'] = int(original_media_attrs['height'])
-        entry.extra_attributes['frames'] = int(original_media_attrs['nb_frames'])
-        entry.extra_attributes['duration'] = original_media_attrs['duration']
-        entry.extra_attributes['codec'] = original_media_attrs['codec_name']
+        try:
+            original_media_attrs = self.get_media_attributes(original_path)
+        except:
+            logger.exception(f"Could not read metadata from video #{entry.id} at {original_path}")
+            return
+
+        try:
+            entry.extra_attributes['width'] = int(original_media_attrs['width'])
+            entry.extra_attributes['height'] = int(original_media_attrs['height'])
+            entry.extra_attributes['frames'] = int(original_media_attrs['nb_frames'])
+            entry.extra_attributes['duration'] = original_media_attrs['duration']
+            entry.extra_attributes['codec'] = original_media_attrs['codec_name']
+        except:
+            logger.error('Video is missing attributes, ignoring.')
+            return
 
         logger.info(f"Generating video previews for #{entry.id} ({str(original_path)})")
 
