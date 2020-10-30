@@ -42,18 +42,24 @@ class Command(BaseCommand):
     def set_image_exif(self, entry: Entry):
         pass
 
+    def get_previews_dir(self, entry: Entry, mkdir=False):
+        previews_dir = (
+            settings.PREVIEWS_ROOT /
+            entry.extra_attributes.get('source', settings.DEFAULT_PREVIEW_SUBDIR) /
+            entry.extra_attributes['checksum']
+        )
+        if mkdir:
+            previews_dir.mkdir(parents=True, exist_ok=True)
+        return previews_dir
+
     def set_pdf_previews(self, entry: Entry):
         original_path = Path(entry.extra_attributes['path']).resolve()
 
         logger.info(f"Generating PDF previews for #{entry.id} ({str(original_path)})")
 
-        checksum = entry.extra_attributes['checksum']
-
         entry.extra_attributes['previews'] = {}
-        preview_root = settings.PREVIEWS_ROOT / checksum
-        preview_root.mkdir(parents=True, exist_ok=True)
         for preview_name, preview_params in settings.IMAGE_PREVIEW_SIZES.items():
-            preview_path = (preview_root / f'{preview_name}.png').resolve()
+            preview_path = (self.get_previews_dir(entry, mkdir=True) / f'{preview_name}.png').resolve()
 
             if preview_path.exists():
                 logger.info(f'"{preview_name}" preview for #{entry.id} already exists.')
@@ -92,13 +98,9 @@ class Command(BaseCommand):
 
         logger.info(f"Generating image previews for #{entry.id} ({str(original_path)})")
 
-        checksum = entry.extra_attributes['checksum']
-
         entry.extra_attributes['previews'] = {}
-        preview_root = settings.PREVIEWS_ROOT / checksum
-        preview_root.mkdir(parents=True, exist_ok=True)
         for preview_name, preview_params in settings.IMAGE_PREVIEW_SIZES.items():
-            preview_path = (preview_root / f'{preview_name}.jpg').resolve()
+            preview_path = (self.get_previews_dir(entry, mkdir=True) / f'{preview_name}.jpg').resolve()
 
             # Only generate previews if they're smaller than the original
             if preview_params['height'] < entry.extra_attributes['height']:
@@ -145,13 +147,9 @@ class Command(BaseCommand):
 
         logger.info(f"Generating video previews for #{entry.id} ({str(original_path)})")
 
-        checksum = entry.extra_attributes['checksum']
-
         entry.extra_attributes['previews'] = {}
-        preview_root = settings.PREVIEWS_ROOT / checksum
-        preview_root.mkdir(parents=True, exist_ok=True)
         for preview_name, preview_params in settings.VIDEO_PREVIEW_SIZES.items():
-            preview_path = (preview_root / f'{preview_name}.jpg').resolve()
+            preview_path = (self.get_previews_dir(entry, mkdir=True) / f'{preview_name}.jpg').resolve()
 
             if preview_path.exists():
                 logger.info(f'"{preview_name}" preview for #{entry.id} already exists.')

@@ -69,7 +69,7 @@ class Command(BaseCommand):
                         date_on_timeline=self.get_file_date(changed_file),
                         extra_attributes={
                             'path': str(changed_file.resolve()),
-                            'source': source.id,
+                            'source': source.key,
                         }
                     )
                     for changed_file in backup.changed_files()
