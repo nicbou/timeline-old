@@ -38,13 +38,16 @@ export default Vue.component('timeline', {
     selectTile: function(entry) {
       this.selectedEntry = entry;
       this.modalVisible = true;
-      console.log('clicked', entry)
+    },
+    closeTile: function() {
+      this.modalVisible = false;
+      this.selectedEntry = null;
     }
   },
   template: `
     <div id="timeline" class="container">
       <timeline-nav></timeline-nav>
-      <preview :entry="selectedEntry" v-if="modalVisible" @close="modalVisible = false"></preview>
+      <preview :entry="selectedEntry" v-if="modalVisible" @close="closeTile"></preview>
       <h2>
         {{ timelineDate.format('LL') }}
         <small>{{ relativeTimelineDate }}</small>
