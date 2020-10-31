@@ -122,18 +122,22 @@ AUTH_PASSWORD_VALIDATORS = [
 
 IMAGE_PREVIEW_SIZES = {
     'small': {
+        'width': 2400,
         'height': 400,
     },
     'medium': {
+        'width': 4800,
         'height': 800,
     },
     'large': {
+        'width': 9600,
         'height': 1600,
     },
 }
 
 VIDEO_PREVIEW_SIZES = {
     'small': {
+        'width': 800,
         'height': 400,
     },
 }

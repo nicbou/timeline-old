@@ -58,7 +58,7 @@ class Command(BaseCommand):
         for source in sources:
             backups = source.backups
             logger.info(f"Deleting existing entries for {source}")
-            Entry.objects.filter(extra_attributes__source=source.id).delete()
+            Entry.objects.filter(extra_attributes__source=source.key).delete()
             logger.info(f"Generating entries for {source}")
             for backup in backups:
                 Entry.objects.bulk_create([
