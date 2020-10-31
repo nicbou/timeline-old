@@ -15,20 +15,12 @@ export default Vue.component('tile', {
     tileClasses: function() {
       return [this.entry.schema.replace('.', '-')]
     },
-    isVideo: function() {
-      return (
-        this.entry.extra_attributes.previews
-        && this.entry.extra_attributes.previews.small
-        && this.entry.extra_attributes.previews.small.endsWith('.mp4')
-      );
-    },
-    isImage: function() {
-      return (
-        this.entry.extra_attributes.previews
-        && this.entry.extra_attributes.previews.small
-        && this.entry.extra_attributes.previews.small.endsWith('.jpg')
-      );
-    },
+    mimetype: function(){
+      if (this.entry.extra_attributes) {
+        return this.entry.extra_attributes.mimetype;
+      }
+      return undefined;
+    }
   },
   methods: {
     pickTimelineDate: function(event) {
@@ -49,8 +41,18 @@ export default Vue.component('tile', {
   },
   template: `
     <div class="tile" v-if="entry.extra_attributes.previews" :style="tileStyle" :class="tileClasses" @click="$emit('click', entry)">
-      <img loading="lazy" v-if="isImage" :alt="entry.title" :src="entry.extra_attributes.previews.small"/>
-      <video ref="videoElement" @mouseover="videoHoverStart" @mouseleave="videoHoverEnd" v-if="isVideo" :alt="entry.title" :src="entry.extra_attributes.previews.small" loop/>
+      <img 
+        :alt="entry.title" :src="entry.extra_attributes.previews.small"
+        loading="lazy" 
+        v-if="mimetype.startsWith('image')"/>
+      <video
+        :alt="entry.title"
+        :src="entry.extra_attributes.previews.small"
+        @mouseleave="videoHoverEnd"
+        @mouseover="videoHoverStart"
+        loop
+        ref="videoElement"
+        v-if="mimetype.startsWith('video')"/>
     </div>
   `
 });
