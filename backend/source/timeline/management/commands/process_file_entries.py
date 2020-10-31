@@ -15,7 +15,7 @@ class Command(BaseCommand):
     @staticmethod
     def set_file_mimetype(entry: Entry):
         if mimetype := get_mimetype(Path(entry.extra_attributes['path'])):
-            entry.extra_attributes['mimetype'] = mimetype[0]
+            entry.extra_attributes['mimetype'] = mimetype
 
     @staticmethod
     def set_checksum(entry: Entry):
