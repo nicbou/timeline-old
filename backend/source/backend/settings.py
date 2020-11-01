@@ -6,8 +6,8 @@ import os
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 STATIC_ROOT = '/srv/static'
-BACKUPS_ROOT = Path('/srv/backups').resolve()
-PREVIEWS_ROOT = Path('/srv/previews').resolve()
+BACKUPS_ROOT = Path('/srv/backups')
+PREVIEWS_ROOT = Path('/srv/previews')
 DEFAULT_PREVIEW_SUBDIR = 'other'  # Usually, it's the source name
 SSH_DIR = '/root/.ssh'
 

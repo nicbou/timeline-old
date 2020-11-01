@@ -28,9 +28,9 @@ class Backup:
     @property
     def root_path(self) -> Path:
         if self.date:
-            return self.source.backups_root.resolve() / self.date.strftime(self.date_format)
+            return self.source.backups_root / self.date.strftime(self.date_format)
         else:
-            return self.source.backups_root.resolve() / self.latest_backup_dirname
+            return self.source.backups_root / self.latest_backup_dirname
 
     @property
     def log_path(self) -> Path:
@@ -57,7 +57,7 @@ class BackupSource(models.Model):
 
     @property
     def backups_root(self) -> Path:
-        return settings.BACKUPS_ROOT.resolve() / self.key
+        return settings.BACKUPS_ROOT / self.key
 
     @property
     def latest_backup(self) -> Backup:
