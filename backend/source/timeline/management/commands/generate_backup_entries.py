@@ -57,10 +57,19 @@ class Command(BaseCommand):
 
         return schema
 
-    def handle(self, *args, **options):
-        process_latest = False  # TODO: Attach to command line parametre
-        process_all = False
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--process-latest',
+            action='store_true',
+            help='Reprocess the latest processed backup',
+        )
+        parser.add_argument(
+            '--process-all',
+            action='store_true',
+            help='Reprocess already processed backups',
+        )
 
+    def handle(self, *args, **options):
         sources = BackupSource.objects.all()
         logger.info(f"Generating entries for {len(sources)} backup sources")
         for source in sources:
@@ -77,8 +86,8 @@ class Command(BaseCommand):
 
             source_backups = list(source.backups)
             backups_to_process = source_backups
-            if latest_entry_date and not process_all:
-                if process_latest:
+            if latest_entry_date and not options['process_all']:
+                if options['process_latest']:
                     backups_to_process = [backup for backup in backups_to_process if backup.date >= latest_entry_date]
                     logger.info(f'Processing all "{source.key}" backups starting from {latest_entry_date}')
                 else:
