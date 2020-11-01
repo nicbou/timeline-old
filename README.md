@@ -1,8 +1,8 @@
 # Backup tools
 
-A web-based app to schedule, browse and manage backups from multiple remote machines. Shows the backed up file on a web-based timeline.
+A web-based app to schedule, browse and manage rsync backups from multiple remote machines. Backed up files can be viewed on a web-based timeline.
 
-Basically, it's rsync with an API and a fancy GUI.
+The timeline was designed to be extended with other kinds of entries: geolocation, social media posts, blog posts, journal entries etc. It is meant to be a person's complete timeline.  
 
 ## Setup
 
