@@ -2,9 +2,10 @@ from typing import List
 
 from timeline.file_utils import get_mimetype
 from timeline.models import Entry
-from backup.models import BackupSource
+from backup.models import BackupSource, Backup
 from datetime import datetime
 from django.core.management.base import BaseCommand
+from fnmatch import fnmatch
 from pathlib import Path
 import logging
 import mimetypes
@@ -69,6 +70,29 @@ class Command(BaseCommand):
             help='Reprocess already processed backups',
         )
 
+    @staticmethod
+    def get_changed_files(backup: Backup) -> List[Path]:
+        """Only return files that are allowed by .timelineinclude"""
+        timelineinclude_paths = backup.files_path.glob('**/.timelineinclude')
+        include_paths = []
+        for timelineinclude_path in timelineinclude_paths:
+            with open(timelineinclude_path, 'r') as timelineinclude_file:
+                for line in timelineinclude_file.readlines():
+                    glob_path = backup.files_path / Path(line.strip())
+                    include_paths.append(glob_path)
+
+        if len(include_paths) == 0:
+            logger.warning(f'No .timelineinclude files found in {str(backup.files_path)}/')
+            return []
+
+        return [
+            changed_file for changed_file in backup.changed_files()
+            if any(
+                # Path.match() doesn't match ** to multiple subdirs
+                fnmatch(str(changed_file), str(include_path)) for include_path in include_paths
+            )
+        ]
+
     def handle(self, *args, **options):
         sources = BackupSource.objects.all()
         logger.info(f"Generating entries for {len(sources)} backup sources")
@@ -96,12 +120,13 @@ class Command(BaseCommand):
             else:
                 logger.info(f'Processing all "{source.key}" backups')
 
+            entries_created = 0
             for backup in backups_to_process:
                 Entry.objects.filter(
                     extra_attributes__source=source.key,
                     extra_attributes__backup_date=backup.date.strftime('%Y-%m-%dT%H:%M:%SZ')
                 ).delete()
-                Entry.objects.bulk_create([
+                entries_created += len(Entry.objects.bulk_create([
                     Entry(
                         schema=self.get_schema(changed_file),
                         title=changed_file.name,
@@ -113,6 +138,9 @@ class Command(BaseCommand):
                             'backup_date': backup.date.strftime('%Y-%m-%dT%H:%M:%SZ'),
                         }
                     )
-                    for changed_file in backup.changed_files()
-                ])
-            logger.info(f"\"{source.key}\" backup entries generated. {len(backups_to_process)} backups processed, {len(source_backups) - len(backups_to_process)} skipped.")
+                    for changed_file in self.get_changed_files(backup)
+                ]))
+            logger.info(f"\"{source.key}\" backup entries generated. "
+                        f"{len(backups_to_process)} backups processed, "
+                        f"{len(source_backups) - len(backups_to_process)} skipped. "
+                        f"{entries_created} entries created.")

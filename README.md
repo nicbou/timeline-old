@@ -1,6 +1,6 @@
 # Backup tools
 
-A web-based app to schedule, browse and manage backups from multiple remote machines.
+A web-based app to schedule, browse and manage backups from multiple remote machines. Shows the backed up file on a web-based timeline.
 
 Basically, it's rsync with an API and a fancy GUI.
 
@@ -30,10 +30,13 @@ You can force a new backup by calling `scripts/run_backups.sh`. It will back up 
 
 You can create `.rsyncignore` files on the Source filesystem to exclude files from the backup. It works like a `.gitignore` file.
 
-Example `.rsyncignore file`:
+You can create `.timelineinclude` files on the Source filesystem to include files in the timeline. Each line is a glob pattern that matches files in the backup.
+
+Example `.rsyncignore` or `.timelineinclude` file:
 ```
 .git
 .DS_Store
 __pycache__
 *.iso
+images/icons
 ```
