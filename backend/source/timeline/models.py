@@ -4,7 +4,6 @@ from django.utils import timezone
 
 class Entry(models.Model):
     date_on_timeline = models.DateTimeField(default=timezone.now)
-    date_modified = models.DateTimeField(default=timezone.now)
 
     schema = models.CharField(max_length=100)
     title = models.TextField(blank=True)
