@@ -43,7 +43,6 @@ class Command(BaseCommand):
 
     def set_pdf_previews(self, entry: Entry):
         original_path = Path(entry.extra_attributes['path'])
-        logger.info(f"Generating PDF previews for #{entry.pk} ({str(original_path)})")
         entry.extra_attributes['previews'] = {}
         for preview_name, preview_params in settings.IMAGE_PREVIEW_SIZES.items():
             preview_path = self.get_previews_dir(entry, mkdir=True) / f'{preview_name}.png'
@@ -65,7 +64,6 @@ class Command(BaseCommand):
 
     def set_image_previews(self, entry: Entry):
         original_path = Path(entry.extra_attributes['path'])
-        logger.info(f"Generating image previews for #{entry.pk} ({str(original_path)})")
         entry.extra_attributes['previews'] = {}
         for preview_name, preview_params in settings.IMAGE_PREVIEW_SIZES.items():
             preview_path = self.get_previews_dir(entry, mkdir=True) / f'{preview_name}.jpg'
@@ -87,8 +85,6 @@ class Command(BaseCommand):
 
     def set_video_previews(self, entry: Entry):
         original_path = Path(entry.extra_attributes['path'])
-
-        logger.info(f"Generating video previews for #{entry.pk} ({str(original_path)})")
 
         entry.extra_attributes['previews'] = {}
         for preview_name, preview_params in settings.VIDEO_PREVIEW_SIZES.items():
