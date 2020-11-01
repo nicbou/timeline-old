@@ -45,7 +45,7 @@ def get_media_metadata(input_path: Path):
     if 'duration' in raw_metadata:
         metadata['duration'] = int(float(raw_metadata['duration']))  # Note: images can also have a duration
     if 'codec_name' in raw_metadata:
-        metadata['codec_name'] = raw_metadata['codec_name']
+        metadata['codec'] = raw_metadata['codec_name']
 
     return metadata
 

@@ -38,6 +38,10 @@ class Command(BaseCommand):
         try:
             original_media_attrs = get_media_metadata(original_path)
             entry.extra_attributes.update(original_media_attrs)
+            if entry.extra_attributes.get('mimetype', '').startswith('image') and 'codec' in entry.extra_attributes:
+                # JPEG images can be treated as MJPEG videos and have a duration of 1 frame
+                entry.extra_attributes.pop('duration', None)
+                entry.extra_attributes.pop('codec', None)
         except:
             logger.exception(f"Could not read metadata from file #{entry.pk} at {original_path}")
 
