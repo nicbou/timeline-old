@@ -39,7 +39,7 @@ class Command(BaseCommand):
             original_media_attrs = get_media_metadata(original_path)
             entry.extra_attributes.update(original_media_attrs)
         except:
-            logger.exception(f"Could not read metadata from video #{entry.pk} at {original_path}")
+            logger.exception(f"Could not read metadata from file #{entry.pk} at {original_path}")
 
     def set_pdf_previews(self, entry: Entry):
         original_path = Path(entry.extra_attributes['path'])
@@ -117,7 +117,10 @@ class Command(BaseCommand):
                 self.set_image_previews,
             ])
         elif entry.schema.startswith('file.video'):
-            tasks.append(self.set_video_previews)
+            tasks.extend([
+                self.set_media_metadata,
+                self.set_video_previews,
+            ])
         elif entry.schema.startswith('file.document.pdf'):
             tasks.append(self.set_pdf_previews)
 

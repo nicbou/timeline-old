@@ -29,7 +29,7 @@ def get_media_metadata(input_path: Path):
         [
             'ffprobe',
             '-v', 'error',
-            '-show_entries', 'stream=width,height,duration,nb_frames,codec_name',
+            '-show_entries', 'stream=width,height,duration,codec_name',
             '-of', 'json',
             str(input_path)
         ],
@@ -42,8 +42,6 @@ def get_media_metadata(input_path: Path):
         'height': int(raw_metadata['height']),
     }
 
-    if 'nb_frames' in raw_metadata:
-        metadata['frames'] = int(raw_metadata['nb_frames'])
     if 'duration' in raw_metadata:
         metadata['duration'] = int(float(raw_metadata['duration']))  # Note: images can also have a duration
     if 'codec_name' in raw_metadata:
