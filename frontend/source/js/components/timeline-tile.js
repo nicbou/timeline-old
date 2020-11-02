@@ -23,14 +23,6 @@ export default Vue.component('tile', {
     }
   },
   methods: {
-    pickTimelineDate: function(event) {
-      const newDate = moment(event.target.valueAsNumber);
-      return this.$store.dispatch('timeline/setTimelineDate', newDate);
-    },
-    moveTimelineDate: function(quantity, unit) {
-      const newDate = moment(this.$store.state.timeline.timelineDate).add(quantity, unit);
-      return this.$store.dispatch('timeline/setTimelineDate', newDate);
-    },
     videoHoverStart: function() {
       this.$refs.videoElement.play()
     },

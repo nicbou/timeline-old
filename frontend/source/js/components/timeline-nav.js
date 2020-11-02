@@ -2,11 +2,16 @@ export default Vue.component('timeline-nav', {
   computed: {
     timelineDate: {
       get() {
-        return this.$store.state.timeline.timelineDate;
+        return moment(this.$store.state.route.query.date, 'YYYY-MM-DD');
       },
       set(newDate) {
-        newDate = moment.min(newDate, this.today);
-        return this.$store.dispatch('timeline/setTimelineDate', moment(newDate));
+        const routeParams = {
+          name: 'timeline',
+          query: {
+            date: moment.min(newDate, this.today).format('YYYY-MM-DD'),
+          }
+        };
+        return this.$router.push(routeParams);
       }
     },
     timelineDateIso: {
@@ -14,7 +19,7 @@ export default Vue.component('timeline-nav', {
         return this.timelineDate.format('YYYY-MM-DD');
       },
       set(newDate) {
-        return this.timelineDate = moment(newDate);
+        return this.timelineDate = moment(newDate, 'YYYY-MM-DD');
       }
     },
     today: function(){
@@ -38,7 +43,7 @@ export default Vue.component('timeline-nav', {
       this.timelineDate = moment(date);
     },
     moveTimelineDate: function(quantity, unit) {
-      this.timelineDate = moment(this.$store.state.timeline.timelineDate).add(quantity, unit);
+      this.timelineDate = moment(this.timelineDate).add(quantity, unit);
     },
   },
   template: `

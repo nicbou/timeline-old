@@ -5,16 +5,12 @@ export default {
   namespaced: true,
   state: {
     entries: [],
-    timelineDate: moment().startOf('day'),
     entriesRequestStatus: RequestStatus.NONE,
     entriesRequestPromise: null,
   },
   mutations: {
     SET_ENTRIES(state, entries) {
       state.entries = entries;
-    },
-    SET_TIMELINE_DATE(state, date) {
-      state.timelineDate = date.startOf('day');
     },
     ENTRIES_REQUEST_SUCCESS(state) {
       state.entriesRequestStatus = RequestStatus.SUCCESS;
@@ -27,14 +23,11 @@ export default {
     },
   },
   actions: {
-    async setTimelineDate(context, date) {
-      context.commit('SET_TIMELINE_DATE', date);
-      context.dispatch('getEntries', true);
-    },
     async getEntries(context, forceRefresh=false) {
+      const timelineDate = moment(this.state.route.query.date, 'YYYY-MM-DD');
       if (context.state.entriesRequestStatus === RequestStatus.NONE || forceRefresh) {
         context.commit('ENTRIES_REQUEST_PENDING');
-        const entriesRequestPromise = TimelineService.getEntries(context.state.timelineDate)
+        const entriesRequestPromise = TimelineService.getEntries(timelineDate)
           .then(entries => {
             context.commit('SET_ENTRIES', entries);
             context.commit('ENTRIES_REQUEST_SUCCESS');

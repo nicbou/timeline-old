@@ -4,6 +4,19 @@ import TimelineTile from './timeline-tile.js';
 import Preview from './preview.js';
 import { RequestStatus } from './../models/requests.js';
 
+function makeRouteValid(to, from, next) {
+  if (to.query.date) {
+    const newDate = moment(to.query.date, 'YYYY-MM-DD', true);
+    if(newDate.isValid()) {
+      next();
+      return;
+    }
+  }
+  next({
+    name: 'timeline', query: { date: moment().format('YYYY-MM-DD') }
+  });
+}
+
 export default Vue.component('timeline', {
   data: function() {
     return {
@@ -11,12 +24,23 @@ export default Vue.component('timeline', {
       modalVisible: null,
     }
   },
+  created: function() {
+    this.$store.dispatch('timeline/getEntries');
+  },
+  watch: {
+    '$route.query.date': function() {
+      this.$store.dispatch('timeline/getEntries', true)
+    }
+  },
+  beforeRouteEnter: makeRouteValid,
+  beforeRouteUpdate: makeRouteValid,
   computed: {
     timelineDate: function(){
-      return this.$store.state.timeline.timelineDate;
+      return moment(this.$store.state.route.query.date, 'YYYY-MM-DD');
     },
     relativeTimelineDate: function() {
-      return moment.duration(this.timelineDate.diff(moment().startOf('day'))).humanize(true);
+      const duration = this.timelineDate.diff(moment().startOf('day'));
+      return duration !== 0 ? moment.duration(duration).humanize(true) : 'today';
     },
     entries: function() {
       return this.$store.state.timeline.entries;
@@ -25,16 +49,7 @@ export default Vue.component('timeline', {
       return this.$store.state.timeline.entriesRequestStatus === RequestStatus.PENDING;
     },
   },
-  created: function () {
-    this.$store.dispatch('timeline/getEntries');
-  },
   methods: {
-    pickTimelineDate: function(event) {
-      this.timelineDate = moment(event.target.valueAsNumber);
-    },
-    moveTimelineDate: function(quantity, unit) {
-      this.timelineDate = moment(this.$store.state.timeline.timelineDate).add(quantity, unit);
-    },
     selectTile: function(entry) {
       this.selectedEntry = entry;
       this.modalVisible = true;
@@ -50,7 +65,7 @@ export default Vue.component('timeline', {
       <preview :entry="selectedEntry" v-if="modalVisible" @close="closeTile"></preview>
       <h2>
         {{ timelineDate.format('LL') }}
-        <small>{{ relativeTimelineDate }}</small>
+        <br><small>{{ relativeTimelineDate }}</small>
       </h2>
       <spinner v-if="isLoading"></spinner>
       <div class="tiles">
