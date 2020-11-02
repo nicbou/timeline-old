@@ -36,7 +36,7 @@ export default Vue.component('timeline', {
   beforeRouteUpdate: makeRouteValid,
   computed: {
     timelineDate: function(){
-      return moment(this.$store.state.route.query.date, 'YYYY-MM-DD');
+      return moment(this.$store.state.route.query.date, 'YYYY-MM-DD', true);
     },
     relativeTimelineDate: function() {
       const duration = this.timelineDate.diff(moment().startOf('day'));
