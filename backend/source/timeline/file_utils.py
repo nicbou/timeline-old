@@ -21,7 +21,29 @@ def get_checksum(file_path: Path):
 
 
 def generate_pdf_preview(input_path: Path, output_path: Path, max_dimensions: (int, int), overwrite=False):
-    return generate_image_preview(input_path, output_path, max_dimensions, overwrite)
+    if output_path.exists() and not overwrite:
+        raise FileExistsError
+
+    try:
+        command = [
+            'convert',
+            '-pointsize', '72',
+            '-density', str(int(max_dimensions[0] / 8.5)),  # A4 pages are 8.5 inches wide
+            '-units', 'PixelsPerInch',
+            f"{str(input_path)}[0]",
+            '-resize', f"{max_dimensions[0]}x{max_dimensions[1]}>",
+            '-flatten',
+            '-strip',
+            str(output_path),
+        ]
+        subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+    except subprocess.CalledProcessError as exc:
+        command = " ".join(exc.cmd)
+        raise Exception(
+            f'Could not generate image preview.\n'
+            f"IMAGEMAGICK COMMAND:\n{command}\n"
+            f"IMAGEMAGICK OUTPUT:\n{exc.stderr.decode('UTF-8')}"
+        )
 
 
 def get_media_metadata(input_path: Path):
@@ -127,6 +149,8 @@ def generate_image_preview(input_path: Path, output_path: Path, max_dimensions: 
     try:
         command = [
             'convert',
+            '-flatten',
+            '-strip',
             '-thumbnail', f"{max_dimensions[0]}x{max_dimensions[1]}>",
             f"{str(input_path)}[0]",
             str(output_path),

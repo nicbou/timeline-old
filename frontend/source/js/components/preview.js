@@ -14,6 +14,9 @@ export default Vue.component('preview', {
       else if(this.entry.schema.startsWith('file.image') || this.entry.schema.startsWith('file.document.pdf')) {
         return 'image';
       }
+    },
+    imageSrcSet: function() {
+        return `${this.entry.extra_attributes.previews.preview} 1x, ${this.entry.extra_attributes.previews.preview2x} 2x`;
     }
   },
   methods: {
@@ -24,8 +27,13 @@ export default Vue.component('preview', {
   template: `
     <div class="preview">
       <button class="button close" @click="close" title="Close"><i class="fas fa-times"></i></button>
-      <img v-if="previewType === 'image'" :alt="entry.title" :src="entry.extra_attributes.previews.large"/>
-      <video autoplay controls v-if="previewType === 'video'" :alt="entry.title" :src="entry.extra_attributes.previews.small"/>
+      <img
+        v-if="previewType === 'image'"
+        :alt="entry.title"
+        :src="entry.extra_attributes.previews.preview"
+        :srcset="imageSrcSet"
+        />
+      <video autoplay controls v-if="previewType === 'video'" :alt="entry.title" :src="entry.extra_attributes.previews.preview"/>
     </div>
   `
 });

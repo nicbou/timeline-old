@@ -48,7 +48,7 @@ class Command(BaseCommand):
     def set_pdf_previews(self, entry: Entry):
         original_path = Path(entry.extra_attributes['path'])
         entry.extra_attributes['previews'] = {}
-        for preview_name, preview_params in settings.IMAGE_PREVIEW_SIZES.items():
+        for preview_name, preview_params in settings.DOCUMENT_PREVIEW_SIZES.items():
             preview_path = self.get_previews_dir(entry, mkdir=True) / f'{preview_name}.png'
             try:
                 generate_pdf_preview(

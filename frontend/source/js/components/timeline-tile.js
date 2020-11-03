@@ -22,6 +22,9 @@ export default Vue.component('tile', {
       else if(this.entry.schema.startsWith('file.image') || this.entry.schema.startsWith('file.document.pdf')) {
         return 'image';
       }
+    },
+    imageSrcSet: function() {
+        return `${this.entry.extra_attributes.previews.thumbnail} 1x, ${this.entry.extra_attributes.previews.thumbnail2x} 2x`;
     }
   },
   methods: {
@@ -35,13 +38,16 @@ export default Vue.component('tile', {
   },
   template: `
     <div class="tile" v-if="entry.extra_attributes.previews" :style="tileStyle" :class="tileClasses" @click="$emit('click', entry)">
-      <img 
-        :alt="entry.title" :src="entry.extra_attributes.previews.small"
-        loading="lazy" 
-        v-if="previewType === 'image'"/>
+      <img
+        v-if="previewType === 'image'"
+        loading="lazy"
+        :alt="entry.title"
+        :src="entry.extra_attributes.previews.thumbnail"
+        :srcset="imageSrcSet"
+        />
       <video
         :alt="entry.title"
-        :src="entry.extra_attributes.previews.small"
+        :src="entry.extra_attributes.previews.thumbnail"
         @mouseleave="videoHoverEnd"
         @mouseover="videoHoverStart"
         loop
