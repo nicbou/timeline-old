@@ -52,7 +52,7 @@ export default Vue.component('timeline-nav', {
       <button class="button" @click="moveTimelineDate('months', -1)">-1M</button>
       <button class="button" @click="moveTimelineDate('weeks', -1)">-1W</button>
       <button class="button" @click="moveTimelineDate('days', -1)">-1D</button>
-      <input class="input" type="date" v-model="timelineDateIso">
+      <input class="input" type="date" v-model="timelineDateIso" :max="today.format('YYYY-MM-DD')">
       <button class="button" @click="pickTimelineDate(today)">Today</button>
       <button class="button" :disabled="!showTomorrow" @click="moveTimelineDate('days', 1)">+1D</button>
       <button class="button" :disabled="!showNextWeek" @click="moveTimelineDate('weeks', 1)">+1W</button>
