@@ -121,22 +121,49 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 IMAGE_PREVIEW_SIZES = {
-    'small': {
+    'thumbnail': {
+        'width': 1200,
+        'height': 200,
+    },
+    'thumbnail2x': {
         'width': 2400,
         'height': 400,
     },
-    'medium': {
-        'width': 4800,
-        'height': 800,
+    'preview': {
+        'width': 1800,
+        'height': 1200,
     },
-    'large': {
-        'width': 9600,
-        'height': 1600,
+    'preview2x': {
+        'width': 3600,
+        'height': 2400,
+    },
+}
+
+DOCUMENT_PREVIEW_SIZES = {
+    'thumbnail': {
+        'width': 1200,
+        'height': 200,
+    },
+    'thumbnail2x': {
+        'width': 2400,
+        'height': 400,
+    },
+    'preview': {
+        'width': 1800,
+        'height': 1800,
+    },
+    'preview2x': {
+        'width': 3600,
+        'height': 3600,
     },
 }
 
 VIDEO_PREVIEW_SIZES = {
-    'small': {
+    'thumbnail': {
+        'width': 400,
+        'height': 200,
+    },
+    'thumbnail2x': {
         'width': 800,
         'height': 400,
     },
