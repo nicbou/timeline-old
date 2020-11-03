@@ -1,6 +1,6 @@
 from .management.commands.copy_ssh_keys import SSHTimeoutError, SSHCredentialsError
-from .models import BackupSource
-from .serializers import BackupSourceSerializer
+from .models import BackupSource, TwitterSource
+from .serializers import BackupSourceSerializer, TwitterSourceSerializer
 from django.core.management import call_command
 from rest_framework import permissions
 from rest_framework import viewsets
@@ -64,3 +64,12 @@ class BackupViewSet(viewsets.ViewSet):
 
     def retrieve(self, request, pk=None):
         return Response(self.get_backups_for_source(BackupSource.objects.get(pk=pk)))
+
+
+class TwitterSourceViewSet(viewsets.ModelViewSet):
+    """
+    List and manage backup Sources. A Source is a remote server from which files are backed up.
+    """
+    queryset = TwitterSource.objects.all().order_by('twitter_username')
+    serializer_class = TwitterSourceSerializer
+    permission_classes = [permissions.AllowAny]

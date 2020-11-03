@@ -1,3 +1,5 @@
+import Post from './post.js';
+
 function getNestedProperty(obj, ...args) {
   return args.reduce((obj, level) => obj && obj[level], obj)
 }
@@ -12,15 +14,15 @@ export default Vue.component('tile', {
         }
       }
     },
-    tileClasses: function() {
-      return [this.entry.schema.replace('.', '-')]
-    },
     previewType: function() {
       if(this.entry.schema.startsWith('file.video')) {
         return 'video';
       }
       else if(this.entry.schema.startsWith('file.image') || this.entry.schema.startsWith('file.document.pdf')) {
         return 'image';
+      }
+      else if(this.entry.schema === 'social.twitter.tweet') {
+        return 'post';
       }
     },
     imageSrcSet: function() {
@@ -37,8 +39,9 @@ export default Vue.component('tile', {
     },
   },
   template: `
-    <div class="tile" v-if="entry.extra_attributes.previews" :style="tileStyle" :class="tileClasses" @click="$emit('click', entry)">
+    <div class="tile" v-if="previewType" :style="tileStyle" :class="previewType">
       <img
+        @click="$emit('click', entry)"
         v-if="previewType === 'image'"
         loading="lazy"
         :alt="entry.title"
@@ -46,6 +49,7 @@ export default Vue.component('tile', {
         :srcset="imageSrcSet"
         />
       <video
+        @click="$emit('click', entry)"
         :alt="entry.title"
         :src="entry.extra_attributes.previews.thumbnail"
         @mouseleave="videoHoverEnd"
@@ -53,9 +57,7 @@ export default Vue.component('tile', {
         loop
         ref="videoElement"
         v-if="previewType === 'video'"/>
-      <div class="tile-icons">
-        <i v-if="previewType === 'video'" class="fas fa-play-circle"></i>
-      </div>
+      <post :entry="entry" v-if="previewType === 'post'"></post>
     </div>
   `
 });

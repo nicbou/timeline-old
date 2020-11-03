@@ -45,7 +45,6 @@ class Command(BaseCommand):
             logger.error(f"{source} backup failed (exit code {exit_code}). Rsync log is at {str(current_backup.log_path)}")
             raise Exception("Rsync backup failed")
 
-
     def handle(self, *args, **options):
         sources = BackupSource.objects.all()
         logger.info(f"Backing up {len(sources)} sources")

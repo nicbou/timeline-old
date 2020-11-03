@@ -80,3 +80,14 @@ class BackupSource(models.Model):
 
     def __str__(self):
         return f"{self.key} ({self.user}@{self.host}:{self.port}, {self.path})"
+
+
+class TwitterSource(models.Model):
+    consumer_key = models.CharField(max_length=50, blank=False)
+    consumer_secret = models.CharField(max_length=50, blank=False)
+    access_token = models.CharField(max_length=50, blank=False)
+    access_token_secret = models.CharField(max_length=50, blank=False)
+    twitter_username = models.CharField(max_length=50, blank=False)
+
+    def __str__(self):
+        return f"@{self.twitter_username}"
