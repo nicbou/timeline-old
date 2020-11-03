@@ -15,11 +15,13 @@ export default Vue.component('tile', {
     tileClasses: function() {
       return [this.entry.schema.replace('.', '-')]
     },
-    mimetype: function(){
-      if (this.entry.extra_attributes) {
-        return this.entry.extra_attributes.mimetype;
+    previewType: function() {
+      if(this.entry.schema.startsWith('file.video')) {
+        return 'video';
       }
-      return undefined;
+      else if(this.entry.schema.startsWith('file.image') || this.entry.schema.startsWith('file.document.pdf')) {
+        return 'image';
+      }
     }
   },
   methods: {
@@ -36,7 +38,7 @@ export default Vue.component('tile', {
       <img 
         :alt="entry.title" :src="entry.extra_attributes.previews.small"
         loading="lazy" 
-        v-if="mimetype.startsWith('image')"/>
+        v-if="previewType === 'image'"/>
       <video
         :alt="entry.title"
         :src="entry.extra_attributes.previews.small"
@@ -44,7 +46,10 @@ export default Vue.component('tile', {
         @mouseover="videoHoverStart"
         loop
         ref="videoElement"
-        v-if="mimetype.startsWith('video')"/>
+        v-if="previewType === 'video'"/>
+      <div class="tile-icons">
+        <i v-if="previewType === 'video'" class="fas fa-play-circle"></i>
+      </div>
     </div>
   `
 });

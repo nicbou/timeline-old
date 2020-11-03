@@ -6,6 +6,14 @@ export default Vue.component('preview', {
         return this.entry.extra_attributes.mimetype;
       }
       return undefined;
+    },
+    previewType: function() {
+      if(this.entry.schema.startsWith('file.video')) {
+        return 'video';
+      }
+      else if(this.entry.schema.startsWith('file.image') || this.entry.schema.startsWith('file.document.pdf')) {
+        return 'image';
+      }
     }
   },
   methods: {
@@ -15,9 +23,9 @@ export default Vue.component('preview', {
   },
   template: `
     <div class="preview">
-      <button class="close" @click="close">Close</button>
-      <img v-if="mimetype.startsWith('image')" :alt="entry.title" :src="entry.extra_attributes.previews.large"/>
-      <video autoplay controls v-if="mimetype.startsWith('video')" :alt="entry.title" :src="entry.extra_attributes.previews.small"/>
+      <button class="button close" @click="close" title="Close"><i class="fas fa-times"></i></button>
+      <img v-if="previewType === 'image'" :alt="entry.title" :src="entry.extra_attributes.previews.large"/>
+      <video autoplay controls v-if="previewType === 'video'" :alt="entry.title" :src="entry.extra_attributes.previews.small"/>
     </div>
   `
 });

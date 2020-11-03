@@ -61,8 +61,8 @@ export default Vue.component('timeline', {
   },
   template: `
     <div id="timeline" class="container">
-      <timeline-nav></timeline-nav>
       <preview :entry="selectedEntry" v-if="modalVisible" @close="closeTile"></preview>
+      <timeline-nav></timeline-nav>
       <h2>
         {{ timelineDate.format('LL') }}
         <br><small>{{ relativeTimelineDate }}</small>

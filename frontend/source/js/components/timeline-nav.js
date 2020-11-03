@@ -47,17 +47,17 @@ export default Vue.component('timeline-nav', {
     },
   },
   template: `
-    <nav id="timeline" class="container">
-      <button @click="moveTimelineDate('years', -1)">-1Y</button>
-      <button @click="moveTimelineDate('months', -1)">-1M</button>
-      <button @click="moveTimelineDate('weeks', -1)">-1W</button>
-      <button @click="moveTimelineDate('days', -1)">-1D</button>
-      <input type="date" v-model="timelineDateIso">
-      <button @click="pickTimelineDate(today)">Today</button>
-      <button :disabled="!showTomorrow" @click="moveTimelineDate('days', 1)">+1D</button>
-      <button :disabled="!showNextWeek" @click="moveTimelineDate('weeks', 1)">+1W</button>
-      <button :disabled="!showNextMonth" @click="moveTimelineDate('months', 1)">+1M</button>
-      <button :disabled="!showNextYear" @click="moveTimelineDate('years', 1)">+1Y</button>
-    </nav>
+    <div>
+      <button class="button" @click="moveTimelineDate('years', -1)">-1Y</button>
+      <button class="button" @click="moveTimelineDate('months', -1)">-1M</button>
+      <button class="button" @click="moveTimelineDate('weeks', -1)">-1W</button>
+      <button class="button" @click="moveTimelineDate('days', -1)">-1D</button>
+      <input class="input" type="date" v-model="timelineDateIso">
+      <button class="button" @click="pickTimelineDate(today)">Today</button>
+      <button class="button" :disabled="!showTomorrow" @click="moveTimelineDate('days', 1)">+1D</button>
+      <button class="button" :disabled="!showNextWeek" @click="moveTimelineDate('weeks', 1)">+1W</button>
+      <button class="button" :disabled="!showNextMonth" @click="moveTimelineDate('months', 1)">+1M</button>
+      <button class="button" :disabled="!showNextYear" @click="moveTimelineDate('years', 1)">+1Y</button>
+    </div>
   `
 });
