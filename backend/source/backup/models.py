@@ -91,3 +91,13 @@ class TwitterSource(models.Model):
 
     def __str__(self):
         return f"@{self.twitter_username}"
+
+
+class RedditSource(models.Model):
+    client_id = models.CharField(max_length=50, blank=False)
+    client_secret = models.CharField(max_length=50, blank=False)
+    user_agent = models.CharField(max_length=100, blank=True)
+    reddit_username = models.CharField(max_length=20, blank=False)
+
+    def __str__(self):
+        return f"/u/{self.reddit_username}"

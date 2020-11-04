@@ -17,24 +17,8 @@ class BasePostRetrievalCommand(BaseCommand):
     entry_name_plural = 'posts'
     source_class = None
 
-    def get_entries_from_source(self, source, since_id=None) -> List[Entry]:
+    def update_entries_from_source(self, source: source_class) -> List[Entry]:
         raise NotImplementedError
-
-    def get_latest_entry(self, source) -> Entry:
-        raise NotImplementedError
-
-    def get_latest_entry_date(self, latest_entry: Entry):
-        return latest_entry.date_on_timeline if latest_entry else None
-
-    def get_latest_entry_id(self, latest_entry: Entry):
-        return latest_entry.extra_attributes.get('post_id') if latest_entry else None
-
-    def add_arguments(self, parser):
-        parser.add_argument(
-            '--process-all',
-            action='store_true',
-            help=f'Reprocess already processed {self.entry_name_plural}',
-        )
 
     def handle(self, *args, **options):
         sources = self.source_class.objects.all()
@@ -43,19 +27,12 @@ class BasePostRetrievalCommand(BaseCommand):
 
         logger.info(f"Backing up {self.entry_name_plural} from {source_count} sources")
         for source in sources:
-            latest_entry = self.get_latest_entry(source)
-            latest_entry_date = self.get_latest_entry_date(latest_entry)
-            latest_entry_id = self.get_latest_entry_id(latest_entry)
-
-            if latest_entry_date and not options['process_all']:
-                logger.info(f'Retrieving all {source} {self.entry_name_plural} after {latest_entry_date}')
-            else:
-                logger.info(f'Retrieving all {source} {self.entry_name_plural}')
-
             try:
-                new_entries = list(self.get_entries_from_source(source, since_id=latest_entry_id))
-                Entry.objects.bulk_create(new_entries)
-                logger.info(f"Retrieved {len(new_entries)} {self.entry_name_plural} for {source}")
+                created_entries, updated_entries = self.update_entries_from_source(source)
+                logger.info(
+                    f"Retrieved {len(created_entries) + len(updated_entries)} {self.entry_name_plural} for {source}. "
+                    f"{len(created_entries)} created, {len(updated_entries)} updated."
+                )
             except:
                 logger.exception(f"Failed to back up {source} {self.entry_name_plural}")
                 failure_count += 1

@@ -7,6 +7,10 @@
     --font-size-icons: 30px;
     --border-radius: 10px;
 
+    --font-size-small: 13px;
+    --line-height-small: 18px;
+    --font-small: 13px/18px sans-serif;
+
     --spacing-xs:5px;
     --spacing-s:10px;
     --spacing-m:15px;
@@ -18,12 +22,17 @@
         .tile img, .tile video{display:block;height:200px;}
     .tile.post{width:300px;}
         .tile.post header{display:flex;align-items:center;background:#f6f6f6;border-bottom:1px solid var(--light-separator-color);padding:var(--spacing-m);display:flex;}
-            .post-icon{color:var(--tile-text-color);font-size:var(--font-size-icons);}
-                .post-icon a:hover{filter:brightness(1.1);}
-                    .post-icon a:hover i{transform:scale(1.1);}
-                .post-icon.twitter{color:#1da1f2}
+            .post-score{flex:0 0 auto;}
+                .reddit .post-score.positive:before{content:'+'}
+            .post-icon{color:var(--tile-text-color);font-size:var(--font-size-icons);margin-right:var(--spacing-s);}
+                .post-icon:hover{filter:brightness(1.1);}
+                    .post-icon:hover i{transform:scale(1.1);}
+                .twitter .post-icon{color:#1da1f2}
+                .reddit .post-icon{color:#ff4500;}
             .post-title{flex:1 0;}
-        .tile.post{width:300px;} main{padding:0 var(--spacing-m);}
+        .tile.post main{padding:0 var(--spacing-m);font:var(--font-small);}
+            .tile.post main ul{padding-left:0;margin-left:0;}
+            .tile.post main li{list-style:inside;padding-left:0;margin-left:0;}
 
 .preview{position:absolute;top:0;left:0;width:100%;height:100%;background:#000;z-index:1000;overflow:hidden;}
     .preview img, .preview video{object-fit:contain;position:absolute;top:0;left:0;width:100%;height:100%;}

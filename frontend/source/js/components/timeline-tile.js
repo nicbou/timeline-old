@@ -21,7 +21,7 @@ export default Vue.component('tile', {
       else if(this.entry.schema.startsWith('file.image') || this.entry.schema.startsWith('file.document.pdf')) {
         return 'image';
       }
-      else if(this.entry.schema === 'social.twitter.tweet') {
+      else if(this.entry.schema.startsWith('social.')) {
         return 'post';
       }
     },

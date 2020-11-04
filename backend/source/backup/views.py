@@ -1,13 +1,12 @@
 from .management.commands.copy_ssh_keys import SSHTimeoutError, SSHCredentialsError
-from .models import BackupSource, TwitterSource
-from .serializers import BackupSourceSerializer, TwitterSourceSerializer
+from .models import BackupSource, TwitterSource, RedditSource
+from .serializers import BackupSourceSerializer, TwitterSourceSerializer, RedditSourceSerializer
 from django.core.management import call_command
 from rest_framework import permissions
 from rest_framework import viewsets
 from rest_framework.exceptions import APIException, AuthenticationFailed
 from rest_framework.response import Response
 import logging
-import os
 
 logger = logging.getLogger(__name__)
 
@@ -67,9 +66,12 @@ class BackupViewSet(viewsets.ViewSet):
 
 
 class TwitterSourceViewSet(viewsets.ModelViewSet):
-    """
-    List and manage backup Sources. A Source is a remote server from which files are backed up.
-    """
     queryset = TwitterSource.objects.all().order_by('twitter_username')
     serializer_class = TwitterSourceSerializer
+    permission_classes = [permissions.AllowAny]
+
+
+class RedditSourceViewSet(viewsets.ModelViewSet):
+    queryset = RedditSource.objects.all().order_by('reddit_username')
+    serializer_class = RedditSourceSerializer
     permission_classes = [permissions.AllowAny]
