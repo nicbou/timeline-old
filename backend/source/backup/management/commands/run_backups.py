@@ -3,6 +3,7 @@ from datetime import datetime
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 import logging
+import pytz
 import subprocess
 
 
@@ -13,7 +14,7 @@ class Command(BaseCommand):
     help = 'Backs up the remote sources one by one.'
 
     def backup_source(self, source: BackupSource):
-        current_backup = Backup(source, datetime.utcnow())
+        current_backup = Backup(source, datetime.now(pytz.UTC))
         latest_backup = Backup(source)
 
         source_dir = source.path.strip().rstrip('/') + '/'

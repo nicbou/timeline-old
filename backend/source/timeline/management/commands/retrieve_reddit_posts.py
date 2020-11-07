@@ -3,6 +3,7 @@ from datetime import datetime
 from typing import List
 
 import praw
+import pytz
 
 from backup.models import RedditSource
 from timeline.management.commands.retrieve_posts import BasePostRetrievalCommand
@@ -33,7 +34,7 @@ class Command(BasePostRetrievalCommand):
                 defaults={
                     'title': submission.title,
                     'description': submission.selftext,
-                    'date_on_timeline': datetime.utcfromtimestamp(submission.created_utc),
+                    'date_on_timeline': datetime.fromtimestamp(submission.created_utc, pytz.UTC),
                     'extra_attributes': {
                         'post_id': submission.id,
                         'post_score': submission.score,
