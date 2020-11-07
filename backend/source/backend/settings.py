@@ -100,6 +100,13 @@ logging.config.dictConfig({
             'level': 'INFO',
             'handlers': ['console',],
         },
+        'gunicorn.access': {
+            'level': 'ERROR',
+            'handlers': ['console'],
+            'propagate': True,
+            'qualname': 'gunicorn.access',
+        }
+
     },
 })
 
