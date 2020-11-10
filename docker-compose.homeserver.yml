@@ -3,10 +3,11 @@ services:
   proxy:
     networks:
       default:
+      homeserver:
          aliases:
             - timeline
 
 networks:
-  default:
+  homeserver:
     external:
       name: homeserver
