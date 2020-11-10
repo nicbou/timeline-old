@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 class Command(BasePostRetrievalCommand):
     help = 'Retrieves reddit comments from RedditSources.'
     entry_schema = 'social.reddit.comment'
-    entry_name_plural = 'comments'
+    entry_name_plural = 'reddit comments'
     source_class = RedditSource
 
     def update_entries_from_source(self, source: source_class) -> List[Entry]:

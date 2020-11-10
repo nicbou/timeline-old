@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 class Command(BasePostRetrievalCommand):
     help = 'Retrieves reddit posts from RedditSources.'
     entry_schema = 'social.reddit.post'
-    entry_name_plural = 'posts'
+    entry_name_plural = 'reddit posts'
     source_class = RedditSource
 
     def update_entries_from_source(self, source: source_class) -> List[Entry]:
