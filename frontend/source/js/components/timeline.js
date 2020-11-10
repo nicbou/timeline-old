@@ -60,17 +60,19 @@ export default Vue.component('timeline', {
     }
   },
   template: `
-    <div id="timeline" class="container">
-      <preview :entry="selectedEntry" v-if="modalVisible" @close="closeTile"></preview>
-      <timeline-nav></timeline-nav>
-      <h2>
-        {{ timelineDate.format('LL') }}
-        <br><small>{{ relativeTimelineDate }}</small>
-      </h2>
-      <spinner v-if="isLoading"></spinner>
-      <div class="tiles">
-        <tile :entry="entry" v-for="entry in entries" :key="entry.id" @click="selectTile"></tile>
+    <div>
+      <div class="container">
+        <h1>{{ timelineDate.format('LL') }}</h1>
+        <span class="subtitle">{{ relativeTimelineDate }}</span>
+        <timeline-nav id="timeline-nav"></timeline-nav>
       </div>
+      <div class="container wide">
+        <spinner v-if="isLoading"></spinner>
+        <div class="tiles">
+          <tile :entry="entry" v-for="entry in entries" :key="entry.id" @click="selectTile"></tile>
+        </div>
+      </div>
+      <preview :entry="selectedEntry" v-if="modalVisible" @close="closeTile"></preview>
     </div>
   `
 });

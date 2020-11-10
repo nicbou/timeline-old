@@ -14,6 +14,9 @@ export default Vue.component('preview', {
       else if(this.entry.schema.startsWith('file.image') || this.entry.schema.startsWith('file.document.pdf')) {
         return 'image';
       }
+      else if(this.entry.schema.startsWith('social.')) {
+        return 'image';
+      }
     },
     imageSrcSet: function() {
         return `${this.entry.extra_attributes.previews.preview} 1x, ${this.entry.extra_attributes.previews.preview2x} 2x`;
@@ -34,6 +37,7 @@ export default Vue.component('preview', {
         :srcset="imageSrcSet"
         />
       <video autoplay controls v-if="previewType === 'video'" :alt="entry.title" :src="entry.extra_attributes.previews.preview"/>
+      <post :entry="entry" v-if="previewType === 'post'"></post>
     </div>
   `
 });

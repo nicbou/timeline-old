@@ -8,27 +8,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
 
-    <link href="https://home.nicolasbouliane.com/css/style.css" rel="stylesheet">
     <link href="css/style.css" rel="stylesheet">
     <link href="css/fontawesome.css" rel="stylesheet">
     <link href="js/components/spinner.css" rel="stylesheet">
-
-    <link rel="preload" href="fonts/fa-brands-400.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="preload" href="fonts/fa-regular-400.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="preload" href="fonts/fa-solid-900.woff2" as="font" type="font/woff2" crossorigin>
-
-    <link rel="preload" href="/api/movies/" type="application/json" as="fetch" crossorigin="anonymous">
-    <link rel="preload" href="/api/auth/info/" type="application/json" as="fetch" crossorigin="anonymous">
 </head>
 <body>
     <div id="page">
-        <div id="main-menu">
-            <nav class="container">
-            </nav>
-        </div>
-        <div id="main-content">
+        <main>
             <router-view :key="$route.path"></router-view>
-        </div>
+        </main>
     </div>
     <script src="js/libs/vue.js"></script>
     <script src="js/libs/vue-router.js"></script>
