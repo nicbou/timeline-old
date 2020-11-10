@@ -133,11 +133,25 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         entries = Entry.objects.filter(schema__startswith='file.')
         logger.info(f"Generating previews and metadata for {len(entries)} file entries")
+        missing_entry_count = 0
         for entry in entries:
+            entry_path = Path(entry.extra_attributes['path'])
+
+            # This could happen if a Backup is deleted
+            if not entry_path.exists():
+                logger.error(f"Entry #{entry.id} does not exist at {entry.extra_attributes['path']}")
+                missing_entry_count += 1
+                entry.delete()
+                continue
+
             logger.info(f"Processing #{entry.id} ({entry.extra_attributes['path']})")
             for task in self.get_processing_tasks(entry):
                 task(entry)
 
             entry.save()
 
-        logger.info(f"Backup entries generated.")
+        if missing_entry_count == 0:
+            logger.info(f"{len(entries)} file entries processed.")
+        else:
+            logger.warning(f"{len(entries)} file entries processed. "
+                           f"{missing_entry_count} entries with missing files removed.")
