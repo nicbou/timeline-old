@@ -1,0 +1,12 @@
+version: "3.5"
+services:
+  proxy:
+    networks:
+      default:
+         aliases:
+            - timeline
+
+networks:
+  default:
+    external:
+      name: homeserver
