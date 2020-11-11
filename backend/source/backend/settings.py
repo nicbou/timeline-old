@@ -19,7 +19,7 @@ SECRET_KEY = os.environ.get('BACKEND_SECRET_KEY', False)
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('BACKEND_DEBUG', False) == '1'
-ALLOWED_HOSTS = ['backend']
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
