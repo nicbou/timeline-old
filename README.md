@@ -18,7 +18,10 @@ BACKEND_DEBUG=1
 COMPOSE_PROJECT_NAME=timeline
 ```
 
-2. Run `docker-compose up --build -d` to start the server.
+2. Copy your SSL certificate chain and key under `./proxy/ssl-certs`:
+    - Call the cert chain `cert-chain.crt`
+    - Call the key `server.key`
+3. Run `docker-compose up --build -d` to start the server.
 
 ## Backing up Sources
 

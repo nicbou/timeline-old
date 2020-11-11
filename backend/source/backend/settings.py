@@ -21,7 +21,6 @@ SECRET_KEY = os.environ.get('BACKEND_SECRET_KEY', False)
 DEBUG = os.environ.get('BACKEND_DEBUG', False) == '1'
 ALLOWED_HOSTS = ['*']
 
-
 # Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
