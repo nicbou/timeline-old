@@ -30,7 +30,7 @@ class Command(BaseCommand):
         command = [
             'ssh-keygen', '-b', '2048', '-t', 'rsa', '-f', ssh_key_path, '-q', '-N', '',
         ]
-        subprocess.check_call(command, check=True)
+        subprocess.check_call(command)
 
     def copy_ssh_keys(self, user, host, port, password):
         command = [
