@@ -78,7 +78,7 @@ class Command(BaseCommand):
         for timelineinclude_path in timelineinclude_paths:
             with open(timelineinclude_path, 'r') as timelineinclude_file:
                 for line in timelineinclude_file.readlines():
-                    glob_path = backup.files_path / Path(line.strip())
+                    glob_path = timelineinclude_path / Path(line.strip())
                     include_paths.append(glob_path)
 
         if len(include_paths) == 0:
