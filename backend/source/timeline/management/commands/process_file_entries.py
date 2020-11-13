@@ -44,6 +44,7 @@ class Command(BaseCommand):
                 entry.extra_attributes.pop('codec', None)
         except:
             logger.exception(f"Could not read metadata from file #{entry.pk} at {original_path}")
+            raise
 
     def set_pdf_previews(self, entry: Entry):
         original_path = Path(entry.extra_attributes['path'])
@@ -65,6 +66,7 @@ class Command(BaseCommand):
                 raise
             except:
                 logger.exception(f'Could not generate PDF preview for entry #{entry.pk} ({str(original_path)}).')
+                raise
 
     def set_image_previews(self, entry: Entry):
         original_path = Path(entry.extra_attributes['path'])
@@ -86,6 +88,7 @@ class Command(BaseCommand):
                 raise
             except:
                 logger.exception(f'Could not generate image preview for entry #{entry.pk} ({str(original_path)}).')
+                raise
 
     def set_video_previews(self, entry: Entry):
         original_path = Path(entry.extra_attributes['path'])
@@ -108,6 +111,7 @@ class Command(BaseCommand):
                 raise
             except:
                 logger.exception(f'Could not generate video preview for entry #{entry.pk} ({str(original_path)}).')
+                raise
 
     def get_processing_tasks(self, entry: Entry):
         tasks = [
@@ -146,7 +150,10 @@ class Command(BaseCommand):
 
             logger.info(f"Processing #{entry.id} ({entry.extra_attributes['path']})")
             for task in self.get_processing_tasks(entry):
-                task(entry)
+                try:
+                    task(entry)
+                except:
+                    logger.exception(f'Could not process entry #{entry.pk} ({str(original_path)}).')
 
             entry.save()
 
