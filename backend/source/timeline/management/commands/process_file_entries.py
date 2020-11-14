@@ -153,7 +153,7 @@ class Command(BaseCommand):
                 try:
                     task(entry)
                 except:
-                    logger.exception(f'Could not process entry #{entry.pk} ({str(original_path)}).')
+                    logger.exception(f'Could not process entry #{entry.pk} ({str(Path(entry.extra_attributes['path']))}).')
 
             entry.save()
 
