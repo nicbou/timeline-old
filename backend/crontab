@@ -2,6 +2,6 @@
 # Output to /tmp/stdout to show output in the docker logs
 SHELL=/bin/bash
 
-0 */6 * * * source /srv/cronenv; /usr/local/bin/python /usr/src/app/manage.py run_backups && /usr/local/bin/python /usr/src/app/manage.py generate_backup_entries && /usr/local/bin/python /usr/src/app/manage.py process_file_entries > /tmp/stdout 2>&1
+0 */6 * * * source /srv/cronenv; /usr/local/bin/python /usr/src/app/manage.py run_backups > /tmp/stdout 2>&1 && /usr/local/bin/python /usr/src/app/manage.py generate_backup_entries > /tmp/stdout 2>&1 && /usr/local/bin/python /usr/src/app/manage.py process_file_entries > /tmp/stdout 2>&1
 0 * * * * source /srv/cronenv; /usr/local/bin/python /usr/src/app/manage.py retrieve_twitter_tweets  > /tmp/stdout 2>&1
 0 * * * * source /srv/cronenv; /usr/local/bin/python /usr/src/app/manage.py retrieve_reddit_comments  > /tmp/stdout 2>&1
