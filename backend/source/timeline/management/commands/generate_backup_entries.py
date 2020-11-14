@@ -28,12 +28,6 @@ class Command(BaseCommand):
             )
         )
 
-    def get_changed_files(self, source: BackupSource) -> List[Path]:
-        for backup in source.backups:
-            for changed_file in backup.changed_files():
-                if self.is_file_allowed(changed_file):
-                    yield changed_file
-
     @staticmethod
     def get_file_date(file_path: Path) -> datetime:
         return datetime.fromtimestamp(file_path.stat().st_mtime, pytz.UTC)
