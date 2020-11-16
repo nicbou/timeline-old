@@ -1,3 +1,5 @@
+import os
+
 from backup.models import BackupSource, Backup
 from datetime import datetime
 from django.conf import settings
@@ -20,6 +22,12 @@ class Command(BaseCommand):
         source_dir = source.path.strip().rstrip('/') + '/'
         source_path = f'{source.user}@{source.host}:"{source_dir}"'
 
+        # Rsync won't sync dotfiles in the root directory, unless you add a trailing slash
+        #   https://stackoverflow.com/q/9046749/1067337
+        # Pathlib automatically removes trailing slashes:
+        #   https://stackoverflow.com/a/47572467/1067337
+        dest_path = str(current_backup.files_path.resolve() / '_')[:-1]
+
         current_backup.files_path.mkdir(parents=True, exist_ok=True)
 
         # Run rsync
@@ -34,7 +42,7 @@ class Command(BaseCommand):
             "--filter", ":- .rsyncignore",
             "--link-dest", str(latest_backup.files_path.resolve()),
             source_path,
-            str(current_backup.files_path.resolve()),
+            dest_path,
         ]
         exit_code = subprocess.call(rsync_command, stdout=log_file, stderr=log_file)
 
