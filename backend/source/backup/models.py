@@ -47,6 +47,9 @@ class Backup:
             if is_file and has_content_changed:
                 yield self.files_path / line.split(' ', 1)[1].strip()
 
+    def __str__(self):
+        return f"{self.source.key} ({self.date})"
+
 
 class BackupSource(models.Model):
     user = models.CharField(max_length=80, blank=False)
