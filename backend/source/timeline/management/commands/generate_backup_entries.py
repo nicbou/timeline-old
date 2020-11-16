@@ -65,9 +65,13 @@ class Command(BaseCommand):
         )
 
     @staticmethod
-    def get_changed_files(backup: Backup) -> List[Path]:
-        """Only return files that are allowed by .timelineinclude"""
-        timelineinclude_paths = backup.files_path.glob('**/.timelineinclude')
+    def get_files_in_backup(backup: Backup, timelineinclude_backup: Backup) -> List[Path]:
+        """
+        Only return files that are allowed by the .timelineinclude files in the latest backup.
+        We must use the latest .timelineinclude files to avoid showing old files that are not included, and to include
+        files that were backed up before the .timelineinclude file was added.
+        """
+        timelineinclude_paths = timelineinclude_backup.files_path.glob('**/.timelineinclude')
         include_paths = []
         for timelineinclude_path in timelineinclude_paths:
             with open(timelineinclude_path, 'r') as timelineinclude_file:
@@ -76,7 +80,7 @@ class Command(BaseCommand):
                     include_paths.append(glob_path)
 
         if len(include_paths) == 0:
-            logger.warning(f'No .timelineinclude files found in {str(backup.files_path)}/')
+            logger.warning(f'No .timelineinclude files found in {str(timelineinclude_backup.files_path)}/')
             return []
 
         return [
@@ -115,6 +119,7 @@ class Command(BaseCommand):
                 logger.info(f'Processing all "{source.key}" backups')
 
             entries_created = 0
+            latest_backup = backups_to_process[0]
             for backup in backups_to_process:
                 Entry.objects.filter(
                     extra_attributes__source=source.key,
@@ -122,17 +127,17 @@ class Command(BaseCommand):
                 ).delete()
                 entries_created += len(Entry.objects.bulk_create([
                     Entry(
-                        schema=self.get_schema(changed_file),
-                        title=changed_file.name,
+                        schema=self.get_schema(file_in_backup),
+                        title=file_in_backup.name,
                         description='',
-                        date_on_timeline=self.get_file_date(changed_file),
+                        date_on_timeline=self.get_file_date(file_in_backup),
                         extra_attributes={
-                            'path': str(changed_file.resolve()),
+                            'path': str(file_in_backup.resolve()),
                             'source': source.key,
                             'backup_date': backup.date.strftime('%Y-%m-%dT%H:%M:%SZ'),
                         }
                     )
-                    for changed_file in self.get_changed_files(backup)
+                    for file_in_backup in self.get_files_in_backup(backup, timelineinclude_backup=latest_backup)
                 ]))
             logger.info(f"\"{source.key}\" backup entries generated. "
                         f"{len(backups_to_process)} backups processed, "
