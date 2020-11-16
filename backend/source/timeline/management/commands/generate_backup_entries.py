@@ -72,7 +72,7 @@ class Command(BaseCommand):
         for timelineinclude_path in timelineinclude_paths:
             with open(timelineinclude_path, 'r') as timelineinclude_file:
                 for line in timelineinclude_file.readlines():
-                    glob_path = timelineinclude_path / Path(line.strip())
+                    glob_path = timelineinclude_path.parent / Path(line.strip())
                     include_paths.append(glob_path)
 
         if len(include_paths) == 0:
@@ -82,7 +82,7 @@ class Command(BaseCommand):
         return [
             changed_file for changed_file in backup.changed_files()
             if any(
-                # Path.match() doesn't match ** to multiple subdirs
+                # Path.match() doesn't match ** to multiple subdirs, so we use fnmatch
                 fnmatch(str(changed_file), str(include_path)) for include_path in include_paths
             )
         ]
