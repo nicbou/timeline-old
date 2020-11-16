@@ -12,5 +12,6 @@ class EntryViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     permission_classes = [permissions.AllowAny]
     filterset_fields = {
-        'date_on_timeline':['gte', 'lte', 'exact', 'gt', 'lt'],
+        'date_on_timeline': ['gte', 'lte', 'exact', 'gt', 'lt'],
+        'schema': ['exact', 'contains'],
     }
