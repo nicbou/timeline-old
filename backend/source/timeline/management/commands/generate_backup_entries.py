@@ -65,23 +65,24 @@ class Command(BaseCommand):
         )
 
     @staticmethod
-    def get_files_in_backup(backup: Backup, timelineinclude_backup: Backup) -> List[Path]:
+    def get_files_in_backup(backup: Backup) -> List[Path]:
         """
         Only return files that are allowed by the .timelineinclude files in the latest backup.
         We must use the latest .timelineinclude files to avoid showing old files that are not included, and to include
         files that were backed up before the .timelineinclude file was added.
         """
-        timelineinclude_paths = timelineinclude_backup.files_path.glob('**/.timelineinclude')
+        latest_backup = backup.source.latest_backup
+        timelineinclude_paths = list(latest_backup.files_path.glob('**/.timelineinclude'))
         include_paths = []
         for timelineinclude_path in timelineinclude_paths:
             with open(timelineinclude_path, 'r') as timelineinclude_file:
                 for line in timelineinclude_file.readlines():
                     glob_path = timelineinclude_path.parent / Path(line.strip())
-                    relative_glob_path = glob_path.relative_to(timelineinclude_backup.files_path)
+                    relative_glob_path = glob_path.relative_to(latest_backup.files_path)
                     include_paths.append(backup.files_path / relative_glob_path)
 
         if len(include_paths) == 0:
-            logger.warning(f'No .timelineinclude rules found in {str(timelineinclude_backup.files_path)}')
+            logger.warning(f'No .timelineinclude rules found in {str(latest_backup.files_path)}')
             return []
 
         return [
@@ -138,7 +139,7 @@ class Command(BaseCommand):
                             'backup_date': backup.date.strftime('%Y-%m-%dT%H:%M:%SZ'),
                         }
                     )
-                    for file_in_backup in self.get_files_in_backup(backup, timelineinclude_backup=latest_backup)
+                    for file_in_backup in self.get_files_in_backup(backup)
                 ]))
             logger.info(f"\"{source.key}\" backup entries generated. "
                         f"{len(backups_to_process)} backups processed, "
