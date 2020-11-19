@@ -78,7 +78,7 @@ class Command(BaseCommand):
                 for line in timelineinclude_file.readlines():
                     glob_path = timelineinclude_path.parent / Path(line.strip())
                     relative_glob_path = glob_path.relative_to(timelineinclude_backup.files_path)
-                    include_paths.append(relative_glob_path)
+                    include_paths.append(backup.files_path / relative_glob_path)
 
         if len(include_paths) == 0:
             logger.warning(f'No .timelineinclude rules found in {str(timelineinclude_backup.files_path)}')
