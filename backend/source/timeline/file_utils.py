@@ -3,7 +3,12 @@ import json
 import logging
 import mimetypes
 import subprocess
+from datetime import datetime
 from pathlib import Path
+from PIL import Image
+from PIL.ExifTags import TAGS, GPSTAGS
+
+from timeline.geo_utils import dms_to_decimal
 
 logger = logging.getLogger(__name__)
 
@@ -12,7 +17,7 @@ def get_mimetype(file_path: Path) -> str:
     return mimetypes.guess_type(file_path, strict=False)[0]
 
 
-def get_checksum(file_path: Path):
+def get_checksum(file_path: Path) -> str:
     with open(file_path, "rb") as f:
         file_hash = hashlib.blake2b()
         while chunk := f.read(8192):
@@ -46,7 +51,7 @@ def generate_pdf_preview(input_path: Path, output_path: Path, max_dimensions: (i
         )
 
 
-def get_media_metadata(input_path: Path):
+def get_media_metadata(input_path: Path) -> dict:
     ffprobe_cmd = subprocess.run(
         [
             'ffprobe',
@@ -69,6 +74,65 @@ def get_media_metadata(input_path: Path):
     if 'codec_name' in raw_metadata:
         metadata['codec'] = raw_metadata['codec_name']
 
+    return metadata
+
+
+def get_exif(input_path: Path) -> dict:
+    image = Image.open(input_path)
+    image.verify()
+    raw_exif = image._getexif()
+
+    if not raw_exif:
+        return {}
+
+    exif = {}
+    for (key, val) in raw_exif.items():
+        exif[TAGS.get(key)] = val
+
+    gpsinfo_tags = {}
+    if 'GPSInfo' in exif:
+        for (key, val) in GPSTAGS.items():
+            if key in exif['GPSInfo']:
+                gpsinfo_tags[val] = exif['GPSInfo'][key]
+
+        exif['GPSInfo'] = gpsinfo_tags
+
+    return exif
+
+
+def get_metadata_from_exif(input_path: Path) -> dict:
+    exif = get_exif(input_path)
+    metadata = {}
+
+    if 'GPSInfo' in exif:
+        metadata['coordinates'] = {
+            'lat': dms_to_decimal(exif['GPSInfo']['GPSLatitude'], exif['GPSInfo']['GPSLatitudeRef']),
+            'lng': dms_to_decimal(exif['GPSInfo']['GPSLongitude'], exif['GPSInfo']['GPSLongitudeRef']),
+        }
+
+        if 'GPSAltitude' in exif['GPSInfo']:
+            altitude = exif['GPSInfo']['GPSAltitude']
+            if not exif['GPSInfo'].get('GPSAltitudeRef', b'\x00') == b'\x00':
+                altitude *= -1
+            metadata['coordinates']['alt'] = float(altitude)
+
+    if 'Make' in exif or 'Model' in exif:
+        metadata['camera'] = f"{exif.get('Make', '')} {exif.get('Model', '')}".strip()
+
+    if 'GPSDateStamp' in exif.get('GPSInfo', {}):
+        # GPS dates are UTC
+        gps_date = exif['GPSInfo']['GPSDateStamp']
+        gps_time = ":".join(f"{float(timefragment):02.0f}" for timefragment in exif['GPSInfo']['GPSTimeStamp'])
+        metadata['creation_date'] = datetime\
+            .strptime(f"{gps_date} {gps_time}", '%Y:%m:%d %H:%M:%S')\
+            .strftime('%Y-%m-%dT%H:%M:%SZ')
+    elif 'DateTimeOriginal' in exif:
+        # There is no timezone information on this date
+        metadata['creation_date'] = datetime\
+            .strptime(exif['DateTimeOriginal'], '%Y:%m:%d %H:%M:%S')\
+            .strftime('%Y-%m-%dT%H:%M:%SZ')
+
+    print(metadata)
     return metadata
 
 

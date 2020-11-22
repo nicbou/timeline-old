@@ -6,3 +6,4 @@ django-filter==2.4.0
 tweepy==3.9.0
 praw==7.1.0
 coloredlogs==14.0
+Pillow==8.0.1
