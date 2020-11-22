@@ -1,8 +1,8 @@
 # Backup tools
 
-A web-based app to collect various sorts of personal data (rsync backups, social media activity, etc) and display it as a personal timeline.
+This software collects personal data from different sources, and displays it on a personal timeline. It's like the timeline in your photos app, but for more than just photos.
 
-The timeline was designed to be extended with all sorts of entries: geolocation, social media posts, blog posts, journal entries etc. It is meant to be a person's complete timeline.
+The timeline is meant to be extended with all sorts of data: geolocation, social media posts, blog posts, journal entries etc.
 
 ## Setup
 
@@ -11,10 +11,10 @@ The timeline was designed to be extended with all sorts of entries: geolocation,
 # A long, random, secret key used by Django
 BACKEND_SECRET_KEY=...
 
-# Optional. Enables debugging.
+# Optional. Turns on debugging for the Django backend
 BACKEND_DEBUG=1
 
-# Optional. Sets the prefix for this project's docker images.
+# Optional. Sets the prefix for this project's docker images
 COMPOSE_PROJECT_NAME=timeline
 
 # Optional. Overrides the default docker-compose.yml file with your extra configs
@@ -26,27 +26,70 @@ COMPOSE_FILE=docker-compose.yml:docker-compose.homeserver.yml
     - Call the key `server.key`
 3. Run `docker-compose up --build -d` to start the server.
 
-## Backing up Sources
+## Entries
 
-Use the API to add new sources. The supplied password will be used to copy SSH keys on the Source server. The password is not saved.
+An Entry represents one thing that appears on the timeline. It could be a photo, a journal entry, a tweet, etc.
 
-Once added, Sources are backed up automatically using `rsync`. The backups are incremental. The files are only transferred once, unless they change.
+Entries have a `schema` attribute, like `file.document.pdf`. The schemas are read from left (general) to right (specific). The schemas determine what attributes you can expect in the `extra_attributes` field. For example, all `file.image` entries have `width` and `height` attributes.
 
-You can force a new backup by calling `scripts/run_backups.sh`. It will back up all the Sources.
+## Sources
 
-You can create `.rsyncignore` files on the Source filesystem to exclude files from the backup. It works like a `.gitignore` file.
+A Source describes where the data is, and the credentials to retrieve it.
 
-You can create `.timelineinclude` files on the Source filesystem to include files in the timeline. Each line is a glob pattern that matches files in the backup.
+For example, a TwitterSource has Twitter API credentials, and a Twitter username. Each TwitterSource instance can have different API credentials, and fetch data for a different Twitter user.
 
-Example `.rsyncignore` or `.timelineinclude` file:
+New sources can be added directly through the API. You can browse the API at `/api/backup`.
+
+### BackupSource
+
+A remote machine that will be backed up with rsync. When you create the source, you must supply a password. This will be used to copy SSH keys. the password will not be stored.
+
+**Required fields:**
+
+* `host`: hostname of the remote machine (e.g. "home.nicolasbouliane.com")
+* `port`: SSH port on the remote machine (e.g. "22")
+* `user`: SSH user on the remote machine (e.g. "backups")
+* `path`: the path to backup on the remote machine (e.g. "/home/backups")
+* `key`: a unique name for this backup (e.g. "home-server")
+
+The backups are incremental. If you don't change any files, you can run a backup 100 times, and it won't use any extra bandwidth or disk space.
+
+To exclude files from a backup, create `.rsyncignore` files on the source machine. The files listed in that file will not be backed up. It's a bit like a `.gitignore` file.
+
+To back up files, but exclude them from the timeline, create `.timelineinclude` files on the source machine. If a file is not in the `.timelineinclude` file, it won't appear on the timeline.
+
+Here is an example `.rsyncignore` or `.timelineinclude` file:
 ```
-.git
-.DS_Store
-__pycache__
-*.iso
-images/icons
+images/*.jpg
+**/*.pdf
+documents/invoices
 ```
 
-### Authentication
+### TwitterSource
 
-This project is not shipped with authentication, because it runs behind's my home server's single sign-on. You could trivially add authentication to Django Rest Framework, but you would also need to make the frontend use that authentication.
+Describes a source of tweets.
+
+**Required fields:**
+
+* `consumer_key`: Twitter API credentials
+* `consumer_secret`: Twitter API credentials
+* `access_token`: Twitter API credentials
+* `access_token_secret`: Twitter API credentials
+* `twitter_username`: The name of the Twitter user to back up, without the "@" (e.g. "nicolasbouliane")
+
+### RedditSource
+
+Describes a source of reddit posts and comments.
+
+**Required fields:**
+
+* `client_id`: Twitter API credentials
+* `client_secret`: Twitter API credentials
+* `user_agent`: Twitter API credentials
+* `reddit_username`: The name of the Reddit user to back up (e.g. "spez")
+
+## Authentication
+
+This project does not have authentication. Everything on the timeline is public, and anyone can make destructive API requests. You will need to include your own form of authentication.
+
+I run this software behind my home server's single sign-on.
