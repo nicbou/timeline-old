@@ -80,7 +80,7 @@ def get_media_metadata(input_path: Path) -> dict:
 def get_exif(input_path: Path) -> dict:
     image = Image.open(input_path)
     image.verify()
-    raw_exif = image._getexif()
+    raw_exif = image.getexif()
 
     if not raw_exif:
         return {}
@@ -101,20 +101,31 @@ def get_exif(input_path: Path) -> dict:
 
 
 def get_metadata_from_exif(input_path: Path) -> dict:
-    exif = get_exif(input_path)
     metadata = {}
+    try:
+        exif = get_exif(input_path)
+    except:
+        return metadata
 
     if 'GPSInfo' in exif:
-        metadata['coordinates'] = {
-            'lat': dms_to_decimal(exif['GPSInfo']['GPSLatitude'], exif['GPSInfo']['GPSLatitudeRef']),
-            'lng': dms_to_decimal(exif['GPSInfo']['GPSLongitude'], exif['GPSInfo']['GPSLongitudeRef']),
-        }
+        metadata['coordinates'] = {}
+        if 'GPSLatitude' in exif['GPSInfo'] and 'GPSLongitude' in exif['GPSInfo']:
+            metadata['coordinates'].update({
+                'lat': dms_to_decimal(exif['GPSInfo']['GPSLatitude'], exif['GPSInfo']['GPSLatitudeRef']),
+                'lng': dms_to_decimal(exif['GPSInfo']['GPSLongitude'], exif['GPSInfo']['GPSLongitudeRef']),
+            })
 
         if 'GPSAltitude' in exif['GPSInfo']:
             altitude = exif['GPSInfo']['GPSAltitude']
             if not exif['GPSInfo'].get('GPSAltitudeRef', b'\x00') == b'\x00':
                 altitude *= -1
             metadata['coordinates']['alt'] = float(altitude)
+
+        if 'GPSImgDirection' in exif['GPSInfo']:
+            metadata['coordinates']['direction'] = float(exif['GPSInfo']['GPSImgDirection'])
+
+        if 'GPSDestBearing' in exif['GPSInfo']:
+            metadata['coordinates']['bearing'] = float(exif['GPSInfo']['GPSDestBearing'])
 
     if 'Make' in exif or 'Model' in exif:
         metadata['camera'] = f"{exif.get('Make', '')} {exif.get('Model', '')}".strip()
@@ -132,7 +143,6 @@ def get_metadata_from_exif(input_path: Path) -> dict:
             .strptime(exif['DateTimeOriginal'], '%Y:%m:%d %H:%M:%S')\
             .strftime('%Y-%m-%dT%H:%M:%SZ')
 
-    print(metadata)
     return metadata
 
 
