@@ -1,8 +1,8 @@
 # Backup tools
 
-A web-based app to schedule, browse and manage rsync backups from multiple remote machines. Backed up files can be viewed on a web-based timeline.
+A web-based app to collect various sorts of personal data (rsync backups, social media activity, etc) and display it as a personal timeline.
 
-The timeline was designed to be extended with other kinds of entries: geolocation, social media posts, blog posts, journal entries etc. It is meant to be a person's complete timeline.  
+The timeline was designed to be extended with all sorts of entries: geolocation, social media posts, blog posts, journal entries etc. It is meant to be a person's complete timeline.
 
 ## Setup
 
@@ -16,6 +16,9 @@ BACKEND_DEBUG=1
 
 # Optional. Sets the prefix for this project's docker images.
 COMPOSE_PROJECT_NAME=timeline
+
+# Optional. Overrides the default docker-compose.yml file with your extra configs
+COMPOSE_FILE=docker-compose.yml:docker-compose.homeserver.yml
 ```
 
 2. Copy your SSL certificate chain and key under `./proxy/ssl-certs`:
@@ -43,3 +46,7 @@ __pycache__
 *.iso
 images/icons
 ```
+
+### Authentication
+
+This project is not shipped with authentication, because it runs behind's my home server's single sign-on. You could trivially add authentication to Django Rest Framework, but you would also need to make the frontend use that authentication.
