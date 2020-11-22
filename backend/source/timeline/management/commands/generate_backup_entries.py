@@ -15,18 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    help = 'Deletes and recreates timeline entries for a given source.'
-
-    @staticmethod
-    def is_file_allowed(file_path: Path):
-        mimetype = get_mimetype(file_path)
-        return (
-            mimetype and (
-                mimetype.startswith('image/')
-                or mimetype.startswith('video/')
-                or mimetype.startswith('audio/')
-            )
-        )
+    help = 'Deletes and recreates timeline entries for a backup.'
 
     @staticmethod
     def get_file_date(file_path: Path) -> datetime:
@@ -68,8 +57,6 @@ class Command(BaseCommand):
     def get_files_in_backup(backup: Backup) -> List[Path]:
         """
         Only return files that are allowed by the .timelineinclude files in the latest backup.
-        We must use the latest .timelineinclude files to avoid showing old files that are not included, and to include
-        files that were backed up before the .timelineinclude file was added.
         """
         latest_backup = backup.source.latest_backup
         timelineinclude_paths = list(latest_backup.files_path.glob('**/.timelineinclude'))
@@ -97,6 +84,7 @@ class Command(BaseCommand):
         sources = BackupSource.objects.all()
         logger.info(f"Generating entries for {len(sources)} backup sources")
         for source in sources:
+            # By default, we only process each backup once
             latest_entry = Entry.objects\
                 .filter(extra_attributes__source=source.key, extra_attributes__backup_date__isnull=False)\
                 .order_by('-extra_attributes__backup_date')\
@@ -121,7 +109,6 @@ class Command(BaseCommand):
                 logger.info(f'Processing all "{source.key}" backups')
 
             entries_created = 0
-            latest_backup = backups_to_process[0]
             for backup in backups_to_process:
                 Entry.objects.filter(
                     extra_attributes__source=source.key,

@@ -1,9 +1,6 @@
-import os
-
 from backup.models import BackupSource, Backup
 from datetime import datetime
-from django.conf import settings
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 import logging
 import pytz
 import subprocess
@@ -15,7 +12,8 @@ logger = logging.getLogger(__name__)
 class Command(BaseCommand):
     help = 'Backs up the remote sources one by one.'
 
-    def backup_source(self, source: BackupSource):
+    @staticmethod
+    def backup_source(source: BackupSource):
         current_backup = Backup(source, datetime.now(pytz.UTC))
         latest_backup = Backup(source)
 
@@ -52,7 +50,7 @@ class Command(BaseCommand):
             latest_backup.root_path.symlink_to(current_backup.root_path, target_is_directory=True)
         else:
             """
-            In case of failure, the failed backup's directory is preserved, but /latest will always point to the latest
+            In case of failure, the failed backup's directory is not deleted, but /latest will always point to the latest
             successful backup.
             """
             logger.error(f"{source} backup failed (exit code {exit_code}). Rsync log is at {str(current_backup.log_path)}")
