@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from typing import List
+from typing import List, Tuple
 
 import praw
 import pytz
@@ -18,7 +18,7 @@ class Command(BasePostRetrievalCommand):
     entry_name_plural = 'reddit comments'
     source_class = RedditSource
 
-    def update_entries_from_source(self, source: source_class) -> List[Entry]:
+    def update_entries_from_source(self, source: source_class) -> Tuple[List[Entry], List[Entry]]:
         reddit = praw.Reddit(
             client_id=source.client_id,
             client_secret=source.client_secret,

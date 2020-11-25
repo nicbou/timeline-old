@@ -98,7 +98,7 @@ logging.config.dictConfig({
     'loggers': {
         '': {
             'level': 'INFO',
-            'handlers': ['console',],
+            'handlers': ['console'],
         },
         'gunicorn.access': {
             'level': 'ERROR',

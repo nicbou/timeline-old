@@ -1,4 +1,3 @@
-from datetime import datetime
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 import logging
@@ -12,6 +11,7 @@ logger = logging.getLogger(__name__)
 class SSHCredentialsError(CommandError):
     pass
 
+
 class SSHTimeoutError(CommandError):
     pass
 
@@ -19,7 +19,8 @@ class SSHTimeoutError(CommandError):
 class Command(BaseCommand):
     help = 'Copies SSH keys to a remote host without any user input'
 
-    def get_ssh_key_path(self):
+    @staticmethod
+    def get_ssh_key_path():
         return os.path.join(settings.SSH_DIR, 'id_rsa')
 
     def generate_ssh_keys(self):

@@ -1,5 +1,5 @@
 import logging
-from typing import List
+from typing import List, Tuple
 
 import tweepy
 
@@ -16,7 +16,7 @@ class Command(BasePostRetrievalCommand):
     entry_name_plural = 'tweets'
     source_class = TwitterSource
 
-    def update_entries_from_source(self, source: source_class) -> List[Entry]:
+    def update_entries_from_source(self, source: source_class) -> Tuple[List[Entry], List[Entry]]:
         auth = tweepy.OAuthHandler(source.consumer_key, source.consumer_secret)
         auth.set_access_token(source.access_token, source.access_token_secret)
         api = tweepy.API(auth)

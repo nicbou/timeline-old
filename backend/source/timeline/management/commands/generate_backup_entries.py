@@ -8,7 +8,6 @@ from django.core.management.base import BaseCommand
 from fnmatch import fnmatch
 from pathlib import Path
 import logging
-import mimetypes
 import pytz
 
 logger = logging.getLogger(__name__)
@@ -24,7 +23,7 @@ class Command(BaseCommand):
     @staticmethod
     def get_schema(file_path: Path) -> str:
         schema = 'file'
-        guessed_type = mimetypes.guess_type(file_path, strict=False)[0]
+        guessed_type = get_mimetype(file_path)
         if not guessed_type:
             return schema
 
@@ -99,6 +98,8 @@ class Command(BaseCommand):
             source_backups = list(source.backups)
             backups_to_process = source_backups
             if latest_entry_date and not options['process_all']:
+                # TODO: Changes to the .timelineinclude file are not applied to older backups. The files won't show up,
+                # because the changed files from those backups are not reprocessed.
                 if options['process_latest']:
                     backups_to_process = [backup for backup in backups_to_process if backup.date >= latest_entry_date]
                     logger.info(f'Processing all "{source.key}" backups starting from {latest_entry_date}')

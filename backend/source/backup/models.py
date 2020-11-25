@@ -1,10 +1,8 @@
-from collections import namedtuple
 from datetime import datetime
 from django.conf import settings
 from django.db import models
 from pathlib import Path
 from typing import Generator
-import os
 
 
 class Backup:
@@ -15,7 +13,7 @@ class Backup:
     date_format = '%Y-%m-%dT%H.%M.%SZ'  # Using colons would break things
     latest_backup_dirname = 'latest'
 
-    def __init__(self, source: 'BackupSource', date: datetime=None, path: Path=None):
+    def __init__(self, source: 'BackupSource', date: datetime = None, path: Path = None):
         self.source = source
         if date:
             self.date = date

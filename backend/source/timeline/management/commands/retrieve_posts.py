@@ -1,12 +1,8 @@
 import logging
-from datetime import datetime
 from typing import List
 
-import tweepy
 from django.core.management.base import BaseCommand
-from tweepy import Status
 
-from backup.models import TwitterSource
 from timeline.models import Entry
 
 logger = logging.getLogger(__name__)

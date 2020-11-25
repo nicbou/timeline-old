@@ -50,10 +50,11 @@ class Command(BaseCommand):
             latest_backup.root_path.symlink_to(current_backup.root_path, target_is_directory=True)
         else:
             """
-            In case of failure, the failed backup's directory is not deleted, but /latest will always point to the latest
-            successful backup.
+            In case of failure, the failed backup's directory is not deleted, but /latest will always point to the
+            latest successful backup.
             """
-            logger.error(f"{source} backup failed (exit code {exit_code}). Rsync log is at {str(current_backup.log_path)}")
+            logger.error(f"{source} backup failed (exit code {exit_code}). "
+                         f"Rsync log is at {str(current_backup.log_path)}")
             raise Exception("Rsync backup failed")
 
     def handle(self, *args, **options):

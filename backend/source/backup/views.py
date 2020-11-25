@@ -41,7 +41,8 @@ class BackupViewSet(viewsets.ViewSet):
     """
     List and manage Backups on the filesystem. A Backup is a set of files generated when a Source is backed up.
     """
-    def get_backups_for_source(self, source):
+    @staticmethod
+    def get_backups_for_source(source):
         return [
             {
                 'date': backup.date,
