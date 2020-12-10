@@ -111,8 +111,8 @@ def get_metadata_from_exif(input_path: Path) -> dict:
         metadata['coordinates'] = {}
         if 'GPSLatitude' in exif['GPSInfo'] and 'GPSLongitude' in exif['GPSInfo']:
             metadata['coordinates'].update({
-                'lat': dms_to_decimal(exif['GPSInfo']['GPSLatitude'], exif['GPSInfo']['GPSLatitudeRef']),
-                'lng': dms_to_decimal(exif['GPSInfo']['GPSLongitude'], exif['GPSInfo']['GPSLongitudeRef']),
+                'lat': dms_to_decimal(exif['GPSInfo']['GPSLatitude'], exif['GPSInfo'].get('GPSLatitudeRef')),
+                'lng': dms_to_decimal(exif['GPSInfo']['GPSLongitude'], exif['GPSInfo'].get('GPSLongitudeRef')),
             })
 
         if 'GPSAltitude' in exif['GPSInfo']:
@@ -136,14 +136,14 @@ def get_metadata_from_exif(input_path: Path) -> dict:
             gps_date = exif['GPSInfo']['GPSDateStamp']
             gps_time = ":".join(f"{float(timefragment):02.0f}" for timefragment in exif['GPSInfo']['GPSTimeStamp'])
             metadata['creation_date'] = datetime\
-                .strptime(f"{gps_date} {gps_time}".replace('\x00',''), '%Y:%m:%d %H:%M:%S')\
+                .strptime(f"{gps_date} {gps_time}".replace('\x00','').replace('-',':'), '%Y:%m:%d %H:%M:%S')\
                 .strftime('%Y-%m-%dT%H:%M:%SZ')
         except KeyError:
             pass
     elif 'DateTimeOriginal' in exif:
         # There is no timezone information on this date
         metadata['creation_date'] = datetime\
-            .strptime(exif['DateTimeOriginal'].replace('\x00',''), '%Y:%m:%d %H:%M:%S')\
+            .strptime(exif['DateTimeOriginal'].replace('\x00','').replace('-',':'), '%Y:%m:%d %H:%M:%S')\
             .strftime('%Y-%m-%dT%H:%M:%SZ')
 
     return metadata
