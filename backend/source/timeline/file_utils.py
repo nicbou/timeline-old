@@ -136,14 +136,14 @@ def get_metadata_from_exif(input_path: Path) -> dict:
             gps_date = exif['GPSInfo']['GPSDateStamp']
             gps_time = ":".join(f"{float(timefragment):02.0f}" for timefragment in exif['GPSInfo']['GPSTimeStamp'])
             metadata['creation_date'] = datetime\
-                .strptime(f"{gps_date} {gps_time}", '%Y:%m:%d %H:%M:%S')\
+                .strptime(f"{gps_date} {gps_time}".replace('\x00',''), '%Y:%m:%d %H:%M:%S')\
                 .strftime('%Y-%m-%dT%H:%M:%SZ')
         except KeyError:
             pass
     elif 'DateTimeOriginal' in exif:
         # There is no timezone information on this date
         metadata['creation_date'] = datetime\
-            .strptime(exif['DateTimeOriginal'], '%Y:%m:%d %H:%M:%S')\
+            .strptime(exif['DateTimeOriginal'].replace('\x00',''), '%Y:%m:%d %H:%M:%S')\
             .strftime('%Y-%m-%dT%H:%M:%SZ')
 
     return metadata
