@@ -10,6 +10,7 @@ BACKUPS_ROOT = Path('/srv/backups')
 PREVIEWS_ROOT = Path('/srv/previews')
 DEFAULT_PREVIEW_SUBDIR = 'other'  # Usually, it's the source name
 SSH_DIR = '/root/.ssh'
+TIMELINE_INCLUDE_FILE = '.timelineinclude'
 
 
 # Quick-start development settings - unsuitable for production

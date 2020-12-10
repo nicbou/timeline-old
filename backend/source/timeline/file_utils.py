@@ -130,13 +130,13 @@ def get_metadata_from_exif(input_path: Path) -> dict:
     if 'Make' in exif or 'Model' in exif:
         metadata['camera'] = f"{exif.get('Make', '')} {exif.get('Model', '')}".strip()
 
-    if 'GPSDateStamp' in exif.get('GPSInfo', {}):
+    if 'GPSDateStamp' in exif.get('GPSInfo', {}) and 'GPSTimeStamp' in exif.get('GPSInfo', {}):
         # GPS dates are UTC
         gps_date = exif['GPSInfo']['GPSDateStamp']
-        gps_time = ":".join(f"{float(timefragment):02.0f}" for timefragment in exif['GPSInfo']['GPSTimeStamp'])
-        metadata['creation_date'] = datetime\
-            .strptime(f"{gps_date} {gps_time}", '%Y:%m:%d %H:%M:%S')\
-            .strftime('%Y-%m-%dT%H:%M:%SZ')
+        try:
+            gps_time = ":".join(f"{float(timefragment):02.0f}" for timefragment in exif['GPSInfo']['GPSTimeStamp'])
+        except KeyError:
+            gps_time = None
     elif 'DateTimeOriginal' in exif:
         # There is no timezone information on this date
         metadata['creation_date'] = datetime\
