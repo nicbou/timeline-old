@@ -77,6 +77,7 @@ input, button, textarea, select{font:var(--font-m);border:var(--border);border-r
 
 .tiles{display:flex;flex-wrap:wrap;margin:calc(var(--spacing-m) * -1) 0 0 calc(var(--spacing-m) * -1);}
     .tile{color:var(--tile-text-color);height:var(--height-tile);position:relative;border-radius:var(--border-radius);border:var(--border);overflow:hidden;background:var(--color-tile-background);max-height:var(--height-tile);margin:var(--spacing-m) 0 0 var(--spacing-m);flex:0 auto;}
+        .tile .tile-icons{position:absolute;bottom:0;right:0;padding:var(--spacing-m);font-size:var(--font-size-icons);}
     .tile.image, .tile.video{border:none;}
         .tile img, .tile video{cursor:pointer;display:block;height:var(--height-tile);}
     .tile.post{width:var(--width-tile-post);flex:1 0 auto;max-width:calc(var(--width-tile-post) + var(--width-tile-fudge-factor))}

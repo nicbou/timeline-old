@@ -14,8 +14,11 @@ export default Vue.component('tile', {
         }
       }
     },
+    isVideo: function() {
+      return this.entry.schema.startsWith('file.video');
+    },
     previewType: function() {
-      if(this.entry.schema.startsWith('file.video')) {
+      if(this.isVideo) {
         return 'video';
       }
       else if(this.entry.schema.startsWith('file.image') || this.entry.schema.startsWith('file.document.pdf')) {
@@ -25,8 +28,11 @@ export default Vue.component('tile', {
         return 'post';
       }
     },
+    hasGeolocation: function() {
+      return !!this.entry.extra_attributes.location;
+    },
     imageSrcSet: function() {
-        return `${this.entry.extra_attributes.previews.thumbnail} 1x, ${this.entry.extra_attributes.previews.thumbnail2x} 2x`;
+      return `${this.entry.extra_attributes.previews.thumbnail} 1x, ${this.entry.extra_attributes.previews.thumbnail2x} 2x`;
     }
   },
   methods: {
@@ -58,6 +64,10 @@ export default Vue.component('tile', {
         ref="videoElement"
         v-if="previewType === 'video'"/>
       <post :entry="entry" v-if="previewType === 'post'"></post>
+      <div class="tile-icons">
+        <i v-if="hasGeolocation" class="fas fa-map-marker-alt"></i>
+        <i v-if="isVideo" class="fas fa-play-circle"></i>
+      </div>
     </div>
   `
 });
