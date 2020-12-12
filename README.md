@@ -93,6 +93,10 @@ Describes a source of reddit posts and comments.
 * `user_agent`: Twitter API credentials
 * `reddit_username`: The name of the Reddit user to back up (e.g. "spez")
 
+## Geolocation
+
+This project ships with an MQTT broker. This broker works with [OwnTracks](https://owntracks.org/) to receive geolocation pings from your phone. When your phone sends its location, a `geo.point.current` entry is created.
+
 ## Authentication
 
 This project does not have authentication. Everything on the timeline is public, and anyone can make destructive API requests. You will need to include your own form of authentication.
