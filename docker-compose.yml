@@ -8,7 +8,6 @@ services:
       - POSTGRES_PASSWORD=postgres
     volumes:
       - db_persistence:/var/lib/postgresql/data
-    userns_mode: "host"
   timeline-backend:
     build: backend
     environment:
@@ -23,14 +22,31 @@ services:
       - backend_staticfiles:/srv/static
       - ./scripts:/usr/src/scripts:ro
       - ssh_keys:/root/.ssh
-    privileged: true
-    userns_mode: "host"
   timeline-frontend:
     image: nginx
     volumes:
       - ./frontend/source:/usr/share/nginx/html:ro
     depends_on:
       - timeline-backend
+  mqtt-broker:
+    build: mqtt-broker
+    environment:
+      - MQTT_USERNAME
+      - MQTT_PASSWORD
+    volumes:
+      - mqtt_persistence:/mosquitto/data
+    ports:
+      - 1883:1883
+  geolocation-client:
+    build: geolocation-client
+    environment:
+      - MQTT_USERNAME
+      - MQTT_PASSWORD
+    depends_on:
+      - mqtt-broker
+      - timeline-backend
+    volumes:
+      - ./geolocation-client/source:/usr/src/app
   proxy:
     build: proxy
     depends_on:
@@ -42,6 +58,7 @@ services:
       - backend_staticfiles:/srv/static
 volumes:
   db_persistence:
+  mqtt_persistence:
   backups:
   previews:
   ssh_keys:

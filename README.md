@@ -14,6 +14,11 @@ BACKEND_SECRET_KEY=...
 # Optional. Turns on debugging for the Django backend
 BACKEND_DEBUG=1
 
+# Username and password for the MQTT client
+# OwnTracks connects to this client to send the phone's location
+MQTT_USERNAME=johntheuser
+MQTT_PASSWORD=superextrasecret
+
 # Optional. Sets the prefix for this project's docker images
 COMPOSE_PROJECT_NAME=timeline
 
