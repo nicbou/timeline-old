@@ -108,24 +108,24 @@ def get_metadata_from_exif(input_path: Path) -> dict:
         return metadata
 
     if 'GPSInfo' in exif:
-        metadata['coordinates'] = {}
+        metadata['location'] = {}
         if 'GPSLatitude' in exif['GPSInfo'] and 'GPSLongitude' in exif['GPSInfo']:
-            metadata['coordinates'].update({
-                'lat': dms_to_decimal(exif['GPSInfo']['GPSLatitude'], exif['GPSInfo'].get('GPSLatitudeRef')),
-                'lng': dms_to_decimal(exif['GPSInfo']['GPSLongitude'], exif['GPSInfo'].get('GPSLongitudeRef')),
+            metadata['location'].update({
+                'latitude': dms_to_decimal(exif['GPSInfo']['GPSLatitude'], exif['GPSInfo'].get('GPSLatitudeRef')),
+                'longitude': dms_to_decimal(exif['GPSInfo']['GPSLongitude'], exif['GPSInfo'].get('GPSLongitudeRef')),
             })
 
         if 'GPSAltitude' in exif['GPSInfo']:
             altitude = exif['GPSInfo']['GPSAltitude']
             if not exif['GPSInfo'].get('GPSAltitudeRef', b'\x00') == b'\x00':
                 altitude *= -1
-            metadata['coordinates']['alt'] = float(altitude)
+            metadata['location']['alt'] = float(altitude)
 
         if 'GPSImgDirection' in exif['GPSInfo']:
-            metadata['coordinates']['direction'] = float(exif['GPSInfo']['GPSImgDirection'])
+            metadata['location']['direction'] = float(exif['GPSInfo']['GPSImgDirection'])
 
         if 'GPSDestBearing' in exif['GPSInfo']:
-            metadata['coordinates']['bearing'] = float(exif['GPSInfo']['GPSDestBearing'])
+            metadata['location']['bearing'] = float(exif['GPSInfo']['GPSDestBearing'])
 
     if 'Make' in exif or 'Model' in exif:
         metadata['camera'] = f"{exif.get('Make', '')} {exif.get('Model', '')}".replace('\x00','').strip()

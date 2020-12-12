@@ -59,7 +59,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def set_exif_metadata(entry: Entry):
-        if 'camera' in entry.extra_attributes:
+        if 'camera' in entry.extra_attributes and 'location' in entry.extra_attributes:
             return
 
         original_path = Path(entry.extra_attributes['path'])
