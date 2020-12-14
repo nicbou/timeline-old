@@ -7,6 +7,6 @@ source /srv/cronenv
 /usr/local/bin/python /usr/src/app/manage.py retrieve_reddit_posts
 
 # File backups
-/usr/src/app/manage.py run_rsync_backups &&
+/usr/local/bin/python /usr/src/app/manage.py run_rsync_backups &&
 /usr/local/bin/python /usr/src/app/manage.py generate_backup_entries &&
 /usr/local/bin/python /usr/src/app/manage.py process_file_entries
