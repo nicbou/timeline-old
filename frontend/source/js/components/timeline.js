@@ -1,6 +1,7 @@
 import SpinnerComponent from './spinner.js';
 import TimelineNav from './timeline-nav.js';
 import TimelineTile from './timeline-tile.js';
+import TimelineMapTile from './timeline-map-tile.js';
 import Preview from './preview.js';
 import { RequestStatus } from './../models/requests.js';
 
@@ -69,6 +70,7 @@ export default Vue.component('timeline', {
       <div class="container wide">
         <spinner v-if="isLoading"></spinner>
         <div class="tiles">
+          <map-tile :entries="entries"></map-tile>
           <tile :entry="entry" v-for="entry in entries" :key="entry.id" @click="selectTile"></tile>
         </div>
       </div>

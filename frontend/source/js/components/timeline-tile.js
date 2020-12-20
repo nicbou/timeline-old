@@ -1,9 +1,5 @@
 import Post from './post.js';
 
-function getNestedProperty(obj, ...args) {
-  return args.reduce((obj, level) => obj && obj[level], obj)
-}
-
 export default Vue.component('tile', {
   props: ['entry'],
   computed: {
