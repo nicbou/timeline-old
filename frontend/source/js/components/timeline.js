@@ -1,8 +1,10 @@
-import SpinnerComponent from './spinner.js';
-import TimelineNav from './timeline-nav.js';
-import TimelineTile from './timeline-tile.js';
-import TimelineMapTile from './timeline-map-tile.js';
 import Preview from './preview.js';
+import SpinnerComponent from './spinner.js';
+import TimelineImageTile from './tiles/image.js';
+import TimelineMapTile from './tiles/map.js'
+import TimelineNav from './timeline-nav.js';
+import TimelinePostTile from './tiles/post.js'
+import TimelineVideoTile from './tiles/video.js';
 import { RequestStatus } from './../models/requests.js';
 
 function makeRouteValid(to, from, next) {
@@ -58,7 +60,19 @@ export default Vue.component('timeline', {
     closeTile: function() {
       this.modalVisible = false;
       this.selectedEntry = null;
-    }
+    },
+    tileType: function(entry) {
+      const s = entry.schema;
+      if (s.startsWith('file.image') || s.startsWith('file.document.pdf')) {
+        return 'image-tile';
+      }
+      else if(s.startsWith('file.video')) {
+        return 'video-tile';
+      }
+      else if(s.startsWith('social.')) {
+        return 'post-tile';
+      }
+    },
   },
   template: `
     <div>
@@ -71,7 +85,7 @@ export default Vue.component('timeline', {
         <spinner v-if="isLoading"></spinner>
         <div class="tiles">
           <map-tile :entries="entries"></map-tile>
-          <tile :entry="entry" v-for="entry in entries" :key="entry.id" @click="selectTile"></tile>
+          <component :is="tileType(entry)" v-if="tileType(entry)" :entry="entry" v-for="entry in entries" :key="entry.id" @click="selectTile"></component>
         </div>
       </div>
       <preview :entry="selectedEntry" v-if="modalVisible" @close="closeTile"></preview>

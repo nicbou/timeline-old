@@ -1,4 +1,4 @@
-export default Vue.component('post', {
+export default Vue.component('post-tile', {
   props: ['entry'],
   computed: {
     postType: function() {
@@ -52,7 +52,7 @@ export default Vue.component('post', {
     },
   },
   template: `
-    <article :class="postType">
+    <article class="tile post" :class="postType">
       <header>
         <a :href="postPermalink" class="post-icon" target="_blank">
           <i class="fab" :class="iconClass"></i>
@@ -68,7 +68,6 @@ export default Vue.component('post', {
       <main>
         <p v-html="richDescription"></p>
       </main>
-
     </article>
   `
 });
