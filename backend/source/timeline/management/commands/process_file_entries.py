@@ -92,6 +92,15 @@ class Command(BaseCommand):
                 logger.exception(f'Could not generate PDF preview for entry #{entry.pk} ({str(original_path)}).')
                 raise
 
+    def set_plaintext_description(self, entry: Entry):
+        if len(entry.description):
+            return
+
+        original_path = Path(entry.extra_attributes['path'])
+
+        with original_path.open('r') as text_file:
+            entry.description = text_file.read(settings.MAX_PLAINTEXT_PREVIEW_SIZE)
+
     def set_image_previews(self, entry: Entry):
         original_path = Path(entry.extra_attributes['path'])
         entry.extra_attributes['previews'] = {}
@@ -156,6 +165,8 @@ class Command(BaseCommand):
             ])
         elif entry.schema.startswith('file.document.pdf'):
             tasks.append(self.set_pdf_previews)
+        elif entry.schema.startswith('file.text'):
+            tasks.append(self.set_plaintext_description)
 
         return tasks
 

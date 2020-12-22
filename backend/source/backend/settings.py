@@ -176,6 +176,9 @@ VIDEO_PREVIEW_SIZES = {
     },
 }
 
+# In bytes
+MAX_PLAINTEXT_PREVIEW_SIZE = 10000  # 2KB = 1 page of text
+
 
 # Internationalization
 LANGUAGE_CODE = 'en-us'
