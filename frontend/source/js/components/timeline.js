@@ -4,6 +4,7 @@ import TimelineImageTile from './tiles/image.js';
 import TimelineMapTile from './tiles/map.js'
 import TimelineNav from './timeline-nav.js';
 import TimelinePostTile from './tiles/post.js'
+import TimelineTextTile from './tiles/text.js'
 import TimelineVideoTile from './tiles/video.js';
 import { RequestStatus } from './../models/requests.js';
 
@@ -71,6 +72,9 @@ export default Vue.component('timeline', {
       }
       else if(s.startsWith('social.')) {
         return 'post-tile';
+      }
+      else if(s.startsWith('file.text')) {
+        return 'text-tile';
       }
     },
   },
