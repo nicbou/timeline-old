@@ -65,8 +65,7 @@ export default Vue.component('post-tile', {
         </span>
         <span v-if="postScore" class="post-score" :class="{positive: postScore >= 1, negative: postScore < 1}">{{ postScore }}</span>
       </header>
-      <main>
-        <p v-html="richDescription"></p>
+      <main v-html="richDescription">
       </main>
     </article>
   `
