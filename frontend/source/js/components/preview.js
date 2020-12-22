@@ -11,17 +11,6 @@ export default Vue.component('preview', {
       }
       return undefined;
     },
-    previewType: function() {
-      if(this.entry.schema.startsWith('file.video')) {
-        return 'video';
-      }
-      else if(this.entry.schema.startsWith('file.image') || this.entry.schema.startsWith('file.document.pdf')) {
-        return 'image';
-      }
-      else if(this.entry.schema.startsWith('social.')) {
-        return 'image';
-      }
-    },
     imageSrcSet: function() {
         return `${this.entry.extra_attributes.previews.preview} 1x, ${this.entry.extra_attributes.previews.preview2x} 2x`;
     },
