@@ -161,9 +161,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         entries = Entry.objects.filter(schema__startswith='file.')
-        logger.info(f"Generating previews and metadata for {len(entries)} file entries")
+        entry_count = len(entries)
+        logger.info(f"Generating previews and metadata for {entry_count} file entries")
         missing_entry_count = 0
-        for entry in entries:
+        for index, entry in enumerate(entries):
             entry_path = Path(entry.extra_attributes['path'])
 
             # This could happen if a Backup is deleted
@@ -173,7 +174,7 @@ class Command(BaseCommand):
                 entry.delete()
                 continue
 
-            logger.info(f"Processing #{entry.id} ({entry.extra_attributes['path']})")
+            logger.info(f"Processing entry {index + 1}/{entry_count} (#{entry.id} - {entry.extra_attributes['path']})")
             for task in self.get_processing_tasks(entry):
                 try:
                     task(entry)
