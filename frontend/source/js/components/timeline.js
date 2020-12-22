@@ -85,7 +85,7 @@ export default Vue.component('timeline', {
         <spinner v-if="isLoading"></spinner>
         <div class="tiles">
           <map-tile :entries="entries"></map-tile>
-          <component :is="tileType(entry)" v-if="tileType(entry)" :entry="entry" v-for="entry in entries" :key="entry.id" @click="selectTile"></component>
+          <component class="tile" :is="tileType(entry)" v-if="tileType(entry)" :entry="entry" v-for="entry in entries" :key="entry.id" @select="selectTile"></component>
         </div>
       </div>
       <preview :entry="selectedEntry" v-if="modalVisible" @close="closeTile"></preview>

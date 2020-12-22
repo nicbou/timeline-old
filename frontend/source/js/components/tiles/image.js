@@ -18,7 +18,7 @@ export default Vue.component('image-tile', {
   template: `
     <div class="tile image" :style="tileStyle">
       <img
-        @click="$emit('click', entry)"
+        @click="$emit('select', entry)"
         loading="lazy"
         :alt="entry.title"
         :src="entry.extra_attributes.previews.thumbnail"

@@ -1,3 +1,7 @@
+import ImagePreview from './previews/image.js';
+import PostPreview from './previews/post.js';
+import VideoPreview from './previews/video.js';
+
 export default Vue.component('preview', {
   props: ['entry'],
   computed: {
@@ -20,7 +24,19 @@ export default Vue.component('preview', {
     },
     imageSrcSet: function() {
         return `${this.entry.extra_attributes.previews.preview} 1x, ${this.entry.extra_attributes.previews.preview2x} 2x`;
-    }
+    },
+    previewType: function() {
+      const s = this.entry.schema;
+      if (s.startsWith('file.image') || s.startsWith('file.document.pdf')) {
+        return 'image-preview';
+      }
+      else if(s.startsWith('file.video')) {
+        return 'video-preview';
+      }
+      else if(s.startsWith('social.')) {
+        return 'post-preview';
+      }
+    },
   },
   methods: {
     close: function(event) {
@@ -30,14 +46,7 @@ export default Vue.component('preview', {
   template: `
     <div class="preview">
       <button class="button close" @click="close" title="Close"><i class="fas fa-times"></i></button>
-      <img
-        v-if="previewType === 'image'"
-        :alt="entry.title"
-        :src="entry.extra_attributes.previews.preview"
-        :srcset="imageSrcSet"
-        />
-      <video autoplay controls v-if="previewType === 'video'" :alt="entry.title" :src="entry.extra_attributes.previews.preview"/>
-      <post :entry="entry" v-if="previewType === 'post'"></post>
+      <component :is="previewType" :entry="entry"></component>
     </div>
   `
 });

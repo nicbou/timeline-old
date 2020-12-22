@@ -52,8 +52,8 @@ export default Vue.component('post-tile', {
     },
   },
   template: `
-    <article class="tile post" :class="postType">
-      <header>
+    <article class="post" :class="postType">
+      <header @click="$emit('select', entry)">
         <a :href="postPermalink" class="post-icon" target="_blank">
           <i class="fab" :class="iconClass"></i>
         </a>
