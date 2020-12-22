@@ -1,4 +1,4 @@
-export default Vue.component('preview-image', {
+export default Vue.component('image-preview', {
   props: ['entry'],
   computed: {
     imageSrcSet: function() {

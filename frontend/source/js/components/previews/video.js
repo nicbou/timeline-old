@@ -1,4 +1,4 @@
-export default Vue.component('preview-video', {
+export default Vue.component('video-preview', {
   props: ['entry'],
   template: `
     <video autoplay controls
