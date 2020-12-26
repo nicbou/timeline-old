@@ -1,6 +1,7 @@
 import logging
 from typing import List, Tuple
 
+import pytz as pytz
 import tweepy
 
 from backup.models import TwitterSource
@@ -46,7 +47,7 @@ class Command(BasePostRetrievalCommand):
                 defaults={
                     'title': '',
                     'description': tweet.full_text,
-                    'date_on_timeline': tweet.created_at,
+                    'date_on_timeline': tweet.created_at.replace(tzinfo=pytz.UTC),
                     'extra_attributes': {
                         'post_id': tweet.id,
                         'post_user': source.twitter_username,

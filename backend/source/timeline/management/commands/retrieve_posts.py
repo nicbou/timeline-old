@@ -9,7 +9,6 @@ logger = logging.getLogger(__name__)
 
 
 class BasePostRetrievalCommand(BaseCommand):
-    entry_schema = 'social.other.post'
     entry_name_plural = 'posts'
     source_class = None
 

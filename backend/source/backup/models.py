@@ -102,3 +102,10 @@ class RedditSource(models.Model):
 
     def __str__(self):
         return f"/u/{self.reddit_username}"
+
+
+class HackerNewsSource(models.Model):
+    hackernews_username = models.CharField(max_length=20, blank=False)
+
+    def __str__(self):
+        return f"{self.hackernews_username}"

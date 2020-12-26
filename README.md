@@ -93,6 +93,14 @@ Describes a source of reddit posts and comments.
 * `user_agent`: Twitter API credentials
 * `reddit_username`: The name of the Reddit user to back up (e.g. "spez")
 
+### HackerNewsSource
+
+Describes a source of Hacker News posts and comments.
+
+**Required fields:**
+
+* `hackernews_username`: The name of the Hacker News user to back up (e.g. "dang")
+
 ## Geolocation
 
 This project ships with an MQTT broker. This broker works with [OwnTracks](https://owntracks.org/) to receive geolocation pings from your phone. When your phone sends its location, a `geo.point.current` entry is created.

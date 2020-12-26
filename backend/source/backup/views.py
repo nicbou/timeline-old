@@ -1,6 +1,7 @@
 from .management.commands.copy_ssh_keys import SSHTimeoutError, SSHCredentialsError
-from .models import BackupSource, TwitterSource, RedditSource
-from .serializers import BackupSourceSerializer, TwitterSourceSerializer, RedditSourceSerializer
+from .models import BackupSource, TwitterSource, RedditSource, HackerNewsSource
+from .serializers import BackupSourceSerializer, TwitterSourceSerializer, RedditSourceSerializer, \
+    HackerNewsSourceSerializer
 from django.core.management import call_command
 from rest_framework import permissions
 from rest_framework import viewsets
@@ -75,4 +76,10 @@ class TwitterSourceViewSet(viewsets.ModelViewSet):
 class RedditSourceViewSet(viewsets.ModelViewSet):
     queryset = RedditSource.objects.all().order_by('reddit_username')
     serializer_class = RedditSourceSerializer
+    permission_classes = [permissions.AllowAny]
+
+
+class HackerNewsSourceViewSet(viewsets.ModelViewSet):
+    queryset = HackerNewsSource.objects.all().order_by('hackernews_username')
+    serializer_class = HackerNewsSourceSerializer
     permission_classes = [permissions.AllowAny]

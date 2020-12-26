@@ -11,6 +11,9 @@ export default Vue.component('post-tile', {
       else if(this.postType === 'reddit') {
         return `https://reddit.com/user/${this.entry.extra_attributes.post_user}`;
       }
+      else if(this.postType === 'hackernews') {
+        return `https://news.ycombinator.com/submitted?id=${this.entry.extra_attributes.post_user}`;
+      }
     },
     userName: function() {
       if(this.postType === 'twitter') {
@@ -39,12 +42,22 @@ export default Vue.component('post-tile', {
       return null;
     },
     iconClass: function() {
+      if (this.postType === 'hackernews') {
+        return 'fa-y-combinator';
+      }
       return `fa-${this.postType}`;
     },
     richDescription: function() {
       if(this.entry.schema === 'social.reddit.post') {
         return `<h3><a href="${this.entry.extra_attributes.post_url}">${this.entry.title}</a></h3>`;
       }
+      else if(this.entry.schema === 'social.hackernews.story') {
+        return `<h3><a href="https://news.ycombinator.com/item?id=${this.entry.extra_attributes.post_id}">${this.entry.title}</a></h3>`;
+      }
+      else if(this.entry.schema === 'social.hackernews.comment') {
+        return this.entry.extra_attributes.post_body_html;
+      }
+
       let output = this.entry.extra_attributes.post_body_html || this.entry.description;
       if (this.entry.schema === 'social.twitter.tweet') {
         return `<p>${output}</p>`

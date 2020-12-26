@@ -43,6 +43,8 @@ pre{font-family:monospace;}
 
     /* Text */
     --font-h1: 40px/50px sans-serif;
+    --font-h2: 35px/45px sans-serif;
+    --font-h3: 30px/35px sans-serif;
     --spacing-h1: var(--spacing-l);
     --font-m: 15px/22px sans-serif;
     --font-l: 20px/22px sans-serif;
@@ -94,8 +96,10 @@ input, button, textarea, select{font:var(--font-m);border:var(--border);border-r
                 .post-icon:hover i{transform:scale(1.1);}
             .twitter .post-icon{color:#1da1f2}
             .reddit .post-icon{color:#ff4500;}
+            .hackernews .post-icon{color:#f60}
         .post-title{flex:1 0;}
     .post main{flex:1 1 auto;padding:0 var(--spacing-m);font:var(--font-s);overflow:auto;background-color:var(--color-tile-background)}
+        .post main h3{margin:var(--spacing-m) 0;font:var(--font-h3);}
         .post main ul, .tile.post main ol{padding-left:0;margin-left:0}
         .post main li{list-style:inside;padding-left:0;margin-left:0;}
         .post main blockquote{padding-left:var(--spacing-s);font-style:italic;border-left:5px solid var(--color-background);}
