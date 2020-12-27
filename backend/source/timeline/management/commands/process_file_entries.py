@@ -185,7 +185,7 @@ class Command(BaseCommand):
                 entry.delete()
                 continue
 
-            logger.info(f"Processing entry {index + 1}/{entry_count} (#{entry.id} - {entry.extra_attributes['path']})")
+            logger.debug(f"Processing entry {index + 1}/{entry_count} (#{entry.id} - {entry.extra_attributes['path']})")
             for task in self.get_processing_tasks(entry):
                 try:
                     task(entry)
