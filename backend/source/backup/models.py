@@ -108,4 +108,11 @@ class HackerNewsSource(models.Model):
     hackernews_username = models.CharField(max_length=20, blank=False)
 
     def __str__(self):
-        return f"{self.hackernews_username}"
+        return self.hackernews_username
+
+
+class RssSource(models.Model):
+    feed_url = models.URLField(blank=False)
+
+    def __str__(self):
+        return self.feed_url

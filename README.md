@@ -1,4 +1,4 @@
-# Backup tools
+# Personal timeline
 
 This software collects personal data from different sources, and displays it on a personal timeline. It's like the timeline in your photos app, but for more than just photos.
 
@@ -100,6 +100,14 @@ Describes a source of Hacker News posts and comments.
 **Required fields:**
 
 * `hackernews_username`: The name of the Hacker News user to back up (e.g. "dang")
+
+### RssSource
+
+Describes a RSS feed.
+
+**Required fields:**
+
+* `feed_url`: The URL of the RSS feed.
 
 ## Geolocation
 

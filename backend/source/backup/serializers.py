@@ -1,4 +1,4 @@
-from .models import BackupSource, TwitterSource, RedditSource, HackerNewsSource
+from .models import BackupSource, TwitterSource, RedditSource, HackerNewsSource, RssSource
 from rest_framework import serializers
 
 
@@ -25,4 +25,10 @@ class RedditSourceSerializer(serializers.HyperlinkedModelSerializer):
 class HackerNewsSourceSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = HackerNewsSource
+        fields = '__all__'
+
+
+class RssSourceSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = RssSource
         fields = '__all__'
