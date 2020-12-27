@@ -6,6 +6,7 @@ source /srv/cronenv
 /usr/local/bin/python /usr/src/app/manage.py retrieve_reddit_comments
 /usr/local/bin/python /usr/src/app/manage.py retrieve_reddit_posts
 /usr/local/bin/python /usr/src/app/manage.py retrieve_hackernews_items
+/usr/local/bin/python /usr/src/app/manage.py retrieve_rss_entries
 
 # File backups
 /usr/local/bin/python /usr/src/app/manage.py run_rsync_backups &&
