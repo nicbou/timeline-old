@@ -1,5 +1,5 @@
 import logging
-from typing import List
+from typing import List, Tuple
 
 from django.core.management.base import BaseCommand
 
@@ -12,7 +12,7 @@ class BasePostRetrievalCommand(BaseCommand):
     entry_name_plural = 'posts'
     source_class = None
 
-    def update_entries_from_source(self, source: source_class) -> List[Entry]:
+    def update_entries_from_source(self, source: source_class) -> Tuple[List[Entry], List[Entry]]:
         raise NotImplementedError
 
     def handle(self, *args, **options):
