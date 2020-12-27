@@ -3,6 +3,7 @@ from typing import List, Tuple
 
 import pytz as pytz
 import tweepy
+from django.db import transaction
 
 from backup.models import TwitterSource
 from timeline.management.commands.retrieve_posts import BasePostRetrievalCommand
@@ -40,30 +41,31 @@ class Command(BasePostRetrievalCommand):
 
         updated_entries = []
         created_entries = []
-        for tweet in cursor:
-            entry, created = Entry.objects.update_or_create(
-                schema=self.entry_schema,
-                extra_attributes__post_id=tweet.id,
-                defaults={
-                    'title': '',
-                    'description': tweet.full_text,
-                    'date_on_timeline': tweet.created_at.replace(tzinfo=pytz.UTC),
-                    'extra_attributes': {
-                        'post_id': tweet.id,
-                        'post_user': source.twitter_username,
+        with transaction.atomic():
+            for tweet in cursor:
+                entry, created = Entry.objects.update_or_create(
+                    schema=self.entry_schema,
+                    extra_attributes__post_id=tweet.id,
+                    defaults={
+                        'title': '',
+                        'description': tweet.full_text,
+                        'date_on_timeline': tweet.created_at.replace(tzinfo=pytz.UTC),
+                        'extra_attributes': {
+                            'post_id': tweet.id,
+                            'post_user': source.twitter_username,
+                        }
                     }
-                }
-            )
-            if tweet.coordinates:
-                entry.extra_attributes['location'] = {
-                    'latitude': tweet.coordinates[0],
-                    'longitude': tweet.coordinates[1],
-                }
+                )
+                if tweet.coordinates:
+                    entry.extra_attributes['location'] = {
+                        'latitude': tweet.coordinates[0],
+                        'longitude': tweet.coordinates[1],
+                    }
 
-            if created:
-                created_entries.append(entry)
-            else:
-                updated_entries.append(entry)
+                if created:
+                    created_entries.append(entry)
+                else:
+                    updated_entries.append(entry)
 
         return created_entries, updated_entries
 
