@@ -4,6 +4,7 @@ from typing import List, Tuple
 
 import praw
 import pytz
+from django.db import transaction
 
 from backup.models import RedditSource
 from timeline.management.commands.retrieve_posts import BasePostRetrievalCommand
@@ -27,28 +28,29 @@ class Command(BasePostRetrievalCommand):
         comments = reddit.redditor(source.reddit_username).comments.new(limit=None)
         updated_entries = []
         created_entries = []
-        for comment in comments:
-            entry, created = Entry.objects.update_or_create(
-                schema=self.entry_schema,
-                extra_attributes__post_id=comment.id,
-                defaults={
-                    'title': '',
-                    'description': comment.body,
-                    'date_on_timeline': datetime.fromtimestamp(comment.created_utc, pytz.UTC),
-                    'extra_attributes': {
-                        'post_id': comment.id,
-                        'post_score': comment.score,
-                        'post_body_html': comment.body_html,
-                        'post_parent_id': comment.parent_id,
-                        'post_thread_id': comment.submission.id,
-                        'post_community': comment.subreddit.display_name,
-                        'post_user': source.reddit_username,
+        with transaction.atomic():
+            for comment in comments:
+                entry, created = Entry.objects.update_or_create(
+                    schema=self.entry_schema,
+                    extra_attributes__post_id=comment.id,
+                    defaults={
+                        'title': '',
+                        'description': comment.body,
+                        'date_on_timeline': datetime.fromtimestamp(comment.created_utc, pytz.UTC),
+                        'extra_attributes': {
+                            'post_id': comment.id,
+                            'post_score': comment.score,
+                            'post_body_html': comment.body_html,
+                            'post_parent_id': comment.parent_id,
+                            'post_thread_id': comment.submission.id,
+                            'post_community': comment.subreddit.display_name,
+                            'post_user': source.reddit_username,
+                        }
                     }
-                }
-            )
-            if created:
-                created_entries.append(entry)
-            else:
-                updated_entries.append(entry)
+                )
+                if created:
+                    created_entries.append(entry)
+                else:
+                    updated_entries.append(entry)
 
         return created_entries, updated_entries
