@@ -44,6 +44,7 @@ class Command(BasePostRetrievalCommand):
                     'description': item.get('text', ''),
                     'date_on_timeline': item_date,
                     'extra_attributes': {
+                        'post_id': item['id'],
                         'post_user': source.hackernews_username,
                         'post_score': item.get('score'),
                     }
