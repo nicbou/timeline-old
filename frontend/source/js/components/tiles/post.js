@@ -28,6 +28,9 @@ export default Vue.component('post-tile', {
       else if(this.postType === 'reddit') {
         return `https://www.reddit.com/r/${this.entry.extra_attributes.post_community}/comments/${this.entry.extra_attributes.post_thread_id}/a/${this.entry.extra_attributes.post_id}/?context=3`;
       }
+      else if(this.postType === 'blog') {
+        return this.entry.extra_attributes.post_url;
+      }
     },
     postScore: function() {
       return this.entry.extra_attributes.post_score;
@@ -39,13 +42,15 @@ export default Vue.component('post-tile', {
       if(this.postType === 'reddit') {
         return `https://www.reddit.com/r/${this.entry.extra_attributes.post_community}`;
       }
-      return null;
     },
     iconClass: function() {
       if (this.postType === 'hackernews') {
-        return 'fa-y-combinator';
+        return 'fab fa-y-combinator';
       }
-      return `fa-${this.postType}`;
+      else if(this.postType === 'blog') {
+        return 'fas fa-rss-square';
+      }
+      return `fab fa-${this.postType}`;
     },
     richDescription: function() {
       if(this.entry.schema === 'social.reddit.post') {
@@ -55,6 +60,9 @@ export default Vue.component('post-tile', {
         return `<h3><a href="https://news.ycombinator.com/item?id=${this.entry.extra_attributes.post_id}">${this.entry.title}</a></h3>`;
       }
       else if(this.entry.schema === 'social.hackernews.comment') {
+        return this.entry.extra_attributes.post_body_html;
+      }
+      else if(this.entry.schema === 'social.blog.article') {
         return this.entry.extra_attributes.post_body_html;
       }
 
@@ -74,7 +82,7 @@ export default Vue.component('post-tile', {
     <article class="post" :class="postType">
       <header @click="$emit('select', entry)">
         <a :href="postPermalink" class="post-icon" target="_blank">
-          <i class="fab" :class="iconClass"></i>
+          <i :class="iconClass"></i>
         </a>
         <span class="post-title">
           <a :href="userPermalink" class="post-user">{{ userName }}</a>
