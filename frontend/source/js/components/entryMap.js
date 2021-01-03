@@ -1,7 +1,7 @@
-export default Vue.component('map-tile', {
+export default Vue.component('entry-map', {
   props: ['entries'],
   computed: {
-    entriesWithGeolocation: function() {
+    geolocationEntries: function() {
       return this.entries.filter(e => e.extra_attributes.location && e.extra_attributes.location.latitude && e.extra_attributes.location.longitude);
     },
     mapUrl: function() {
@@ -11,11 +11,11 @@ export default Vue.component('map-tile', {
       imageUrl.searchParams.append("size", "300x200");
       imageUrl.searchParams.append("style", "feature:poi|element:labels|visibility:off");
       imageUrl.searchParams.append("key", "AIzaSyBdUNg8QHEUgkxxmT94OIW5t3tCYmHmng4");
-      if (this.entriesWithGeolocation.length) {
-        const latestEntryLocation = this.entriesWithGeolocation[0].extra_attributes.location;
+      if (this.geolocationEntries.length) {
+        const latestEntryLocation = this.geolocationEntries[0].extra_attributes.location;
         const latestEntryLocationString = `${latestEntryLocation.latitude},${latestEntryLocation.longitude}`;
         imageUrl.searchParams.append("markers", latestEntryLocationString);
-        const path = this.entriesWithGeolocation
+        const path = this.geolocationEntries
           .map(e => `${e.extra_attributes.location.latitude},${e.extra_attributes.location.longitude}`)
           .join('|');
         imageUrl.searchParams.append("path", path);
@@ -24,7 +24,7 @@ export default Vue.component('map-tile', {
     }
   },
   template: `
-    <div class="tile map" v-if="entriesWithGeolocation.length">
+    <div class="map" v-if="geolocationEntries.length">
       <img
         loading="lazy"
         :src="mapUrl"

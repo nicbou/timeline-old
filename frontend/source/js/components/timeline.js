@@ -1,7 +1,7 @@
 import Preview from './preview.js';
 import SpinnerComponent from './spinner.js';
 import TimelineImageTile from './tiles/image.js';
-import TimelineMapTile from './tiles/map.js'
+import EntryRecap from './entryRecap.js'
 import TimelineNav from './timeline-nav.js';
 import TimelinePostTile from './tiles/post.js'
 import TimelineTextTile from './tiles/text.js'
@@ -79,16 +79,16 @@ export default Vue.component('timeline', {
     },
   },
   template: `
-    <div>
-      <div class="container">
-        <h1>{{ timelineDate.format('LL') }}</h1>
-        <span class="subtitle">{{ relativeTimelineDate }}</span>
-        <timeline-nav id="timeline-nav"></timeline-nav>
-      </div>
-      <div class="container wide">
+    <div id="timeline">
+      <timeline-nav id="timeline-nav"></timeline-nav>
+      <div class="content-with-sidebar">
+        <div class="sidebar">
+          <h1 class="current-date">{{ timelineDate.format('LL') }}</h1>
+          <span class="subtitle">{{ relativeTimelineDate }}</span>
+          <entry-recap :entries="entries"></entry-recap>
+        </div>
         <spinner v-if="isLoading"></spinner>
         <div class="tiles">
-          <map-tile :entries="entries"></map-tile>
           <component class="tile" :is="tileType(entry)" v-if="tileType(entry)" :entry="entry" v-for="entry in entries" :key="entry.id" @select="selectTile"></component>
         </div>
       </div>

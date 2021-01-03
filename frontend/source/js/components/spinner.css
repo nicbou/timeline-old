@@ -17,6 +17,7 @@
   -webkit-transform: translateZ(0);
   -ms-transform: translateZ(0);
   transform: translateZ(0);
+  flex:0 0;
 }
 .spinner:before {
   width: 50%;
