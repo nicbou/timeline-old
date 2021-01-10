@@ -71,6 +71,7 @@ input, button, textarea, select{font:var(--font-m);border:var(--border);border-r
 
 .sidebar{}
     .current-date{font:var(--font-h3);margin-top:0;}
+    .sidebar li{list-style-type:none}
     .sidebar .map{max-width:100%}
         .sidebar .map img{max-width:100%;box-sizing:border-box;border:1px solid var(--color-border);border-radius:var(--border-radius);}
 
