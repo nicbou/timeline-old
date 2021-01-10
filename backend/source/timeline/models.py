@@ -9,3 +9,9 @@ class Entry(models.Model):
     title = models.TextField(blank=True)
     description = models.TextField(blank=True)
     extra_attributes = models.JSONField(blank=True, default=dict)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=['schema']),
+            models.Index(fields=['-date_on_timeline']),
+        ]
