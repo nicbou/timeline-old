@@ -116,10 +116,10 @@ class Command(BaseCommand):
             entries_created = 0
             for backup in backups_to_process:
                 with transaction.atomic():
-                    Entry.objects.filter(
+                    entries_deleted = Entry.objects.filter(
                         extra_attributes__source=source.key,
                         extra_attributes__backup_date=backup.date.strftime('%Y-%m-%dT%H:%M:%SZ')
-                    ).delete()
+                    ).delete()[0]
 
                     entries_created += len(Entry.objects.bulk_create([
                         Entry(
@@ -138,4 +138,4 @@ class Command(BaseCommand):
             logger.info(f"\"{source.key}\" backup entries generated. "
                         f"{len(backups_to_process)} backups processed, "
                         f"{len(all_backups) - len(backups_to_process)} skipped. "
-                        f"{entries_created} entries created.")
+                        f"There were {entries_deleted} file entries before the backup. There are now {entries_created}.")
