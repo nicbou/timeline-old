@@ -12,8 +12,10 @@ export default class {
 
   static saveEntry(entry){
     let url = '/api/timeline/entries/';
+    let method = 'post';
     if(entry.id !== null && entry.id !== undefined){
       url += entry.id + '/';
+      method = 'PUT';
     }
     const requestUrl = new URL(url, `https://${window.location.hostname}`);
     return fetch(
