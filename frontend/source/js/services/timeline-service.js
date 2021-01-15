@@ -12,7 +12,7 @@ export default class {
 
   static saveEntry(entry){
     let url = '/api/timeline/entries/';
-    let method = 'post';
+    let method = 'POST';
     if(entry.id !== null && entry.id !== undefined){
       url += entry.id + '/';
       method = 'PUT';
@@ -21,7 +21,7 @@ export default class {
     return fetch(
       requestUrl,
       { 
-        method: 'POST',
+        method: method,
         headers: {
           'Content-Type': 'application/json',
         },
