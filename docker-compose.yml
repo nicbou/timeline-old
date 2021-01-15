@@ -8,6 +8,8 @@ services:
       - POSTGRES_PASSWORD=postgres
     volumes:
       - db_persistence:/var/lib/postgresql/data
+    privileged: true
+    userns_mode: "host"
   timeline-backend:
     build: backend
     environment:
