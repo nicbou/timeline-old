@@ -9,4 +9,24 @@ export default class {
       return response.json();
     });
   }
+
+  static saveEntry(entry){
+    let url = '/api/timeline/entries/';
+    if(entry.id !== null && entry.id !== undefined){
+      url += entry.id;
+    }
+    const requestUrl = new URL(url, `https://${window.location.hostname}`);
+    return fetch(
+      requestUrl,
+      { 
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(entry),
+      }
+    ).then((response) => {
+      return response.json();
+    });
+  }
 }

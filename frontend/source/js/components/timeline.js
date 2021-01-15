@@ -1,7 +1,8 @@
+import EntryRecap from './entryRecap.js'
+import JournalEditorTile from './tiles/journalEditor.js'
 import Preview from './preview.js';
 import SpinnerComponent from './spinner.js';
 import TimelineImageTile from './tiles/image.js';
-import EntryRecap from './entryRecap.js'
 import TimelineNav from './timeline-nav.js';
 import TimelinePostTile from './tiles/post.js'
 import TimelineTextTile from './tiles/text.js'
@@ -89,6 +90,7 @@ export default Vue.component('timeline', {
         </div>
         <spinner v-if="isLoading"></spinner>
         <div class="tiles">
+          <journal-editor></journal-editor>
           <component class="tile" :is="tileType(entry)" v-if="tileType(entry)" :entry="entry" v-for="entry in entries" :key="entry.id" @select="selectTile"></component>
         </div>
       </div>

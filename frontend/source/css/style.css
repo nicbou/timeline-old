@@ -11,6 +11,7 @@ pre{font-family:monospace;}
     /* Colours */
     --color-background: #eee;
     --color-text:#444;
+    --color-text-faded:#999;
     --color-border:#ccc;
     --color-tile-background: #fff;
 
@@ -58,8 +59,9 @@ p, ul, ol{margin:var(--spacing-m) 0;}
 li{list-style:outside;}
 a{text-decoration:none}
 hr{display:block;background:var(--color-border);height:1px;border:none;margin:var(--spacing-l) 0;}
+.placeholder{color:var(--color-text-faded);font-style:italic}
 
-input, button, textarea, select{font:var(--font-m);border:var(--border);border-radius:var(--border-radius);padding:var(--spacing-xs) var(--spacing-s);}
+input, button, textarea, select{font:var(--font-m);border:var(--border);padding:var(--spacing-xs) var(--spacing-s);}
 .button{cursor:pointer;padding:var(--spacing-s) var(--spacing-m);border-bottom-width:2px;background:var(--color-button-background);color:var(--color-button-text);}
     .button:hover{background-color:var(--color-button-background-hover);}
     .button:active{border-bottom-width:1px;}
@@ -108,6 +110,8 @@ input, button, textarea, select{font:var(--font-m);border:var(--border);border-r
         .post main li{list-style:inside;padding-left:0;margin-left:0;}
         .post main blockquote{padding-left:var(--spacing-s);font-style:italic;border-left:5px solid var(--color-background);}
         .post main pre{margin:var(--spacing-m) 0;max-width:100%;overflow:scroll}
+        .post main textarea{height:30px;width:100%;box-sizing:border-box;padding:0;border:0;margin:var(--spacing-m) 0;outline:none;}
+            .post main textarea:focus{height:400px;transition:height 0.5s;}
 
 .preview{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:1000;overflow:hidden;}
     .preview > img, .preview > video{object-fit:contain;position:absolute;top:0;left:0;width:100%;height:100%;}

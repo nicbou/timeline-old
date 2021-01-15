@@ -6,6 +6,7 @@ class EntrySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Entry
         fields = [
+            'id',
             'schema', 
             'title', 
             'description', 

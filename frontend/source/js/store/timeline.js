@@ -12,6 +12,15 @@ export default {
     SET_ENTRIES(state, entries) {
       state.entries = entries;
     },
+    ADD_ENTRY(state, entry) {
+      state.entries.push(entry);
+    },
+    UPDATE_ENTRY(state, entry) {
+      Object.assign(state.entries.find(e => e.id === entry.id), entry);
+    },
+    SET_ENTRIES_REQUEST_PROMISE(state, promise) {
+      state.entriesRequestPromise = promise;
+    },
     ENTRIES_REQUEST_SUCCESS(state) {
       state.entriesRequestStatus = RequestStatus.SUCCESS;
     },
@@ -43,5 +52,25 @@ export default {
       }
       return context.state.entriesRequestPromise;
     },
+    async setJournalEntry(context, description) {
+      const schema = 'journal';
+      const entries = await context.dispatch('getEntries');
+      const existingJournalEntry = entries.find(e => e.schema == schema)
+
+      const journalEntry = existingJournalEntry || {
+          'schema': schema,
+          'title': '',
+          'description': '',
+          'extra_attributes': {},
+          'date_on_timeline': moment(this.state.route.query.date, 'YYYY-MM-DD').format(),
+        };
+
+      journalEntry.description = description;
+
+      TimelineService.saveEntry(journalEntry).then(serverEntry => {
+        const action = existingJournalEntry ? 'UPDATE_ENTRY' : 'ADD_ENTRY';
+        context.commit(action, journalEntry);
+      });
+    }
   }
 };
