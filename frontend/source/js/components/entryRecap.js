@@ -30,7 +30,7 @@ export default Vue.component('entry-recap', {
   },
   template: `
     <div>
-      <ul>
+      <ul class="recap">
         <li v-if="photoEntries.length">
           <i class="fas fa-map-marker-alt"></i>
           {{ photoEntries.length }} photos
@@ -40,6 +40,7 @@ export default Vue.component('entry-recap', {
           {{ videoEntries.length }} videos
         </li>
         <li v-if="fileEntries.length">
+          <i class="fas fa-file"></i>
           {{ fileEntries.length }} files changed
         </li>
         <li v-if="redditEntries.length">
