@@ -6,6 +6,7 @@ import TimelineImageTile from './tiles/image.js';
 import TimelineNav from './timeline-nav.js';
 import TimelinePostTile from './tiles/post.js'
 import TimelineTextTile from './tiles/text.js'
+import TimelineThreadTile from './tiles/thread.js';
 import TimelineVideoTile from './tiles/video.js';
 import { RequestStatus } from './../models/requests.js';
 
@@ -50,6 +51,17 @@ export default Vue.component('timeline', {
     entries: function() {
       return this.$store.state.timeline.entries;
     },
+    messageEntries: function() {
+      return this.entries.filter(e => e.schema.startsWith('message'));
+    },
+    threads: function() {
+      return this.messageEntries.reduce((threads, entry) => {
+        const key = [entry.extra_attributes.sender_id, entry.extra_attributes.recipient_id].sort().join('<>');
+        threads[key] = threads[key] || [];
+        threads[key].push(entry);
+        return threads;
+      }, {});
+    },
     isLoading: function() {
       return this.$store.state.timeline.entriesRequestStatus === RequestStatus.PENDING;
     },
@@ -91,6 +103,7 @@ export default Vue.component('timeline', {
         <spinner v-if="isLoading"></spinner>
         <div class="tiles">
           <journal-editor></journal-editor>
+          <thread-tile :thread="thread" v-for="thread in threads"></thread-tile>
           <component class="tile" :is="tileType(entry)" v-if="tileType(entry)" :entry="entry" v-for="entry in entries" :key="entry.id" @select="selectTile"></component>
         </div>
       </div>
