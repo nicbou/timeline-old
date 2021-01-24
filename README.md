@@ -19,11 +19,6 @@ BACKEND_DEBUG=1
 MQTT_USERNAME=johntheuser
 MQTT_PASSWORD=superextrasecret
 
-# Optional. API key for openweathermap.org. Used to log weather.
-OPENWEATHERMAP_API_KEY=...
-OPENWEATHERMAP_DEFAULT_LATITUDE=...
-OPENWEATHERMAP_DEFAULT_LONGITUDE=...
-
 # Optional. Sets the prefix for this project's docker images
 COMPOSE_PROJECT_NAME=timeline
 
