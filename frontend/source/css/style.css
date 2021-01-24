@@ -79,7 +79,7 @@ input, button, textarea, select{font:var(--font-m);border:var(--border);padding:
     .sidebar .recap li{list-style-type:none;}
         .sidebar .recap li > i{width:18px;}
     .sidebar .map{max-width:100%;padding-bottom:calc(100% * 400 / 600);height:0px;border:1px solid var(--color-border);border-radius:var(--border-radius);overflow:hidden;}
-        .sidebar .map img{width:100%;box-sizing:}
+        .sidebar .map img{width:100%;}
 
 #page{height:100%;}
 #timeline{height:100%;display:flex;flex-direction:column;}
