@@ -11,6 +11,7 @@ import TimelineVideoTile from './tiles/video.js';
 import { RequestStatus } from './../models/requests.js';
 
 function makeRouteValid(to, from, next) {
+  // Enforce a valid current date in the route
   if (to.query.date) {
     const newDate = moment(to.query.date, 'YYYY-MM-DD', true);
     if(newDate.isValid()) {
@@ -27,7 +28,6 @@ export default Vue.component('timeline', {
   data: function() {
     return {
       selectedEntry: null,
-      modalVisible: null,
     }
   },
   created: function() {
@@ -67,12 +67,10 @@ export default Vue.component('timeline', {
     },
   },
   methods: {
-    selectTile: function(entry) {
+    openPreview: function(entry) {
       this.selectedEntry = entry;
-      this.modalVisible = true;
     },
-    closeTile: function() {
-      this.modalVisible = false;
+    closePreview: function() {
       this.selectedEntry = null;
     },
     tileType: function(entry) {
@@ -104,10 +102,10 @@ export default Vue.component('timeline', {
         <div class="tiles">
           <journal-editor></journal-editor>
           <thread-tile :thread="thread" v-for="thread in threads"></thread-tile>
-          <component class="tile" :is="tileType(entry)" v-if="tileType(entry)" :entry="entry" v-for="entry in entries" :key="entry.id" @select="selectTile"></component>
+          <component class="tile" :is="tileType(entry)" v-if="tileType(entry)" :entry="entry" v-for="entry in entries" :key="entry.id" @select="openPreview"></component>
         </div>
       </div>
-      <preview :entry="selectedEntry" v-if="modalVisible" @close="closeTile"></preview>
+      <preview :entry="selectedEntry" v-if="selectedEntry" @close="closePreview"></preview>
     </div>
   `
 });

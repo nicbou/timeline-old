@@ -18,7 +18,7 @@ export default Vue.component('thread-tile', {
   },
   template: `
     <div class="tile post thread">
-      <header>
+      <header @click="$emit('select', entry)">
         <span class="post-icon">
           <i :class="iconClass"></i>
         </span>

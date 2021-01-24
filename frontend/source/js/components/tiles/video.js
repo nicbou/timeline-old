@@ -22,9 +22,8 @@ export default Vue.component('video-tile', {
     },
   },
   template: `
-    <div class="tile" :style="tileStyle">
+    <div class="tile" :style="tileStyle" @click="$emit('select', entry)">
       <video
-        @click="$emit('select', entry)"
         :alt="entry.title"
         :src="entry.extra_attributes.previews.thumbnail"
         @mouseleave="videoHoverEnd"

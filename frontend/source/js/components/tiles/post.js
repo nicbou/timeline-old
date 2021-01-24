@@ -1,98 +1,80 @@
-export default Vue.component('post-tile', {
-  props: ['entry'],
-  computed: {
-    postType: function() {
-      return this.entry.schema.split('.')[1];
+const postTypes = {
+  twitter: {
+    getIconClass: entry => 'fab fa-twitter',
+    getUser: entry => `@${entry.extra_attributes.post_user}`,
+    getUserUrl: entry => `https://twitter.com/${entry.extra_attributes.post_user}`,
+    getPostUrl: entry => `https://twitter.com/${entry.extra_attributes.post_user}/status/${entry.extra_attributes.post_id}`,
+    getPostCommunity: entry => null,
+    getPostCommunityUrl: entry => null,
+    getRichDescription: entry => `<p>${entry.extra_attributes.description}</p>`.replace(/@([\w]{1,50})/ig, '<a target="_blank" href="https://twitter.com/$1">@$1</a>'),
+  },
+  reddit: {
+    getIconClass: entry => 'fab fa-reddit',
+    getUser: entry => entry.extra_attributes.post_user,
+    getUserUrl: entry => `https://reddit.com/user/${entry.extra_attributes.post_user}`,
+    getPostUrl: entry => `https://reddit.com/comments/${entry.extra_attributes.post_thread_id}/_/${entry.extra_attributes.post_id}`,
+    getPostCommunity: entry => entry.extra_attributes.post_community,
+    getPostCommunityUrl: entry => `https://www.reddit.com/r/${entry.extra_attributes.post_community}`,
+    getRichDescription: entry => {
+      if(entry.schema === 'social.reddit.post') {
+        return `<h3><a href="${entry.extra_attributes.post_url}">${entry.title}</a></h3>`;
+      }
+      return entry.extra_attributes.post_body_html;
     },
-    userPermalink: function() {
-      if(this.postType === 'twitter') {
-        return `https://twitter.com/${this.entry.extra_attributes.post_user}`;
+  },
+  hackernews: {
+    getIconClass: entry => 'fab fa-y-combinator',
+    getUser: entry => entry.extra_attributes.post_user,
+    getUserUrl: entry => `https://news.ycombinator.com/submitted?id=${entry.extra_attributes.post_user}`,
+    getPostUrl: entry => `https://news.ycombinator.com/item?id=${entry.extra_attributes.post_id}`,
+    getPostCommunity: entry => null,
+    getPostCommunityUrl: entry => null,
+    getRichDescription: entry => {
+      if(entry.schema === 'social.hackernews.story'){
+        return `<h3><a href="https://news.ycombinator.com/item?id=${entry.extra_attributes.post_id}">${entry.title}</a></h3>`
       }
-      else if(this.postType === 'reddit') {
-        return `https://reddit.com/user/${this.entry.extra_attributes.post_user}`;
-      }
-      else if(this.postType === 'hackernews') {
-        return `https://news.ycombinator.com/submitted?id=${this.entry.extra_attributes.post_user}`;
-      }
-    },
-    userName: function() {
-      if(this.postType === 'twitter') {
-        return `@${this.entry.extra_attributes.post_user}`;
-      }
-      return this.entry.extra_attributes.post_user;
-    },
-    postPermalink: function() {
-      if(this.postType === 'twitter') {
-        return `${this.userPermalink}/status/${this.entry.extra_attributes.post_id}`;
-      }
-      else if(this.postType === 'reddit') {
-        return `https://www.reddit.com/r/${this.entry.extra_attributes.post_community}/comments/${this.entry.extra_attributes.post_thread_id}/a/${this.entry.extra_attributes.post_id}/?context=3`;
-      }
-      else if(this.postType === 'blog') {
-        return this.entry.extra_attributes.post_url;
-      }
-    },
-    postScore: function() {
-      return this.entry.extra_attributes.post_score;
-    },
-    postCommunity: function() {
-      return this.entry.extra_attributes.post_community;
-    },
-    postCommunityUrl: function() {
-      if(this.postType === 'reddit') {
-        return `https://www.reddit.com/r/${this.entry.extra_attributes.post_community}`;
-      }
-    },
-    iconClass: function() {
-      if (this.postType === 'hackernews') {
-        return 'fab fa-y-combinator';
-      }
-      else if(this.postType === 'blog') {
-        return 'fas fa-rss-square';
-      }
-      return `fab fa-${this.postType}`;
-    },
-    richDescription: function() {
-      if(this.entry.schema === 'social.reddit.post') {
-        return `<h3><a href="${this.entry.extra_attributes.post_url}">${this.entry.title}</a></h3>`;
-      }
-      else if(this.entry.schema === 'social.hackernews.story') {
-        return `<h3><a href="https://news.ycombinator.com/item?id=${this.entry.extra_attributes.post_id}">${this.entry.title}</a></h3>`;
-      }
-      else if(this.entry.schema === 'social.hackernews.comment') {
-        return this.entry.extra_attributes.post_body_html;
-      }
-      else if(this.entry.schema === 'social.blog.article') {
-        return this.entry.extra_attributes.post_body_html;
-      }
-
-      let output = this.entry.extra_attributes.post_body_html || this.entry.description;
-      if (this.entry.schema === 'social.twitter.tweet') {
-        return `<p>${output}</p>`
-          .replace(/@([\w]{1,50})/ig, '<a target="_blank" href="https://twitter.com/$1">@$1</a>')
-      }
-      else if (this.entry.schema === 'social.reddit.comment') {
-        return output
-          .replace(/\/r\/([\w]{1,20})/ig, '<a target="_blank" href="https://reddit.com/r/$1">@$1</a>')
-          .replace(/\/u\/([\w]{1,20})/ig, '<a target="_blank" href="https://reddit.com/user/$1">@$1</a>');
+      else {
+        // The first paragraph isn't wrapped in a <p> tag
+        return '<p>' + entry.extra_attributes.post_body_html.replace('<p>', '</p><p>');
       }
     },
   },
+  blog: {
+    getIconClass: entry => 'fas fa-rss-square',
+    getUser: entry => entry.extra_attributes.post_user,
+    getUserUrl: entry => null,
+    getPostUrl: entry => entry.extra_attributes.post_url,
+    getPostCommunity: entry => new URL(entry.extra_attributes.post_url).hostname,
+    getPostCommunityUrl: entry => new URL(entry.extra_attributes.post_url).hostname,
+    getRichDescription: entry => entry.extra_attributes.post_body_html,
+  },
+}
+
+export default Vue.component('post-tile', {
+  props: ['entry'],
+  computed: {
+    postClass: function() {
+      return this.entry.schema.split('.')[1];
+    },
+    postType: function() {
+      return postTypes[this.postClass];
+    },
+  },
   template: `
-    <article class="post" :class="postType">
-      <header @click="$emit('select', entry)">
-        <a :href="postPermalink" class="post-icon" target="_blank">
-          <i :class="iconClass"></i>
+    <article class="post" :class="postClass">
+      <header>
+        <a :href="postType.getPostUrl(entry)" class="post-icon" target="_blank">
+          <i :class="postType.getIconClass(entry)"></i>
         </a>
         <span class="post-title">
-          <a :href="userPermalink" class="post-user">{{ userName }}</a>
-          <span v-if="postCommunity">
-            in <a v-if :href="postCommunityUrl" class="post-community">{{ postCommunity }}</a>
+          <a :href="postType.getUserUrl(entry)" class="post-user">{{ postType.getUser(entry) }}</a>
+          <span v-if="postType.getPostCommunity(entry)">
+            on <a :href="postType.getPostCommunityUrl(entry)" class="post-community">{{ postType.getPostCommunity(entry) }}</a>
           </span>
         </span>
-        <span v-if="postScore" class="post-score" :class="{positive: postScore >= 1, negative: postScore < 1}">{{ postScore }}</span>
+        <span v-if="entry.extra_attributes.post_score !== undefined" class="post-score" :class="{positive: entry.extra_attributes.post_score >= 1, negative: entry.extra_attributes.post_score < 1}">{{ entry.extra_attributes.post_score }}</span>
       </header>
-      <main v-html="richDescription">
+      <main v-html="postType.getRichDescription(entry)">
       </main>
     </article>
   `
