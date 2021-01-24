@@ -7,6 +7,9 @@ export default Vue.component('thread-tile', {
       }
       return 'fas fa-comments';
     },
+    participants: function() {
+      return [this.senderName(this.thread[0]), this.recipientName(this.thread[0])].sort().join(', ');
+    }
   },
   methods: {
     time: function(jsonDate) {
@@ -15,15 +18,21 @@ export default Vue.component('thread-tile', {
     isSender: function(entry) {
       return entry.extra_attributes.sender_id === this.thread[0].extra_attributes.sender_id;
     },
+    senderName: function(entry) {
+      return entry.extra_attributes.sender_name || entry.extra_attributes.sender_id;
+    },
+    recipientName: function(entry) {
+      return entry.extra_attributes.recipient_name || entry.extra_attributes.recipient_id;
+    },
   },
   template: `
     <div class="tile post thread">
-      <header @click="$emit('select', entry)">
+      <header>
         <span class="post-icon">
           <i :class="iconClass"></i>
         </span>
         <span class="post-title">
-          ...
+          {{ participants }}
         </span>
       </header>
       <main>
@@ -31,7 +40,7 @@ export default Vue.component('thread-tile', {
           <li class="message" v-for="entry in thread" :class="{'left': isSender(entry), 'right': !isSender(entry)}">
             <header>
               <time>{{ time(entry.date_on_timeline) }}</time>
-              <span class="name">{{ entry.extra_attributes.sender_name }}</span>
+              <span class="name">{{ senderName(entry) }}</span>
             </header>
             <main>
               {{ entry.description }}
