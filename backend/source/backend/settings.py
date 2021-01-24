@@ -176,6 +176,10 @@ VIDEO_PREVIEW_SIZES = {
     },
 }
 
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination'
+}
+
 # In bytes
 MAX_PLAINTEXT_PREVIEW_SIZE = 10000  # 2KB = 1 page of text
 
