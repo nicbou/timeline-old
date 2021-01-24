@@ -119,7 +119,7 @@ def get_metadata_from_exif(input_path: Path) -> dict:
             altitude = exif['GPSInfo']['GPSAltitude']
             if not exif['GPSInfo'].get('GPSAltitudeRef', b'\x00') == b'\x00':
                 altitude *= -1
-            metadata['location']['alt'] = float(altitude)
+            metadata['location']['altitude'] = float(altitude)
 
         if 'GPSImgDirection' in exif['GPSInfo']:
             metadata['location']['direction'] = float(exif['GPSInfo']['GPSImgDirection'])
