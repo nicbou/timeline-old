@@ -5,20 +5,24 @@ export default Vue.component('text-tile', {
       const pathParts = this.entry.extra_attributes.path.split('/');
       return pathParts[pathParts.length - 1];
     },
+    richDescription: function() {
+      if (this.entry.extra_attributes.mimetype === 'text/markdown'){
+        return marked(this.entry.description);
+      }
+      return '<p>' + this.entry.description.replaceAll('\n', '</p><p>') + '</p>';
+    },
   },
   template: `
     <article class="post text">
       <header>
-        <a :href="postPermalink" class="post-icon" target="_blank">
+        <span class="post-icon">
           <i class="fas fa-file-alt"></i>
-        </a>
+        </span>
         <span class="post-title">
           {{ fileName }}
         </span>
       </header>
-      <main>
-        {{ entry.description }}
-      </main>
+      <main v-html="richDescription"></main>
     </article>
   `
 });

@@ -15,9 +15,14 @@ BACKEND_SECRET_KEY=...
 BACKEND_DEBUG=1
 
 # Username and password for the MQTT client
-# OwnTracks connects to this client to send the phone's location
+# OwnTracks connects to this client to log the phone's location
 MQTT_USERNAME=johntheuser
 MQTT_PASSWORD=superextrasecret
+
+# Optional. API key for openweathermap.org. Used to log weather.
+OPENWEATHERMAP_API_KEY=...
+OPENWEATHERMAP_DEFAULT_LATITUDE=...
+OPENWEATHERMAP_DEFAULT_LONGITUDE=...
 
 # Optional. Sets the prefix for this project's docker images
 COMPOSE_PROJECT_NAME=timeline

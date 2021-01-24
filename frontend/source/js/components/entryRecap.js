@@ -64,7 +64,7 @@ export default Vue.component('entry-recap', {
           {{ geolocationEntries.length }} location pings
         </li>
       </ul>
-      <entry-map :entries="entries"></entry-map>
+      <entry-map :entries="entries" width="300" height="200"></entry-map>
     </div>
   `
 });

@@ -1,6 +1,4 @@
 import ImagePreview from './previews/image.js';
-import PostPreview from './previews/post.js';
-import TextPreview from './previews/text.js';
 import VideoPreview from './previews/video.js';
 
 export default Vue.component('preview', {
@@ -22,12 +20,6 @@ export default Vue.component('preview', {
       }
       else if(s.startsWith('file.video')) {
         return 'video-preview';
-      }
-      else if(s.startsWith('social.')) {
-        return 'post-preview';
-      }
-      else if(s.startsWith('file.text')) {
-        return 'text-preview';
       }
     },
   },
