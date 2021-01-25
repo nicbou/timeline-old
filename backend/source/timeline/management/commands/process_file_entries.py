@@ -60,6 +60,7 @@ class Command(BaseCommand):
     @staticmethod
     def set_exif_metadata(entry: Entry):
         if 'camera' in entry.extra_attributes and 'location' in entry.extra_attributes:
+            # TODO: Photos with missing exif data will be reprocessed
             return
 
         original_path = Path(entry.extra_attributes['path'])
