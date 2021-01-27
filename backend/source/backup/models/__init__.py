@@ -7,7 +7,7 @@ class BaseSource(models.Model):
 
     @property
     def source_name(self) -> str:
-        return type(self)
+        return type(self).__name__
 
     @property
     def entry_source(self) -> str:
