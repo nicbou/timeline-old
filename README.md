@@ -45,7 +45,7 @@ Sources are suited for frequent, automatic data imports.
 
 New sources can be added directly through the API. You can browse the API at `/api/backup`.
 
-### BackupSource
+### RsyncSource
 
 A remote machine that will be backed up with rsync. When you create the source, you must supply a password. This will be used to copy SSH keys. the password will not be stored.
 

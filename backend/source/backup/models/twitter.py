@@ -1,40 +1,44 @@
 import logging
-from typing import List, Tuple
+from typing import Tuple, List
 
-import pytz as pytz
-import tweepy
-from django.db import transaction
+import pytz
+import tweepy as tweepy
+from django.db import models, transaction
 
-from backup.models import TwitterSource
-from timeline.management.commands.retrieve_posts import BasePostRetrievalCommand
 from timeline.models import Entry
+
 
 logger = logging.getLogger(__name__)
 
 
-class Command(BasePostRetrievalCommand):
-    help = 'Retrieves tweets from TweetSources.'
-    entry_schema = 'social.twitter.tweet'
-    entry_name_plural = 'tweets'
-    source_class = TwitterSource
+class TwitterSource(models.Model):
+    consumer_key = models.CharField(max_length=50, blank=False)
+    consumer_secret = models.CharField(max_length=50, blank=False)
+    access_token = models.CharField(max_length=50, blank=False)
+    access_token_secret = models.CharField(max_length=50, blank=False)
+    twitter_username = models.CharField(max_length=50, blank=False)
 
-    def update_entries_from_source(self, source: source_class) -> Tuple[List[Entry], List[Entry]]:
-        auth = tweepy.OAuthHandler(source.consumer_key, source.consumer_secret)
-        auth.set_access_token(source.access_token, source.access_token_secret)
+    def process(self) -> Tuple[int, int]:
+        auth = tweepy.OAuthHandler(self.consumer_key, self.consumer_secret)
+        auth.set_access_token(self.access_token, self.access_token_secret)
         api = tweepy.API(auth)
 
-        latest_entry = self.get_latest_entry(source)
+        schema = 'social.twitter.tweet'
+        latest_entry = Entry.objects \
+            .filter(extra_attributes__post_user=self.twitter_username, schema=schema)\
+            .order_by('-extra_attributes__post_id')\
+            .first()
         latest_entry_date = latest_entry.date_on_timeline if latest_entry else None
         latest_entry_id = latest_entry.extra_attributes.get('post_id') if latest_entry else None
 
         if latest_entry_date:
-            logger.info(f'Retrieving all {source} {self.entry_name_plural} after {latest_entry_date}')
+            logger.info(f'Retrieving all {self} tweets after {latest_entry_date}')
         else:
-            logger.info(f'Retrieving all {source} {self.entry_name_plural}')
+            logger.info(f'Retrieving all {self} tweets')
 
         cursor = tweepy.Cursor(
             api.user_timeline,
-            screen_name=f'@{source.twitter_username}',
+            screen_name=f'@{self.twitter_username}',
             tweet_mode='extended',
             since_id=latest_entry_id,
         ).items()
@@ -44,7 +48,7 @@ class Command(BasePostRetrievalCommand):
         with transaction.atomic():
             for tweet in cursor:
                 entry, created = Entry.objects.update_or_create(
-                    schema=self.entry_schema,
+                    schema=schema,
                     extra_attributes__post_id=tweet.id,
                     defaults={
                         'title': '',
@@ -52,7 +56,7 @@ class Command(BasePostRetrievalCommand):
                         'date_on_timeline': tweet.created_at.replace(tzinfo=pytz.UTC),
                         'extra_attributes': {
                             'post_id': tweet.id,
-                            'post_user': source.twitter_username,
+                            'post_user': self.twitter_username,
                         }
                     }
                 )
@@ -67,10 +71,7 @@ class Command(BasePostRetrievalCommand):
                 else:
                     updated_entries.append(entry)
 
-        return created_entries, updated_entries
+        return len(created_entries), len(updated_entries)
 
-    def get_latest_entry(self, source) -> Entry:
-        return Entry.objects \
-            .filter(extra_attributes__post_user=source.twitter_username, schema=self.entry_schema) \
-            .order_by('-extra_attributes__post_id') \
-            .first()
+    def __str__(self):
+        return f"@{self.twitter_username}"

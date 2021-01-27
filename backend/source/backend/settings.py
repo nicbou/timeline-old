@@ -7,7 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 STATIC_ROOT = '/srv/static'
 MEDIA_ROOT = '/srv'
-MEDIA_URL = '/srv'
+MEDIA_URL = '/srv/'
 ARCHIVES_ROOT = Path('/srv/archives')
 BACKUPS_ROOT = Path('/srv/backups')
 PREVIEWS_ROOT = Path('/srv/previews')

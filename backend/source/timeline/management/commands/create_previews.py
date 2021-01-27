@@ -1,5 +1,4 @@
-from timeline.file_utils import get_checksum, get_mimetype, generate_pdf_preview, generate_image_preview, \
-    get_media_metadata, generate_video_preview, get_metadata_from_exif
+from timeline.file_utils import generate_pdf_preview, generate_video_preview, generate_image_preview
 from timeline.models import Entry
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -17,18 +16,6 @@ class Command(BaseCommand):
     # There will also be two entries: one for each version of image.png.
     # In other words, new files are added, but existing files don't change. If a file entry already has a checksum,
     # a mimetype, previews etc., we don't need to recalculate them. This saves us a lot of processing time.
-
-    @staticmethod
-    def set_file_mimetype(entry: Entry):
-        if 'mimetype' not in entry.extra_attributes:
-            if mimetype := get_mimetype(Path(entry.extra_attributes['path'])):
-                entry.extra_attributes['mimetype'] = mimetype
-
-    @staticmethod
-    def set_checksum(entry: Entry):
-        if 'checksum' not in entry.extra_attributes:
-            entry.extra_attributes['checksum'] = get_checksum(Path(entry.extra_attributes['path']))
-
     @staticmethod
     def get_previews_dir(entry: Entry, mkdir=False):
         previews_dir = (
@@ -39,37 +26,6 @@ class Command(BaseCommand):
         if mkdir:
             previews_dir.mkdir(parents=True, exist_ok=True)
         return previews_dir
-
-    @staticmethod
-    def set_media_metadata(entry: Entry):
-        if 'width' in entry.extra_attributes:
-            return
-
-        original_path = Path(entry.extra_attributes['path'])
-        try:
-            original_media_attrs = get_media_metadata(original_path)
-            entry.extra_attributes.update(original_media_attrs)
-            if entry.extra_attributes.get('mimetype', '').startswith('image') and 'codec' in entry.extra_attributes:
-                # JPEG images can be treated as MJPEG videos and have a duration of 1 frame
-                entry.extra_attributes.pop('duration', None)
-                entry.extra_attributes.pop('codec', None)
-        except:
-            logger.exception(f"Could not read metadata from file #{entry.pk} at {original_path}")
-            raise
-
-    @staticmethod
-    def set_exif_metadata(entry: Entry):
-        if 'camera' in entry.extra_attributes and 'location' in entry.extra_attributes:
-            # TODO: Photos with missing exif data will be reprocessed
-            return
-
-        original_path = Path(entry.extra_attributes['path'])
-        try:
-            metadata = get_metadata_from_exif(original_path)
-            entry.extra_attributes.update(metadata)
-        except:
-            logger.exception(f"Could not read exif from file #{entry.pk} at {original_path}")
-            raise
 
     def set_pdf_previews(self, entry: Entry):
         original_path = Path(entry.extra_attributes['path'])
@@ -92,15 +48,6 @@ class Command(BaseCommand):
             except:
                 logger.exception(f'Could not generate PDF preview for entry #{entry.pk} ({str(original_path)}).')
                 raise
-
-    def set_plaintext_description(self, entry: Entry):
-        if len(entry.description):
-            return
-
-        original_path = Path(entry.extra_attributes['path'])
-
-        with original_path.open('r') as text_file:
-            entry.description = text_file.read(settings.MAX_PLAINTEXT_PREVIEW_SIZE)
 
     def set_image_previews(self, entry: Entry):
         original_path = Path(entry.extra_attributes['path'])
@@ -148,26 +95,18 @@ class Command(BaseCommand):
                 raise
 
     def get_processing_tasks(self, entry: Entry):
-        tasks = [
-            self.set_file_mimetype,
-            self.set_checksum,
-        ]
+        tasks = []
 
         if entry.schema.startswith('file.image'):
             tasks.extend([
-                self.set_media_metadata,
-                self.set_exif_metadata,
                 self.set_image_previews,
             ])
         elif entry.schema.startswith('file.video'):
             tasks.extend([
-                self.set_media_metadata,
                 self.set_video_previews,
             ])
         elif entry.schema.startswith('file.document.pdf'):
             tasks.append(self.set_pdf_previews)
-        elif entry.schema.startswith('file.text'):
-            tasks.append(self.set_plaintext_description)
 
         return tasks
 
