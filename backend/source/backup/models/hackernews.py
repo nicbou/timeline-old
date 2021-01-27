@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 class HackerNewsSource(BaseSource):
     hackernews_username = models.CharField(max_length=20, blank=False)
 
-    source_type = 'hackernews'
+    source_name = 'hackernews'
 
     def process(self) -> Tuple[int, int]:
         base_schema = 'social.hackernews'

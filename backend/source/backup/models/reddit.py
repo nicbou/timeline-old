@@ -15,7 +15,7 @@ class RedditSource(BaseSource):
     user_agent = models.CharField(max_length=100, blank=True)
     reddit_username = models.CharField(max_length=20, blank=False)
 
-    source_type = 'reddit'
+    source_name = 'reddit'
 
     def process(self) -> Tuple[int, int]:
         created_posts, updated_posts = self.process_posts()
