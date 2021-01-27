@@ -59,7 +59,7 @@ export default {
 
       const journalEntry = existingJournalEntry || {
         'schema': schema,
-        'source': 'frontend/web'
+        'source': 'frontend/web',
         'title': '',
         'description': '',
         'extra_attributes': {},
