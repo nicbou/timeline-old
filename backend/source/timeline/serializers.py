@@ -7,9 +7,10 @@ class EntrySerializer(serializers.HyperlinkedModelSerializer):
         model = Entry
         fields = [
             'id',
-            'schema', 
-            'title', 
-            'description', 
+            'schema',
+            'source',
+            'title',
+            'description',
             'extra_attributes',
             'date_on_timeline',
         ]
