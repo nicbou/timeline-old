@@ -23,7 +23,8 @@ def on_message(client, userdata, msg):
         data = json.loads(msg.payload)
         if data['_type'] == 'location':
             add_entry({
-                'schema': 'geo.point.current',
+                'schema': 'activity.location',
+                'source': msg.topic,
                 'title': '',
                 'description': '',
                 'extra_attributes': {
@@ -33,7 +34,6 @@ def on_message(client, userdata, msg):
                         'altitude': data.get('alt'),
                         'accuracy': data.get('acc'),
                     },
-                    'source': msg.topic,
                 },
                 'date_on_timeline': datetime.fromtimestamp(data['tst']).strftime('%Y-%m-%dT%H:%M:%SZ')
             })

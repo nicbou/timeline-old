@@ -1,37 +1,34 @@
-import logging
 from datetime import datetime
 from time import mktime
-from typing import List, Tuple
+from typing import Tuple, List
 
 import feedparser
 import pytz
-from django.db import transaction
+from django.db import models, transaction
 
-from backup.models import RssSource
-from timeline.management.commands.retrieve_posts import BasePostRetrievalCommand
+from backup.models import BaseSource
 from timeline.models import Entry
 
-logger = logging.getLogger(__name__)
 
+class RssSource(BaseSource):
+    feed_url = models.URLField(blank=False)
 
-class Command(BasePostRetrievalCommand):
-    entry_name_plural = 'RSS entries'
-    entry_schema = 'social.blog.article'
-    source_class = RssSource
+    source_name = 'rss'
 
-    def update_entries_from_source(self, source: source_class) -> Tuple[List[Entry], List[Entry]]:
-        rss_feed = feedparser.parse(source.feed_url)
+    def process(self) -> Tuple[int, int]:
+        rss_feed = feedparser.parse(self.feed_url)
 
         updated_entries = []
         created_entries = []
         with transaction.atomic():
             for rss_entry in rss_feed.entries:
                 entry, created = Entry.objects.update_or_create(
-                    schema=self.entry_schema,
+                    schema='social.blog.article',
                     extra_attributes__post_id=rss_entry.id,
                     extra_attributes__post_url=rss_entry.link,
                     defaults={
                         'title': rss_entry.title,
+                        'source': self.entry_source,
                         'description': rss_entry.summary,
                         'date_on_timeline': datetime.fromtimestamp(mktime(rss_entry.published_parsed), pytz.UTC),
                         'extra_attributes': {
@@ -47,4 +44,7 @@ class Command(BasePostRetrievalCommand):
                 else:
                     updated_entries.append(entry)
 
-        return created_entries, updated_entries
+        return len(created_entries), len(updated_entries)
+
+    def __str__(self):
+        return self.feed_url

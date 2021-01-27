@@ -39,13 +39,13 @@ Entries have a `schema` attribute, like `file.document.pdf`. The schemas are rea
 
 ## Sources
 
-A Source describes where the data is, and the credentials to retrieve it.
+Sources describe a regular source of data. For example, a daily backup, a social media feed or a blog. Sources are monitored for changes, and new data is automatically imported.
 
-For example, a TwitterSource has Twitter API credentials, and a Twitter username. Each TwitterSource instance can have different API credentials, and fetch data for a different Twitter user.
+Sources are suited for frequent, automatic data imports.
 
 New sources can be added directly through the API. You can browse the API at `/api/backup`.
 
-### BackupSource
+### RsyncSource
 
 A remote machine that will be backed up with rsync. When you create the source, you must supply a password. This will be used to copy SSH keys. the password will not be stored.
 
@@ -109,12 +109,26 @@ Describes a RSS feed.
 
 * `feed_url`: The URL of the RSS feed.
 
-## Geolocation
+## Archives
 
-This project ships with an MQTT broker. This broker works with [OwnTracks](https://owntracks.org/) to receive geolocation pings from your phone. When your phone sends its location, a `geo.point.current` entry is created.
+Archives describe a source of data that will not change. For example, an email archive, a personal data export, or an archive of your text messages. Archives are not monitored for changes, and the data is only imported once.
+
+Archives are suited for irregular, manual data imports.
+
+An Archive instance contains information about how to retrieve the archive.
+
+### GoogleTakeoutArchive
+
+Imports various data from a Google Takeout export
+
+* Location history
 
 ## Authentication
 
 This project does not have authentication. Everything on the timeline is public, and anyone can make destructive API requests. You will need to include your own form of authentication.
 
 I run this software behind my home server's single sign-on.
+
+## Geolocation
+
+This project ships with an MQTT broker. This broker works with [OwnTracks](https://owntracks.org/) to receive geolocation pings from your phone. When your phone sends its location, a `activity.location` entry is created.

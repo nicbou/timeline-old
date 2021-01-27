@@ -8,8 +8,6 @@ services:
       - POSTGRES_PASSWORD=postgres
     volumes:
       - db_persistence:/var/lib/postgresql/data
-    privileged: true
-    userns_mode: "host"
   timeline-backend:
     build: backend
     environment:
@@ -19,6 +17,7 @@ services:
       - timeline-db
     volumes:
       - ./backend/source:/usr/src/app
+      - archives:/srv/archives
       - backups:/srv/backups
       - previews:/srv/previews
       - backend_staticfiles:/srv/static
@@ -62,6 +61,7 @@ volumes:
   db_persistence:
   mqtt_persistence:
   backups:
+  archives:
   previews:
   ssh_keys:
   backend_staticfiles:
