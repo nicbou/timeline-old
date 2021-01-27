@@ -39,6 +39,7 @@ class RedditSource(BaseSource):
                     defaults={
                         'title': submission.title,
                         'description': submission.selftext,
+                        'source': self.entry_source,
                         'date_on_timeline': datetime.fromtimestamp(submission.created_utc, pytz.UTC),
                         'extra_attributes': {
                             'post_id': submission.id,
@@ -46,7 +47,6 @@ class RedditSource(BaseSource):
                             'post_community': submission.subreddit.display_name,
                             'post_user': self.reddit_username,
                             'post_url': submission.url,
-                            'source': self.entry_source,
                         }
                     }
                 )
@@ -74,6 +74,7 @@ class RedditSource(BaseSource):
                     defaults={
                         'title': '',
                         'description': comment.body,
+                        'source': self.entry_source,
                         'date_on_timeline': datetime.fromtimestamp(comment.created_utc, pytz.UTC),
                         'extra_attributes': {
                             'post_id': comment.id,
