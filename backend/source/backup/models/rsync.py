@@ -1,4 +1,5 @@
 import logging
+import shutil
 import subprocess
 from datetime import datetime
 from fnmatch import fnmatch
@@ -134,11 +135,14 @@ class RsyncSource(BaseSource):
             latest_backup.root_path.symlink_to(current_backup.root_path, target_is_directory=True)
         else:
             """
-            In case of failure, the failed backup's directory is not deleted, but /latest will always point to the
-            latest successful backup.
+            In case of failure, delete the backup to avoid wasting space. /latest still points to the latest
+            successful backup.
             """
-            logger.error(f"{str(self)} backup failed (exit code {exit_code}). "
-                         f"Rsync log is at {str(current_backup.log_path)}")
+            logger.error(f"{str(self)} backup failed (exit code {exit_code})")
+
+            logger.info(f"Deleting backup files at {str(current_backup.root_path)}")
+            shutil.rmtree(current_backup.root_path)
+
             raise Exception("Rsync backup failed")
 
     def create_file_entries(self):
