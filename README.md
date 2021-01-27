@@ -131,4 +131,4 @@ I run this software behind my home server's single sign-on.
 
 ## Geolocation
 
-This project ships with an MQTT broker. This broker works with [OwnTracks](https://owntracks.org/) to receive geolocation pings from your phone. When your phone sends its location, a `geo.point.current` entry is created.
+This project ships with an MQTT broker. This broker works with [OwnTracks](https://owntracks.org/) to receive geolocation pings from your phone. When your phone sends its location, a `activity.location` entry is created.

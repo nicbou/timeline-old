@@ -23,12 +23,13 @@ def geolocation_entry(date_on_timeline: datetime, latitude: float, longitude: fl
     entry = Entry(
         title=title or '',
         description='',
+        schema='activity.location',
+        source=archive.entry_source,
         extra_attributes={
             'location': {
                 'latitude': latitude,
                 'longitude': longitude,
             },
-            'source': archive.entry_source,
         },
         date_on_timeline=date_on_timeline,
     )

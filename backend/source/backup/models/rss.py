@@ -6,11 +6,14 @@ import feedparser
 import pytz
 from django.db import models, transaction
 
+from backup.models import BaseSource
 from timeline.models import Entry
 
 
-class RssSource(models.Model):
+class RssSource(BaseSource):
     feed_url = models.URLField(blank=False)
+
+    source_name = 'rss'
 
     def process(self) -> Tuple[int, int]:
         rss_feed = feedparser.parse(self.feed_url)
@@ -25,6 +28,7 @@ class RssSource(models.Model):
                     extra_attributes__post_url=rss_entry.link,
                     defaults={
                         'title': rss_entry.title,
+                        'source': self.entry_source,
                         'description': rss_entry.summary,
                         'date_on_timeline': datetime.fromtimestamp(mktime(rss_entry.published_parsed), pytz.UTC),
                         'extra_attributes': {

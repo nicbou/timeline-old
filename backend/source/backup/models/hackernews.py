@@ -6,19 +6,22 @@ import pytz
 import requests
 from django.db import models, transaction
 
+from backup.models import BaseSource
 from timeline.models import Entry
 
 
 logger = logging.getLogger(__name__)
 
 
-class HackerNewsSource(models.Model):
+class HackerNewsSource(BaseSource):
     hackernews_username = models.CharField(max_length=20, blank=False)
+
+    source_type = 'hackernews'
 
     def process(self) -> Tuple[int, int]:
         base_schema = 'social.hackernews'
         latest_entry = Entry.objects\
-            .filter(extra_attributes__post_user=self.hackernews_username, schema__startswith=f"{base_schema}.")\
+            .filter(source=self.entry_source)\
             .order_by('-extra_attributes__post_id') \
             .first()
         latest_entry_date = latest_entry.date_on_timeline if latest_entry else None
@@ -63,6 +66,7 @@ class HackerNewsSource(models.Model):
 
                 entry, created = Entry.objects.update_or_create(
                     schema=f"{base_schema}.{item['type']}",
+                    source=self.entry_source,
                     extra_attributes__post_id=item['id'],
                     defaults=entry_values
                 )

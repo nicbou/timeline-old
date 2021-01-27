@@ -5,14 +5,17 @@ import praw as praw
 import pytz
 from django.db import models, transaction
 
+from backup.models import BaseSource
 from timeline.models import Entry
 
 
-class RedditSource(models.Model):
+class RedditSource(BaseSource):
     client_id = models.CharField(max_length=50, blank=False)
     client_secret = models.CharField(max_length=50, blank=False)
     user_agent = models.CharField(max_length=100, blank=True)
     reddit_username = models.CharField(max_length=20, blank=False)
+
+    source_type = 'reddit'
 
     def process(self) -> Tuple[int, int]:
         created_posts, updated_posts = self.process_posts()
@@ -43,6 +46,7 @@ class RedditSource(models.Model):
                             'post_community': submission.subreddit.display_name,
                             'post_user': self.reddit_username,
                             'post_url': submission.url,
+                            'source': self.entry_source,
                         }
                     }
                 )

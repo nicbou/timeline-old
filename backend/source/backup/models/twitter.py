@@ -5,18 +5,21 @@ import pytz
 import tweepy as tweepy
 from django.db import models, transaction
 
+from backup.models import BaseSource
 from timeline.models import Entry
 
 
 logger = logging.getLogger(__name__)
 
 
-class TwitterSource(models.Model):
+class TwitterSource(BaseSource):
     consumer_key = models.CharField(max_length=50, blank=False)
     consumer_secret = models.CharField(max_length=50, blank=False)
     access_token = models.CharField(max_length=50, blank=False)
     access_token_secret = models.CharField(max_length=50, blank=False)
     twitter_username = models.CharField(max_length=50, blank=False)
+
+    source_name = 'twitter'
 
     def process(self) -> Tuple[int, int]:
         auth = tweepy.OAuthHandler(self.consumer_key, self.consumer_secret)
@@ -25,7 +28,7 @@ class TwitterSource(models.Model):
 
         schema = 'social.twitter.tweet'
         latest_entry = Entry.objects \
-            .filter(extra_attributes__post_user=self.twitter_username, schema=schema)\
+            .filter(source=self.entry_source)\
             .order_by('-extra_attributes__post_id')\
             .first()
         latest_entry_date = latest_entry.date_on_timeline if latest_entry else None
@@ -57,6 +60,7 @@ class TwitterSource(models.Model):
                         'extra_attributes': {
                             'post_id': tweet.id,
                             'post_user': self.twitter_username,
+                            'source': self.entry_source,
                         }
                     }
                 )

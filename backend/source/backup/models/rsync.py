@@ -9,6 +9,7 @@ import pytz
 from django.conf import settings
 from django.db import models, transaction
 
+from backup.models import BaseSource
 from backup.utils.files import get_mimetype, get_media_metadata, get_metadata_from_exif
 from timeline.models import Entry
 
@@ -60,12 +61,14 @@ class Backup:
         return f"{self.source.key} ({self.date})"
 
 
-class RsyncSource(models.Model):
+class RsyncSource(BaseSource):
     user = models.CharField(max_length=80, blank=False)
     host = models.CharField(max_length=255, blank=False)
     port = models.PositiveSmallIntegerField(default=22)
     path = models.TextField(blank=False)
     key = models.CharField(max_length=80, blank=False, unique=True)
+
+    source_name = 'rsync'
 
     @property
     def backups_root(self) -> Path:
@@ -149,7 +152,7 @@ class RsyncSource(models.Model):
         for backup in backups_to_process:
             with transaction.atomic():
                 entries_deleted = Entry.objects.filter(
-                    extra_attributes__source=self.key,
+                    source=self.entry_source,
                     extra_attributes__backup_date=backup.date.strftime('%Y-%m-%dT%H:%M:%SZ')
                 ).delete()[0]
 
@@ -159,12 +162,12 @@ class RsyncSource(models.Model):
                     schema = self.get_schema_from_mimetype(mimetype)
                     entry = Entry(
                         schema=schema,
+                        source=self.entry_source,
                         title=file_in_backup.name,
                         description='',
                         date_on_timeline=self.get_file_date(file_in_backup),
                         extra_attributes={
                             'path': str(file_in_backup.resolve()),
-                            'source': self.key,
                             'backup_date': backup.date.strftime('%Y-%m-%dT%H:%M:%SZ'),
                         }
                     )
@@ -197,7 +200,7 @@ class RsyncSource(models.Model):
 
     def get_backups_to_process(self, process_all=False):
         latest_file_entry = Entry.objects\
-            .filter(extra_attributes__source=self.key, extra_attributes__backup_date__isnull=False)\
+            .filter(source=self.entry_source, extra_attributes__backup_date__isnull=False)\
             .order_by('-extra_attributes__backup_date')\
             .first()
 
