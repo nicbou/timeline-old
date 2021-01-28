@@ -1,12 +1,16 @@
-from .models import BackupSource, TwitterSource, RedditSource, HackerNewsSource, RssSource
+from .models.rsync import RsyncSource
+from .models.twitter import TwitterSource
+from .models.reddit import RedditSource
+from .models.hackernews import HackerNewsSource
+from .models.rss import RssSource
 from rest_framework import serializers
 
 
-class BackupSourceSerializer(serializers.HyperlinkedModelSerializer):
+class RsyncSourceSerializer(serializers.HyperlinkedModelSerializer):
     password = serializers.CharField(write_only=True, style={'input_type': 'password'})
 
     class Meta:
-        model = BackupSource
+        model = RsyncSource
         fields = ['id', 'key', 'user', 'host', 'port', 'path', 'password']
 
 

@@ -2,9 +2,9 @@ export default Vue.component('video-tile', {
   props: ['entry'],
   computed: {
     tileStyle: function() {
-      if(this.entry.extra_attributes.width && this.entry.extra_attributes.height) {
+      if(this.entry.extra_attributes.media.width && this.entry.extra_attributes.media.height) {
         return {
-          width: `${this.entry.extra_attributes.width / this.entry.extra_attributes.height * 200}px`,
+          width: `${this.entry.extra_attributes.media.width / this.entry.extra_attributes.media.height * 200}px`,
         }
       }
     },

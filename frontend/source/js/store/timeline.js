@@ -58,12 +58,13 @@ export default {
       const existingJournalEntry = entries.find(e => e.schema == schema)
 
       const journalEntry = existingJournalEntry || {
-          'schema': schema,
-          'title': '',
-          'description': '',
-          'extra_attributes': {},
-          'date_on_timeline': moment(this.state.route.query.date, 'YYYY-MM-DD').format(),
-        };
+        'schema': schema,
+        'source': 'frontend/web',
+        'title': '',
+        'description': '',
+        'extra_attributes': {},
+        'date_on_timeline': moment(this.state.route.query.date, 'YYYY-MM-DD').format(),
+      };
 
       journalEntry.description = description;
 

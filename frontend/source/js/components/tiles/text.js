@@ -2,11 +2,11 @@ export default Vue.component('text-tile', {
   props: ['entry'],
   computed: {
     fileName: function() {
-      const pathParts = this.entry.extra_attributes.path.split('/');
+      const pathParts = this.entry.extra_attributes.file.path.split('/');
       return pathParts[pathParts.length - 1];
     },
     richDescription: function() {
-      if (this.entry.extra_attributes.mimetype === 'text/markdown'){
+      if (this.entry.extra_attributes.file.mimetype === 'text/markdown'){
         return marked(this.entry.description);
       }
       return '<p>' + this.entry.description.replaceAll('\n', '</p><p>') + '</p>';

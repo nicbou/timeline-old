@@ -2,13 +2,8 @@
 source /srv/cronenv
 
 # Social media backups
-/usr/local/bin/python /usr/src/app/manage.py retrieve_twitter_tweets
-/usr/local/bin/python /usr/src/app/manage.py retrieve_reddit_comments
-/usr/local/bin/python /usr/src/app/manage.py retrieve_reddit_posts
-/usr/local/bin/python /usr/src/app/manage.py retrieve_hackernews_items
+/usr/local/bin/python /usr/src/app/manage.py retrieve_twitter_entries
+/usr/local/bin/python /usr/src/app/manage.py retrieve_reddit_entries
+/usr/local/bin/python /usr/src/app/manage.py retrieve_hackernews_entries
 /usr/local/bin/python /usr/src/app/manage.py retrieve_rss_entries
-
-# File backups
-/usr/local/bin/python /usr/src/app/manage.py run_rsync_backups &&
-/usr/local/bin/python /usr/src/app/manage.py generate_backup_entries &&
-/usr/local/bin/python /usr/src/app/manage.py process_file_entries
+/usr/local/bin/python /usr/src/app/manage.py retrieve_rsync_entries

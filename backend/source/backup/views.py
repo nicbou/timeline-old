@@ -1,6 +1,10 @@
 from .management.commands.copy_ssh_keys import SSHTimeoutError, SSHCredentialsError
-from .models import BackupSource, TwitterSource, RedditSource, HackerNewsSource, RssSource
-from .serializers import BackupSourceSerializer, TwitterSourceSerializer, RedditSourceSerializer, \
+from .models.rsync import RsyncSource
+from .models.twitter import TwitterSource
+from .models.reddit import RedditSource
+from .models.hackernews import HackerNewsSource
+from .models.rss import RssSource
+from .serializers import RsyncSourceSerializer, TwitterSourceSerializer, RedditSourceSerializer, \
     HackerNewsSourceSerializer, RssSourceSerializer
 from django.core.management import call_command
 from rest_framework import permissions
@@ -12,12 +16,12 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class BackupSourceViewSet(viewsets.ModelViewSet):
+class RsyncSourceViewSet(viewsets.ModelViewSet):
     """
     List and manage backup Sources. A Source is a remote server from which files are backed up.
     """
-    queryset = BackupSource.objects.all().order_by('key')
-    serializer_class = BackupSourceSerializer
+    queryset = RsyncSource.objects.all().order_by('key')
+    serializer_class = RsyncSourceSerializer
     permission_classes = [permissions.AllowAny]
 
     def perform_create(self, serializer):
@@ -59,12 +63,12 @@ class BackupViewSet(viewsets.ViewSet):
     def list(self, request):
         backups_by_source_key = {
             source.key: self.get_backups_for_source(source)
-            for source in BackupSource.objects.all().order_by('key')
+            for source in RsyncSource.objects.all().order_by('key')
         }
         return Response(backups_by_source_key)
 
     def retrieve(self, request, pk=None):
-        return Response(self.get_backups_for_source(BackupSource.objects.get(pk=pk)))
+        return Response(self.get_backups_for_source(RsyncSource.objects.get(pk=pk)))
 
 
 class TwitterSourceViewSet(viewsets.ModelViewSet):

@@ -5,8 +5,8 @@ export default Vue.component('preview', {
   props: ['entry'],
   computed: {
     mimetype: function(){
-      if (this.entry.extra_attributes) {
-        return this.entry.extra_attributes.mimetype;
+      if (this.entry.extra_attributes && this.entry.extra_attributes.file) {
+        return this.entry.extra_attributes.file.mimetype;
       }
       return undefined;
     },
