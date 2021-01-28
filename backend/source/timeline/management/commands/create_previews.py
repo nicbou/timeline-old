@@ -1,14 +1,13 @@
-from builtins import function
-from typing import List
+import logging
+from pathlib import Path
+from typing import List, Callable
 
+from django.conf import settings
+from django.core.management.base import BaseCommand
 from django.db import transaction
 
 from timeline.file_utils import generate_pdf_preview, generate_video_preview, generate_image_preview
 from timeline.models import Entry
-from django.conf import settings
-from django.core.management.base import BaseCommand
-from pathlib import Path
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -26,16 +25,17 @@ class Command(BaseCommand):
     def get_previews_dir(entry: Entry, mkdir=False):
         previews_dir = (
                 settings.PREVIEWS_ROOT /
-                entry.extra_attributes.get('source', settings.DEFAULT_PREVIEW_SUBDIR) /
-                entry.extra_attributes['checksum']
+                Path(entry.source) /
+                entry.extra_attributes['file']['checksum']
         )
         if mkdir:
             previews_dir.mkdir(parents=True, exist_ok=True)
         return previews_dir
 
     def generate_pdf_previews(self, entry: Entry):
-        original_path = Path(entry.extra_attributes['path'])
-        entry.extra_attributes['previews'] = {}
+        original_path = Path(entry.extra_attributes['file']['path'])
+        entry.extra_attributes['previews'] = entry.extra_attributes.get('previews', {})
+
         for preview_name, preview_params in settings.DOCUMENT_PREVIEW_SIZES.items():
             preview_path = self.get_previews_dir(entry, mkdir=True) / f'{preview_name}.png'
             try:
@@ -56,7 +56,12 @@ class Command(BaseCommand):
                 raise
 
     def generate_image_previews(self, entry: Entry):
-        original_path = Path(entry.extra_attributes['path'])
+        original_path = Path(entry.extra_attributes['file']['path'])
+
+        if 'width' not in entry.extra_attributes['media']:
+            # Not a valid image
+            return
+
         entry.extra_attributes['previews'] = {}
         for preview_name, preview_params in settings.IMAGE_PREVIEW_SIZES.items():
             preview_path = self.get_previews_dir(entry, mkdir=True) / f'{preview_name}.jpg'
@@ -78,7 +83,11 @@ class Command(BaseCommand):
                 raise
 
     def generate_video_previews(self, entry: Entry):
-        original_path = Path(entry.extra_attributes['path'])
+        original_path = Path(entry.extra_attributes['file']['path'])
+
+        if 'duration' not in entry.extra_attributes['media']:
+            # Not a valid video
+            return
 
         entry.extra_attributes['previews'] = {}
         for preview_name, preview_params in settings.VIDEO_PREVIEW_SIZES.items():
@@ -87,7 +96,8 @@ class Command(BaseCommand):
                 generate_video_preview(
                     original_path,
                     preview_path,
-                    (preview_params['width'], preview_params['height']),
+                    video_duration=entry.extra_attributes.get('duration'),
+                    max_dimensions=(preview_params['width'], preview_params['height']),
                     overwrite=False
                 )
                 entry.extra_attributes['previews'][preview_name] = str(preview_path)
@@ -101,10 +111,10 @@ class Command(BaseCommand):
                 raise
 
     @staticmethod
-    def original_file_exists(self, entry: Entry) -> bool:
-        return Path(entry.extra_attributes['path']).exists()
+    def original_file_exists(entry: Entry) -> bool:
+        return Path(entry.extra_attributes['file']['path']).exists()
 
-    def get_processing_tasks(self, entry: Entry) -> List[function]:
+    def get_processing_tasks(self, entry: Entry) -> List[Callable[[Entry], None]]:
         tasks = []
         if entry.schema.startswith('file.image'):
             tasks.append(self.generate_image_previews)
@@ -125,13 +135,13 @@ class Command(BaseCommand):
             for index, entry in enumerate(entries):
                 # Delete orphaned entries (for example if the backup gets deleted)
                 if not self.original_file_exists(entry):
-                    logger.error(f"Entry #{entry.id} does not exist at {entry.extra_attributes['path']}")
+                    logger.error(f"Entry #{entry.id} does not exist at {entry.extra_attributes['file']['path']}")
                     missing_entry_count += 1
                     entry.delete()
                     continue
 
                 logger.debug(f"Processing entry {index + 1}/{entry_count}"
-                             f" (#{entry.id} - {entry.extra_attributes['path']})")
+                             f" (#{entry.id} - {entry.extra_attributes['file']['path']})")
 
                 if processing_tasks := self.get_processing_tasks(entry):
                     for task in processing_tasks:
@@ -139,7 +149,7 @@ class Command(BaseCommand):
                             task(entry)
                         except:
                             logger.exception(f"Could not process entry #{entry.pk} "
-                                             f"({ str(Path(entry.extra_attributes['path'])) }).")
+                                             f"({ str(Path(entry.extra_attributes['file']['path'])) }).")
                     entry.save()
 
             if missing_entry_count == 0:

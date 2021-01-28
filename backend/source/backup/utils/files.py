@@ -102,21 +102,24 @@ def get_metadata_from_exif(input_path: Path) -> dict:
             metadata['location']['bearing'] = float(exif['GPSInfo']['GPSDestBearing'])
 
     if 'Make' in exif or 'Model' in exif:
-        metadata['camera'] = f"{exif.get('Make', '')} {exif.get('Model', '')}".replace('\x00', '').strip()
+        metadata['media'] = metadata.get('media', {})
+        metadata['media']['camera'] = f"{exif.get('Make', '')} {exif.get('Model', '')}".replace('\x00', '').strip()
 
     if 'GPSDateStamp' in exif.get('GPSInfo', {}) and 'GPSTimeStamp' in exif.get('GPSInfo', {}):
         # GPS dates are UTC
         try:
             gps_date = exif['GPSInfo']['GPSDateStamp']
             gps_time = ":".join(f"{float(timefragment):02.0f}" for timefragment in exif['GPSInfo']['GPSTimeStamp'])
-            metadata['creation_date'] = datetime\
+            metadata['media'] = metadata.get('media', {})
+            metadata['media']['creation_date'] = datetime\
                 .strptime(f"{gps_date} {gps_time}".replace('\x00', '').replace('-', ':'), '%Y:%m:%d %H:%M:%S')\
                 .strftime('%Y-%m-%dT%H:%M:%SZ')
         except KeyError:
             pass
     elif 'DateTimeOriginal' in exif:
         # There is no timezone information on this date
-        metadata['creation_date'] = datetime\
+        metadata['media'] = metadata.get('media', {})
+        metadata['media']['creation_date'] = datetime\
             .strptime(exif['DateTimeOriginal'].replace('\x00', '').replace('-', ':'), '%Y:%m:%d %H:%M:%S')\
             .strftime('%Y-%m-%dT%H:%M:%SZ')
 

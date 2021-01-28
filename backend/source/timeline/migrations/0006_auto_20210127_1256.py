@@ -41,7 +41,7 @@ def set_source(app, schema_editor):
 
     for entry in entries:
         if entry.schema.startswith('file'):
-            key = Path(entry.extra_attributes['path']).relative_to(settings.BACKUPS_ROOT).parts[0]
+            key = Path(entry.extra_attributes['file']['path']).relative_to(settings.BACKUPS_ROOT).parts[0]
             if key in rsync_sources_by_key:
                 entry.source = f"{RsyncSource.source_name}/{rsync_sources_by_key[key]}"
         elif entry.schema.startswith('social.twitter'):

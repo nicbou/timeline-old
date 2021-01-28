@@ -11,7 +11,7 @@ from django.conf import settings
 from django.db import models, transaction
 
 from backup.models import BaseSource
-from backup.utils.files import get_mimetype, get_media_metadata, get_metadata_from_exif
+from backup.utils.files import get_mimetype, get_media_metadata, get_metadata_from_exif, get_checksum
 from timeline.models import Entry
 
 
@@ -171,13 +171,16 @@ class RsyncSource(BaseSource):
                         description='',
                         date_on_timeline=self.get_file_date(file_in_backup),
                         extra_attributes={
-                            'path': str(file_in_backup.resolve()),
+                            'file': {
+                                'path': str(file_in_backup.resolve()),
+                                'checksum': get_checksum(file_in_backup),
+                            },
                             'backup_date': backup.date.strftime('%Y-%m-%dT%H:%M:%SZ'),
                         }
                     )
 
                     if mimetype:
-                        entry.extra_attributes['mimetype'] = mimetype
+                        entry.extra_attributes['file']['mimetype'] = mimetype
 
                     if schema == 'file.text' or schema.startswith('file.text'):
                         self.set_plaintext_description(entry)
@@ -291,7 +294,7 @@ class RsyncSource(BaseSource):
         """
         if len(entry.description):
             return
-        original_path = Path(entry.extra_attributes['path'])
+        original_path = Path(entry.extra_attributes['file']['path'])
         with original_path.open('r') as text_file:
             entry.description = text_file.read(settings.MAX_PLAINTEXT_PREVIEW_SIZE)
 
@@ -300,31 +303,39 @@ class RsyncSource(BaseSource):
         """
         Sets width, height, duration and codec attributes for media files
         """
-        if 'width' in entry.extra_attributes:
+        if 'media' in entry.extra_attributes:
+            # Information is already set
             return
 
-        original_path = Path(entry.extra_attributes['path'])
+        entry.extra_attributes['media'] = {}
+        original_path = Path(entry.extra_attributes['file']['path'])
         try:
             original_media_attrs = get_media_metadata(original_path)
-            entry.extra_attributes.update(original_media_attrs)
-            if entry.extra_attributes.get('mimetype', '').startswith('image') and 'codec' in entry.extra_attributes:
+            entry.extra_attributes['media'].update(original_media_attrs)
+            if (
+                entry.extra_attributes['file'].get('mimetype').startswith('image')
+                and 'codec' in entry.extra_attributes['media']
+            ):
                 # JPEG images are treated as MJPEG videos and have a duration of 1 frame
-                entry.extra_attributes.pop('duration', None)
-                entry.extra_attributes.pop('codec', None)
+                entry.extra_attributes['media'].pop('duration', None)
+                entry.extra_attributes['media'].pop('codec', None)
         except:
             logger.exception(f"Could not read metadata from file #{entry.pk} at {original_path}")
             raise
 
     @staticmethod
     def set_exif_metadata(entry: Entry):
-        if 'camera' in entry.extra_attributes and 'location' in entry.extra_attributes:
+        if 'camera' in entry.extra_attributes.get('media', {}) or 'location' in entry.extra_attributes:
             # TODO: Photos with missing exif data will be reprocessed
             return
 
-        original_path = Path(entry.extra_attributes['path'])
+        original_path = Path(entry.extra_attributes['file']['path'])
         try:
             metadata = get_metadata_from_exif(original_path)
-            entry.extra_attributes.update(metadata)
+            if 'media' in metadata:
+                entry.extra_attributes['media'].update(metadata['media'])
+            if 'location' in metadata:
+                entry.extra_attributes['location'] = metadata['location']
         except:
             logger.exception(f"Could not read exif from file #{entry.pk} at {original_path}")
             raise

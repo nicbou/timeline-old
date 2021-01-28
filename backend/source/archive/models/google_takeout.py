@@ -35,10 +35,10 @@ def geolocation_entry(date_on_timeline: datetime, latitude: float, longitude: fl
     )
 
     if altitude is not None:
-        entry.extra_attributes['altitude'] = altitude
+        entry.extra_attributes['location']['altitude'] = altitude
 
     if accuracy is not None:
-        entry.extra_attributes['accuracy'] = accuracy
+        entry.extra_attributes['location']['accuracy'] = accuracy
 
     return entry
 

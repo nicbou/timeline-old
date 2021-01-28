@@ -28,14 +28,10 @@ def generate_pdf_preview(input_path: Path, output_path: Path, max_dimensions: (i
         )
 
 
-def generate_video_preview(input_path: Path, output_path: Path, max_dimensions: (int, int), overwrite=False):
+def generate_video_preview(input_path: Path, output_path: Path, video_duration: int, max_dimensions: (int, int),
+                           overwrite=False):
     if output_path.exists() and not overwrite:
         raise FileExistsError
-
-    try:
-        video_duration = int(get_media_metadata(input_path)['duration'])
-    except:
-        raise Exception(f"Could not read video metadata from {input_path}")
 
     try:
         sample_count = 10
