@@ -44,6 +44,8 @@ def geolocation_entry(date_on_timeline: datetime, latitude: float, longitude: fl
 
 
 class GoogleTakeoutArchive(Archive):
+    source_name = 'google'
+
     def process(self):
         try:
             self.delete_extracted_files()

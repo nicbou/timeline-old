@@ -38,8 +38,12 @@ class Archive(models.Model):
         return self.root_path / 'files'
 
     @property
+    def source_name(self) -> str:
+        return type(self).__name__
+
+    @property
     def entry_source(self):
-        return f"archive/{self.key}"
+        return f"archive/{self.source_name}/{self.key}"
 
     def extract_files(self):
         """
