@@ -1,3 +1,8 @@
+from builtins import function
+from typing import List
+
+from django.db import transaction
+
 from timeline.file_utils import generate_pdf_preview, generate_video_preview, generate_image_preview
 from timeline.models import Entry
 from django.conf import settings
@@ -12,10 +17,11 @@ class Command(BaseCommand):
     help = 'Generates previews and extends metadata for backup entries'
 
     # Note: we do incremental backups.
-    # If we change image.png, there will be two versions of image.png on the server: before and after the change.
-    # There will also be two entries: one for each version of image.png.
-    # In other words, new files are added, but existing files don't change. If a file entry already has a checksum,
-    # a mimetype, previews etc., we don't need to recalculate them. This saves us a lot of processing time.
+    # - If we change image.png, there will be two versions of image.png on the server: before and after the change.
+    #   There will also be two entries: one for each version of image.png. New files are added, but existing files don't
+    #   change.
+    # - We use the file checksum to name previews, so multiple identical files will have the same previews.
+
     @staticmethod
     def get_previews_dir(entry: Entry, mkdir=False):
         previews_dir = (
@@ -27,7 +33,7 @@ class Command(BaseCommand):
             previews_dir.mkdir(parents=True, exist_ok=True)
         return previews_dir
 
-    def set_pdf_previews(self, entry: Entry):
+    def generate_pdf_previews(self, entry: Entry):
         original_path = Path(entry.extra_attributes['path'])
         entry.extra_attributes['previews'] = {}
         for preview_name, preview_params in settings.DOCUMENT_PREVIEW_SIZES.items():
@@ -49,7 +55,7 @@ class Command(BaseCommand):
                 logger.exception(f'Could not generate PDF preview for entry #{entry.pk} ({str(original_path)}).')
                 raise
 
-    def set_image_previews(self, entry: Entry):
+    def generate_image_previews(self, entry: Entry):
         original_path = Path(entry.extra_attributes['path'])
         entry.extra_attributes['previews'] = {}
         for preview_name, preview_params in settings.IMAGE_PREVIEW_SIZES.items():
@@ -71,7 +77,7 @@ class Command(BaseCommand):
                 logger.exception(f'Could not generate image preview for entry #{entry.pk} ({str(original_path)}).')
                 raise
 
-    def set_video_previews(self, entry: Entry):
+    def generate_video_previews(self, entry: Entry):
         original_path = Path(entry.extra_attributes['path'])
 
         entry.extra_attributes['previews'] = {}
@@ -94,49 +100,49 @@ class Command(BaseCommand):
                 logger.exception(f'Could not generate video preview for entry #{entry.pk} ({str(original_path)}).')
                 raise
 
-    def get_processing_tasks(self, entry: Entry):
+    @staticmethod
+    def original_file_exists(self, entry: Entry) -> bool:
+        return Path(entry.extra_attributes['path']).exists()
+
+    def get_processing_tasks(self, entry: Entry) -> List[function]:
         tasks = []
-
         if entry.schema.startswith('file.image'):
-            tasks.extend([
-                self.set_image_previews,
-            ])
+            tasks.append(self.generate_image_previews)
         elif entry.schema.startswith('file.video'):
-            tasks.extend([
-                self.set_video_previews,
-            ])
+            tasks.append(self.generate_video_previews)
         elif entry.schema.startswith('file.document.pdf'):
-            tasks.append(self.set_pdf_previews)
-
+            tasks.append(self.generate_pdf_previews)
         return tasks
 
     def handle(self, *args, **options):
         entries = Entry.objects.filter(schema__startswith='file.')
+
         entry_count = len(entries)
         logger.info(f"Generating previews and metadata for {entry_count} file entries")
         missing_entry_count = 0
-        for index, entry in enumerate(entries):
-            entry_path = Path(entry.extra_attributes['path'])
 
-            # This could happen if a Backup is deleted
-            if not entry_path.exists():
-                logger.error(f"Entry #{entry.id} does not exist at {entry.extra_attributes['path']}")
-                missing_entry_count += 1
-                entry.delete()
-                continue
+        with transaction.atomic():
+            for index, entry in enumerate(entries):
+                # Delete orphaned entries (for example if the backup gets deleted)
+                if not self.original_file_exists(entry):
+                    logger.error(f"Entry #{entry.id} does not exist at {entry.extra_attributes['path']}")
+                    missing_entry_count += 1
+                    entry.delete()
+                    continue
 
-            logger.debug(f"Processing entry {index + 1}/{entry_count} (#{entry.id} - {entry.extra_attributes['path']})")
-            for task in self.get_processing_tasks(entry):
-                try:
-                    task(entry)
-                except:
-                    logger.exception(f"Could not process entry #{entry.pk} "
-                                     f"({ str(Path(entry.extra_attributes['path'])) }).")
+                logger.debug(f"Processing entry {index + 1}/{entry_count}"
+                             f" (#{entry.id} - {entry.extra_attributes['path']})")
 
-            entry.save()
+                if processing_tasks := self.get_processing_tasks(entry):
+                    for task in processing_tasks:
+                        try:
+                            task(entry)
+                        except:
+                            logger.exception(f"Could not process entry #{entry.pk} "
+                                             f"({ str(Path(entry.extra_attributes['path'])) }).")
+                    entry.save()
 
-        if missing_entry_count == 0:
-            logger.info(f"{len(entries)} file entries processed.")
-        else:
-            logger.warning(f"{len(entries)} file entries processed. "
-                           f"{missing_entry_count} entries with missing files removed.")
+            if missing_entry_count == 0:
+                logger.info(f"{len(entries)} file entries processed.")
+            else:
+                logger.warning(f"{len(entries)} file entries processed, {missing_entry_count} orphaned entries removed")
