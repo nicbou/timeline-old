@@ -122,6 +122,7 @@ class RsyncSource(BaseSource):
             "--itemize-changes",
             "--delete",
             "-e", f"ssh -p {self.port}",
+            "--timeout", "120",
             "--filter", ":- .rsyncignore",
             "--link-dest", str(latest_backup.files_path.resolve()),
             source_path,
