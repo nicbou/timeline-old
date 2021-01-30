@@ -96,7 +96,7 @@ class Command(BaseCommand):
                 generate_video_preview(
                     original_path,
                     preview_path,
-                    video_duration=entry.extra_attributes.get('duration'),
+                    video_duration=entry.extra_attributes.['media']['duration'],
                     max_dimensions=(preview_params['width'], preview_params['height']),
                     overwrite=False
                 )

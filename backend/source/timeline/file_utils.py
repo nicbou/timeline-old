@@ -33,6 +33,11 @@ def generate_video_preview(input_path: Path, output_path: Path, video_duration: 
     if output_path.exists() and not overwrite:
         raise FileExistsError
 
+    if video_duration is None or video_duration == 0:
+        raise Exception(
+            f'Could not generate video preview. Video duration is {video_duration}.'
+        )
+
     try:
         sample_count = 10
         sample_duration = 2
