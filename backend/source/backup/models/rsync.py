@@ -201,8 +201,7 @@ class RsyncSource(BaseSource):
 
         logger.info(f"\"{self.key}\" entries generated. "
                     f"{len(backups_to_process)} backups processed, "
-                    f"{len(list(self.backups)) - len(backups_to_process)} skipped. "
-                    f"There were {entries_deleted} file entries before the backup. There are now {entries_created}.")
+                    f"{len(list(self.backups)) - len(backups_to_process)} skipped.")
 
         return entries_created, 0
 
