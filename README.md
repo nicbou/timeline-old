@@ -122,6 +122,13 @@ An Archive instance contains information about how to retrieve the archive.
 Imports various data from a Google Takeout export
 
 * Location history
+* Google Chrome browsing history
+
+### TwitterArchive
+
+Imports tweets from a Twitter data export.
+
+Generally, you should import data with a `TwitterSource`, because it will keep looking for new tweets. A `TwitterArchive` is better for private accounts, or archives of deleted accounts. Unlike a `TwitterSource`, it does not require access to the Twitter API.
 
 ## Authentication
 

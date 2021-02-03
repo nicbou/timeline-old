@@ -156,10 +156,8 @@ class RsyncSource(BaseSource):
         entries_created = 0
         for backup in backups_to_process:
             with transaction.atomic():
-                entries_deleted = Entry.objects.filter(
-                    source=self.entry_source,
-                    extra_attributes__backup_date=backup.date.strftime('%Y-%m-%dT%H:%M:%SZ')
-                ).delete()[0]
+                self.get_entries\
+                    .filter(extra_attributes__backup_date=backup.date.strftime('%Y-%m-%dT%H:%M:%SZ')).delete()
 
                 entries_to_create = []
                 for file_in_backup in self.get_files_in_backup(backup):
@@ -206,8 +204,7 @@ class RsyncSource(BaseSource):
         return entries_created, 0
 
     def get_backups_to_process(self, process_all=False):
-        latest_file_entry = Entry.objects\
-            .filter(source=self.entry_source, extra_attributes__backup_date__isnull=False)\
+        latest_file_entry = self.get_entries().filter(extra_attributes__backup_date__isnull=False)\
             .order_by('-extra_attributes__backup_date')\
             .first()
 
@@ -341,4 +338,4 @@ class RsyncSource(BaseSource):
             raise
 
     def __str__(self):
-        return f"{self.key} ({self.user}@{self.host}:{self.port}, {self.path})"
+        return f"{self.source_name}/{self.key} ({self.user}@{self.host}:{self.port}, {self.path})"

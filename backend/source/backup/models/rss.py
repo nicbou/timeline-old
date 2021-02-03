@@ -24,11 +24,11 @@ class RssSource(BaseSource):
             for rss_entry in rss_feed.entries:
                 entry, created = Entry.objects.update_or_create(
                     schema='social.blog.article',
+                    source=self.entry_source,
                     extra_attributes__post_id=rss_entry.id,
                     extra_attributes__post_url=rss_entry.link,
                     defaults={
                         'title': rss_entry.title,
-                        'source': self.entry_source,
                         'description': rss_entry.summary,
                         'date_on_timeline': datetime.fromtimestamp(mktime(rss_entry.published_parsed), pytz.UTC),
                         'extra_attributes': {
@@ -47,4 +47,4 @@ class RssSource(BaseSource):
         return len(created_entries), len(updated_entries)
 
     def __str__(self):
-        return self.feed_url
+        return f"{self.source_name}/{self.feed_url}"

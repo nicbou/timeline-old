@@ -1,5 +1,5 @@
 from backup.models.hackernews import HackerNewsSource
-from backup.management.commands.retrieve_source_entries import BaseSourceProcessingCommand
+from backup.management.commands import BaseSourceProcessingCommand
 
 
 class Command(BaseSourceProcessingCommand):

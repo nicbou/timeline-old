@@ -95,4 +95,4 @@ class RedditSource(BaseSource):
         return created_entries, updated_entries
 
     def __str__(self):
-        return f"/u/{self.reddit_username}"
+        return f"{self.source_name}/{self.reddit_username}"
