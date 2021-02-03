@@ -122,6 +122,7 @@ An Archive instance contains information about how to retrieve the archive.
 Imports various data from a Google Takeout export
 
 * Location history
+* Google Chrome browsing history
 
 ## Authentication
 

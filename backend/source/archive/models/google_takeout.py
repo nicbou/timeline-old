@@ -2,6 +2,7 @@ import json
 import logging
 from datetime import datetime
 import pytz
+from django.db import transaction
 
 from archive.models import Archive
 from timeline.models import Entry
@@ -14,12 +15,16 @@ def e7_to_decimal(e7_coordinate: int) -> float:
     return float(e7_coordinate) / 10000000
 
 
-def millis_str_to_time(timestamp: int) -> datetime:
+def millis_str_to_time(timestamp: str) -> datetime:
     return datetime.fromtimestamp(int(timestamp) / 1000, tz=pytz.UTC)
 
 
-def geolocation_entry(date_on_timeline: datetime, latitude: float, longitude: float, altitude: float = None,
-                      accuracy: int = None, archive: 'Archive' = None, title: str = '') -> Entry:
+def microseconds_to_time(timestamp: int):
+    return datetime.fromtimestamp(int(timestamp) / 1000000, tz=pytz.UTC)
+
+
+def geolocation_entry(date_on_timeline: datetime, latitude: float, longitude: float, archive: 'Archive',
+                      altitude: float = None, accuracy: int = None, title: str = '') -> Entry:
     entry = Entry(
         title=title or '',
         description='',
@@ -43,23 +48,68 @@ def geolocation_entry(date_on_timeline: datetime, latitude: float, longitude: fl
     return entry
 
 
+def browsing_history_entry(date_on_timeline: datetime, archive: 'Archive', url: str, title: str = '') -> Entry:
+    return Entry(
+        title=title or '',
+        description='',
+        schema='activity.browsing.website',
+        source=archive.entry_source,
+        extra_attributes={
+            'url': url,
+        },
+        date_on_timeline=date_on_timeline,
+    )
+
+
 class GoogleTakeoutArchive(Archive):
     source_name = 'google'
 
     def process(self):
+        total_entries_created = 0
         try:
-            self.delete_extracted_files()
-            self.delete_entries()
-            self.extract_files()
-            self.process_location_history()
+            with transaction.atomic():
+                self.delete_extracted_files()
+                self.delete_entries()
+                self.extract_files()
+                total_entries_created += self.process_location_history()
+                total_entries_created += self.process_browser_history()
+                self.date_processed = datetime.now(pytz.UTC)
+                self.save()
         except:
             logger.exception(f'Failed to process archive "{self.key}"')
             raise
         finally:
             self.delete_extracted_files()
 
-        self.date_processed = datetime.now(pytz.UTC)
-        self.save()
+        logging.info(f'Done processing "{self.key}" archive. {total_entries_created} entries created.')
+
+    def process_browser_history(self):
+        json_files = list(self.files_path.glob('**/Chrome/BrowserHistory.json'))
+        logger.info(f'Processing browser history in "{self.key}" archive ({str(self.root_path)}). '
+                    f'{len(json_files)} files found.')
+
+        total_entries_created = 0
+        for json_file in json_files:
+            logger.info(f'Processing entries in {str(json_file)}')
+            with json_file.open(encoding='utf-8') as json_file_handle:
+                json_entries = json.load(json_file_handle)['Browser History']
+
+            db_entries = []
+            for entry in json_entries:
+                if entry['page_transition'] in ('FORM_SUBMIT', 'RELOAD'):
+                    continue
+
+                db_entries.append(browsing_history_entry(
+                    title=entry['title'],
+                    date_on_timeline=microseconds_to_time(entry['time_usec']),
+                    url=entry['url'],
+                    archive=self,
+                ))
+
+            logger.info(f"Adding {len(db_entries)} entries found in {str(json_file)}")
+            total_entries_created += len(Entry.objects.bulk_create(db_entries))
+
+        return total_entries_created
 
     def process_location_history(self):
         json_files = list(self.files_path.glob('**/Semantic Location History/**/*.json'))
@@ -131,6 +181,5 @@ class GoogleTakeoutArchive(Archive):
 
             logger.info(f"Adding {len(db_entries)} entries found in {str(json_file)}")
             total_entries_created += len(Entry.objects.bulk_create(db_entries))
-        logging.info(f'Done processing "{self.key}" archive. {total_entries_created} entries created.')
 
         return total_entries_created

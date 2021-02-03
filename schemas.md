@@ -23,9 +23,10 @@ The activity of watching a video
 
 ### activity.browsing.website
 
-The activity of visiting a website
+The activity of visiting a page on a website
 
-- `url`: The URL of the website
+- `title`: The title of the webpage
+- `url`: The URL of the webpage
 
 ### activity.location
 
