@@ -20,10 +20,7 @@ class HackerNewsSource(BaseSource):
 
     def process(self) -> Tuple[int, int]:
         base_schema = 'social.hackernews'
-        latest_entry = Entry.objects\
-            .filter(source=self.entry_source)\
-            .order_by('-extra_attributes__post_id') \
-            .first()
+        latest_entry = self.get_entries().order_by('-extra_attributes__post_id').first()
         latest_entry_date = latest_entry.date_on_timeline if latest_entry else None
         two_hours_ago = datetime.now(pytz.UTC) - timedelta(hours=2)
         after_date = min([latest_entry_date, two_hours_ago]) if latest_entry_date else None
@@ -79,4 +76,4 @@ class HackerNewsSource(BaseSource):
         return len(created_entries), len(updated_entries)
 
     def __str__(self):
-        return self.hackernews_username
+        return f"{self.source_name}/{self.hackernews_username}"

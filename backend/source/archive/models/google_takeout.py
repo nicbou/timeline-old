@@ -1,6 +1,8 @@
 import json
 import logging
 from datetime import datetime
+from typing import Tuple
+
 import pytz
 from django.db import transaction
 
@@ -64,7 +66,7 @@ def browsing_history_entry(date_on_timeline: datetime, archive: 'Archive', url: 
 class GoogleTakeoutArchive(Archive):
     source_name = 'google'
 
-    def process(self):
+    def process(self) -> Tuple[int, int]:
         total_entries_created = 0
         try:
             with transaction.atomic():
@@ -82,6 +84,7 @@ class GoogleTakeoutArchive(Archive):
             self.delete_extracted_files()
 
         logging.info(f'Done processing "{self.key}" archive. {total_entries_created} entries created.')
+        return total_entries_created, 0
 
     def process_browser_history(self):
         json_files = list(self.files_path.glob('**/Chrome/BrowserHistory.json'))

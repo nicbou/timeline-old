@@ -1,4 +1,4 @@
-from backup.management.commands.retrieve_source_entries import BaseSourceProcessingCommand
+from backup.management.commands import BaseSourceProcessingCommand
 from backup.models.reddit import RedditSource
 
 

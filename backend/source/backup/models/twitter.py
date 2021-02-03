@@ -50,25 +50,25 @@ class TwitterSource(BaseSource):
         created_entries = []
         with transaction.atomic():
             for tweet in cursor:
+                defaults = {
+                    'title': '',
+                    'description': tweet.full_text,
+                    'date_on_timeline': tweet.created_at.replace(tzinfo=pytz.UTC),
+                    'extra_attributes': {
+                        'post_id': tweet.id,
+                        'post_user': self.twitter_username,
+                    }
+                }
+
+                if tweet.in_reply_to_status_id:
+                    defaults['extra_attributes']['post_parent_id'] = tweet.in_reply_to_status_id
+
                 entry, created = Entry.objects.update_or_create(
                     schema=schema,
+                    source=self.entry_source,
                     extra_attributes__post_id=tweet.id,
-                    defaults={
-                        'title': '',
-                        'description': tweet.full_text,
-                        'date_on_timeline': tweet.created_at.replace(tzinfo=pytz.UTC),
-                        'extra_attributes': {
-                            'post_id': tweet.id,
-                            'post_user': self.twitter_username,
-                            'source': self.entry_source,
-                        }
-                    }
+                    defaults=defaults,
                 )
-                if tweet.coordinates:
-                    entry.extra_attributes['location'] = {
-                        'latitude': tweet.coordinates[0],
-                        'longitude': tweet.coordinates[1],
-                    }
 
                 if created:
                     created_entries.append(entry)
@@ -78,4 +78,4 @@ class TwitterSource(BaseSource):
         return len(created_entries), len(updated_entries)
 
     def __str__(self):
-        return f"@{self.twitter_username}"
+        return f"{self.source_name}/{self.twitter_username}"

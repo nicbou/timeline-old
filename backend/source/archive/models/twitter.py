@@ -3,6 +3,7 @@ import logging
 import shutil
 from datetime import datetime
 from pathlib import Path
+from typing import Tuple
 
 import pytz
 from django.db import transaction
@@ -32,7 +33,7 @@ def twitter_date_to_datetime(twitter_date: str) -> datetime:
 class TwitterArchive(Archive):
     source_name = 'twitter'
 
-    def process(self):
+    def process(self) -> Tuple[int, int]:
         total_entries_created = 0
         try:
             with transaction.atomic():
@@ -49,6 +50,7 @@ class TwitterArchive(Archive):
             self.delete_extracted_files()
 
         logging.info(f'Done processing "{self.key}" archive. {total_entries_created} entries created.')
+        return total_entries_created, 0
 
     def get_account_info(self):
         js_file = self.files_path / 'data/account.js'
