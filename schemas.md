@@ -138,5 +138,5 @@ Mixins are common sets of attributes shared by different schemas.
 - `post_parent_id`: The unique ID of the parent post (for chained comments)
 - `post_body_html`: The longer, HTML version of the post
 - `post_score`: The number of likes or upvotes
-- `post_url`: The URL of the post
+- `post_url`: The URL of the post. Blank if a permalink can be generated from other entry attributes.
 - `post_community`: The sub-community (subreddit, subforum) in which the post was made
