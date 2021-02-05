@@ -37,6 +37,10 @@ An Entry represents one thing that appears on the timeline. It could be a photo,
 
 Entries have a `schema` attribute, like `file.document.pdf`. The schemas are read from left (general) to right (specific). The schemas determine what attributes you can expect in the `extra_attributes` field. For example, all `file.image` entries have `width` and `height` attributes.
 
+* [List of schemas](https://github.com/nicbou/timeline/blob/master/README.md)
+
+Entries also have a `source` attribute. This allows you to query entries that are related to a source. 
+
 ## Sources
 
 Sources describe a regular source of data. For example, a daily backup, a social media feed or a blog. Sources are monitored for changes, and new data is automatically imported.
@@ -119,7 +123,7 @@ An Archive instance contains information about how to retrieve the archive.
 
 ### JsonArchive
 
-Imports a list of JSON entries. It expects the same format as the API at `/api/timeline/entries`.
+Imports a list of JSON entries. It expects the same format as the API at `/api/timeline/entries`. The entries are imported as-is, although the `source` attribute is overridden.
 
 This is preferable to importing a large number of entries through the API, because the process is repeatable, and reversible.
 
