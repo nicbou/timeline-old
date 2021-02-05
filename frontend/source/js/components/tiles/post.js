@@ -6,7 +6,7 @@ const postTypes = {
     getPostUrl: entry => `https://twitter.com/${entry.extra_attributes.post_user}/status/${entry.extra_attributes.post_id}`,
     getPostCommunity: entry => null,
     getPostCommunityUrl: entry => null,
-    getRichDescription: entry => `<p>${entry.extra_attributes.description}</p>`.replace(/@([\w]{1,50})/ig, '<a target="_blank" href="https://twitter.com/$1">@$1</a>'),
+    getRichDescription: entry => `<p>${entry.description}</p>`.replace(/@([\w]{1,50})/ig, '<a target="_blank" href="https://twitter.com/$1">@$1</a>'),
   },
   reddit: {
     getIconClass: entry => 'fab fa-reddit',
