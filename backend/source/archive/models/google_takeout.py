@@ -6,7 +6,7 @@ from typing import Tuple
 import pytz
 from django.db import transaction
 
-from archive.models import Archive
+from archive.models.base import BaseArchive
 from timeline.models import Entry
 
 
@@ -25,7 +25,7 @@ def microseconds_to_time(timestamp: int):
     return datetime.fromtimestamp(int(timestamp) / 1000000, tz=pytz.UTC)
 
 
-def geolocation_entry(date_on_timeline: datetime, latitude: float, longitude: float, archive: 'Archive',
+def geolocation_entry(date_on_timeline: datetime, latitude: float, longitude: float, archive: 'BaseArchive',
                       altitude: float = None, accuracy: int = None, title: str = '') -> Entry:
     entry = Entry(
         title=title or '',
@@ -50,7 +50,7 @@ def geolocation_entry(date_on_timeline: datetime, latitude: float, longitude: fl
     return entry
 
 
-def browsing_history_entry(date_on_timeline: datetime, archive: 'Archive', url: str, title: str = '') -> Entry:
+def browsing_history_entry(date_on_timeline: datetime, archive: 'BaseArchive', url: str, title: str = '') -> Entry:
     return Entry(
         title=title or '',
         description='',
@@ -63,7 +63,7 @@ def browsing_history_entry(date_on_timeline: datetime, archive: 'Archive', url: 
     )
 
 
-class GoogleTakeoutArchive(Archive):
+class GoogleTakeoutArchive(BaseArchive):
     source_name = 'google'
 
     def process(self) -> Tuple[int, int]:

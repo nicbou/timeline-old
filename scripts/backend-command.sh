@@ -1,2 +1,2 @@
 #!/bin/bash
-docker-compose exec timeline-backend python manage.py ${1}
+docker-compose exec timeline-backend python manage.py $@

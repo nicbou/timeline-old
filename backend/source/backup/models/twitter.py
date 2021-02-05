@@ -1,13 +1,12 @@
 import logging
-from typing import Tuple, List
+from typing import Tuple
 
 import pytz
 import tweepy as tweepy
 from django.db import models, transaction
 
-from backup.models import BaseSource
+from backup.models.base import BaseSource
 from timeline.models import Entry
-
 
 logger = logging.getLogger(__name__)
 

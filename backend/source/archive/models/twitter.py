@@ -8,7 +8,7 @@ from typing import Tuple
 import pytz
 from django.db import transaction
 
-from archive.models import Archive
+from archive.models.base import BaseArchive
 from timeline.models import Entry
 
 
@@ -30,7 +30,7 @@ def twitter_date_to_datetime(twitter_date: str) -> datetime:
     return datetime.strptime(twitter_date, '%a %b %d %H:%M:%S +0000 %Y').replace(tzinfo=pytz.UTC)
 
 
-class TwitterArchive(Archive):
+class TwitterArchive(BaseArchive):
     source_name = 'twitter'
 
     def process(self) -> Tuple[int, int]:

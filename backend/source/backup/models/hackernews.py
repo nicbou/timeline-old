@@ -6,7 +6,7 @@ import pytz
 import requests
 from django.db import models, transaction
 
-from backup.models import BaseSource
+from backup.models.base import BaseSource
 from timeline.models import Entry
 
 

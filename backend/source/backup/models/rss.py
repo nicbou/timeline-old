@@ -1,12 +1,12 @@
 from datetime import datetime
 from time import mktime
-from typing import Tuple, List
+from typing import Tuple
 
 import feedparser
 import pytz
 from django.db import models, transaction
 
-from backup.models import BaseSource
+from backup.models.base import BaseSource
 from timeline.models import Entry
 
 

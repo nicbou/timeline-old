@@ -10,7 +10,7 @@ import pytz
 from django.conf import settings
 from django.db import models, transaction
 
-from backup.models import BaseSource
+from backup.models.base import BaseSource
 from backup.utils.files import get_mimetype, get_media_metadata, get_metadata_from_exif, get_checksum
 from timeline.models import Entry
 
@@ -156,8 +156,9 @@ class RsyncSource(BaseSource):
         entries_created = 0
         for backup in backups_to_process:
             with transaction.atomic():
-                self.get_entries\
-                    .filter(extra_attributes__backup_date=backup.date.strftime('%Y-%m-%dT%H:%M:%SZ')).delete()
+                self.get_entries()\
+                    .filter(extra_attributes__backup_date=backup.date.strftime('%Y-%m-%dT%H:%M:%SZ'))\
+                    .delete()
 
                 entries_to_create = []
                 for file_in_backup in self.get_files_in_backup(backup):
