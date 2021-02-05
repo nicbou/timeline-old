@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.db import models
 from django.utils import timezone
 
@@ -17,3 +19,14 @@ class Entry(models.Model):
             models.Index(fields=['source']),
             models.Index(fields=['-date_on_timeline']),
         ]
+
+
+def dict_to_entry(obj: dict) -> Entry:
+    return Entry(
+        schema=obj.get('schema'),
+        source=obj.get('source'),
+        title=obj.get('title', ''),
+        description=obj.get('description'),
+        date_on_timeline=datetime.strptime(obj['date_on_timeline'], '%Y-%m-%dT%H:%M:%SZ'),
+        extra_attributes=obj.get('extra_attributes', {}),
+    )

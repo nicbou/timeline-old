@@ -117,6 +117,12 @@ Archives are suited for irregular, manual data imports.
 
 An Archive instance contains information about how to retrieve the archive.
 
+### JsonArchive
+
+Imports a list of JSON entries. It expects the same format as the API at `/api/timeline/entries`.
+
+This is preferable to importing a large number of entries through the API, because the process is repeatable, and reversible.
+
 ### GoogleTakeoutArchive
 
 Imports various data from a Google Takeout export
