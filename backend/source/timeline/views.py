@@ -18,6 +18,7 @@ class EntryViewSet(viewsets.ModelViewSet):
     filterset_fields = {
         'date_on_timeline': ['gte', 'lte', 'exact', 'gt', 'lt'],
         'schema': ['exact', 'contains'],
+        'source': ['exact', 'contains'],
     }
 
     def create(self, request, *args, **kwargs):

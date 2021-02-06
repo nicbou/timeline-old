@@ -127,6 +127,10 @@ Imports a list of JSON entries. It expects the same format as the API at `/api/t
 
 This is preferable to importing a large number of entries through the API, because the process is repeatable, and reversible.
 
+### GpxArchive
+
+Imports a list of `activity.location` Entries from a GPX file. All points from tracks and routes are imported, and all waypoints.
+
 ### GoogleTakeoutArchive
 
 Imports various data from a Google Takeout export
