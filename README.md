@@ -4,6 +4,10 @@ This software collects personal data from different sources, and displays it on 
 
 The timeline is meant to be extended with all sorts of data: geolocation, social media posts, blog posts, journal entries etc.
 
+![](https://nicolasbouliane.com/images/Screenshot-2021-02-03-at-14.56.20.png)
+
+![](https://nicolasbouliane.com/images/Screenshot-2021-02-03-at-14.53.08.png)
+
 ## Setup
 
 1. Create a `.env` file with the following variables:
