@@ -1,3 +1,4 @@
 paho-mqtt==1.5.1
 requests==2.25.0
 coloredlogs==14.0
+pytz

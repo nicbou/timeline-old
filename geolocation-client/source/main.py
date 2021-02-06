@@ -1,13 +1,13 @@
 #!/usr/bin/env python
+import json
 import logging
+import os
 from datetime import datetime
 
 import coloredlogs as coloredlogs
 import paho.mqtt.client as mqtt
-import json
+import pytz
 import requests
-import os
-
 
 logger = logging.getLogger(__name__)
 coloredlogs.install(level='DEBUG', logger=logger)
@@ -35,7 +35,7 @@ def on_message(client, userdata, msg):
                         'accuracy': data.get('acc'),
                     },
                 },
-                'date_on_timeline': datetime.fromtimestamp(data['tst']).strftime('%Y-%m-%dT%H:%M:%SZ')
+                'date_on_timeline': datetime.fromtimestamp(data['tst'], pytz.UTC).strftime('%Y-%m-%dT%H:%M:%SZ')
             })
             logger.info(f"Geolocation message processed ({data['lat']}, {data['lon']})")
     except:
