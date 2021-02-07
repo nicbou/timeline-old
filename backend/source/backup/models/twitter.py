@@ -52,7 +52,7 @@ class TwitterSource(BaseSource):
                 defaults = {
                     'title': '',
                     'description': tweet.full_text,
-                    'date_on_timeline': tweet.created_at.replace(tzinfo=pytz.UTC),
+                    'date_on_timeline': pytz.utc.localize(tweet.created_at),
                     'extra_attributes': {
                         'post_id': tweet.id,
                         'post_user': self.twitter_username,

@@ -25,7 +25,7 @@ def remove_twitter_js(input_path: Path, output_path: Path):
 
 
 def twitter_date_to_datetime(twitter_date: str) -> datetime:
-    return datetime.strptime(twitter_date, '%a %b %d %H:%M:%S +0000 %Y').replace(tzinfo=pytz.UTC)
+    return pytz.utc.localize(datetime.strptime(twitter_date, '%a %b %d %H:%M:%S +0000 %Y'))
 
 
 class TwitterArchive(CompressedArchive):

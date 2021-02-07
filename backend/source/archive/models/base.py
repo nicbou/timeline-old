@@ -72,7 +72,7 @@ class CompressedArchive(BaseArchive):
             self.extract_compressed_files()
             created_entries, updated_entries = super().process()
         except:
-            logger.exception(f'Failed to process archive "{self.source_name}"')
+            logger.exception(f'Failed to process archive "{self.entry_source}"')
             raise
         finally:
             self.delete_extracted_files()
@@ -80,9 +80,10 @@ class CompressedArchive(BaseArchive):
 
     def extract_compressed_files(self):
         self.files_path.mkdir(parents=True, exist_ok=True)
-        logger.info(f'Extracting archive "{self.key}"')
+        logger.info(f'Extracting archive "{self.entry_source}"')
         shutil.unpack_archive(self.archive_file.path, self.files_path)
 
     def delete_extracted_files(self):
+        logger.info(f'Deleting extracted files for "{self.entry_source}"')
         if self.files_path.exists():
             shutil.rmtree(self.files_path)
