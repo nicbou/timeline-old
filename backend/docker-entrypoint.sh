@@ -28,6 +28,7 @@ service cron start
 echo Starting Gunicorn.
 exec gunicorn backend.wsgi:application \
     --name backend \
+    --timeout 1200 \
     --reload \
     --bind 0.0.0.0:80 \
     --workers 3 \
