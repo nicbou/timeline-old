@@ -1,13 +1,15 @@
 import logging
 import shutil
+from datetime import datetime
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, Generator
 
-from django.db import models
+import pytz
+from django.db import models, transaction
 
 from backend.settings import ARCHIVES_ROOT
 from backup.models.base import BaseSource
-
+from timeline.models import Entry
 
 logger = logging.getLogger(__name__)
 
@@ -47,20 +49,40 @@ class BaseArchive(BaseSource):
     def entry_source(self):
         return f"archive/{super().entry_source}"
 
-    def process(self) -> Tuple[int, int]:
+    def extract_entries(self) -> Generator[Entry, None, None]:
         raise NotImplementedError
 
-    def extract_files(self):
-        """
-        Extracts compressed files from the archive for further processing
-        """
+    def process(self) -> Tuple[int, int]:
+        with transaction.atomic():
+            self.delete_entries()
+            entries_to_create = self.extract_entries()
+            entries_created = Entry.objects.bulk_create(entries_to_create)
+            self.date_processed = datetime.now(pytz.UTC)
+            self.save()
+        return len(entries_created), 0
+
+
+class CompressedArchive(BaseArchive):
+    class Meta:
+        abstract = True
+
+    def process(self) -> Tuple[int, int]:
+        try:
+            self.delete_extracted_files()
+            self.extract_compressed_files()
+            created_entries, updated_entries = super().process()
+        except:
+            logger.exception(f'Failed to process archive "{self.source_name}"')
+            raise
+        finally:
+            self.delete_extracted_files()
+        return created_entries, updated_entries
+
+    def extract_compressed_files(self):
         self.files_path.mkdir(parents=True, exist_ok=True)
         logger.info(f'Extracting archive "{self.key}"')
         shutil.unpack_archive(self.archive_file.path, self.files_path)
 
     def delete_extracted_files(self):
-        """
-        Deletes files extracted from the archive
-        """
         if self.files_path.exists():
             shutil.rmtree(self.files_path)

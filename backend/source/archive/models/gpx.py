@@ -1,22 +1,17 @@
-import json
 import logging
-from datetime import datetime
-from typing import Tuple
+from collections import Generator
 
 import gpxpy as gpxpy
-import pytz
-from django.db import transaction
 
 from archive.models.base import BaseArchive
 from timeline.models import Entry
-from timeline.serializers import EntrySerializer
 
 logger = logging.getLogger(__name__)
 
 
 class GpxArchive(BaseArchive):
     """
-    A list of JSON entries, as returned by the API
+    A list of JSON entries, with the same format as the API responses
     """
     source_name = 'gpx'
 
@@ -36,30 +31,16 @@ class GpxArchive(BaseArchive):
             date_on_timeline=point.time.strftime('%Y-%m-%dT%H:%M:%SZ')
         )
 
-    def process(self) -> Tuple[int, int]:
-        total_entries_created = 0
-        try:
-            with transaction.atomic():
-                self.delete_entries()
-                gpx = gpxpy.parse(self.archive_file.file)
-                db_entries = []
-                for track in gpx.tracks:
-                    for segment in track.segments:
-                        db_entries.extend([self.entry_from_point(point) for point in segment.points])
+    def extract_entries(self) -> Generator[Entry, None, None]:
+        gpx = gpxpy.parse(self.archive_file.file)
+        for track in gpx.tracks:
+            for segment in track.segments:
+                for point in segment.points:
+                    yield self.entry_from_point(point)
 
-                for route in gpx.routes:
-                    db_entries.extend([self.entry_from_point(point) for point in route.points])
+        for route in gpx.routes:
+            for point in route.points:
+                yield self.entry_from_point(point)
 
-                db_entries.extend([self.entry_from_point(point) for point in gpx.waypoints])
-
-                total_entries_created += len(Entry.objects.bulk_create(db_entries))
-                self.date_processed = datetime.now(pytz.UTC)
-                self.save()
-        except:
-            logger.exception(f'Failed to process archive "{self.key}"')
-            raise
-        finally:
-            self.delete_extracted_files()
-
-        logging.info(f'Done processing "{self.key}" archive. {total_entries_created} entries created.')
-        return total_entries_created, 0
+        for point in gpx.waypoints:
+            yield self.entry_from_point(point)

@@ -6,5 +6,3 @@ from archive.models.twitter import TwitterArchive
 
 
 __all__ = ['GoogleTakeoutArchive', 'TwitterArchive', 'JsonArchive', 'GpxArchive', 'archive_path']
-
-

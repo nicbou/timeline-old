@@ -3,14 +3,12 @@ import logging
 import shutil
 from datetime import datetime
 from pathlib import Path
-from typing import Tuple
+from typing import Generator
 
 import pytz
-from django.db import transaction
 
 from archive.models.base import BaseArchive
 from timeline.models import Entry
-
 
 logger = logging.getLogger(__name__)
 
@@ -33,25 +31,6 @@ def twitter_date_to_datetime(twitter_date: str) -> datetime:
 class TwitterArchive(BaseArchive):
     source_name = 'twitter'
 
-    def process(self) -> Tuple[int, int]:
-        total_entries_created = 0
-        try:
-            with transaction.atomic():
-                self.delete_extracted_files()
-                self.delete_entries()
-                self.extract_files()
-                total_entries_created += self.process_tweets()
-                self.date_processed = datetime.now(pytz.UTC)
-                self.save()
-        except:
-            logger.exception(f'Failed to process archive "{self.key}"')
-            raise
-        finally:
-            self.delete_extracted_files()
-
-        logging.info(f'Done processing "{self.key}" archive. {total_entries_created} entries created.')
-        return total_entries_created, 0
-
     def get_account_info(self):
         js_file = self.files_path / 'data/account.js'
         json_file = self.files_path / 'data/account.json'
@@ -60,20 +39,17 @@ class TwitterArchive(BaseArchive):
         with json_file.open(encoding='utf-8') as json_file_handle:
             return json.load(json_file_handle)[0]['account']
 
-    def process_tweets(self):
+    def extract_entries(self) -> Generator[Entry, None, None]:
         account_info = self.get_account_info()
 
         js_file_path = self.files_path / 'data/tweet.js'
         json_file_path = self.files_path / 'data/tweet.json'
         remove_twitter_js(js_file_path, json_file_path)
 
-        logger.info(f'Processing tweets in "{self.key}" archive ({str(self.root_path)}).')
-
-        total_entries_created = 0
         with json_file_path.open('r', encoding='utf-8') as json_file:
             json_entries = [t['tweet'] for t in json.load(json_file)]
 
-            db_entries = []
+            logger.info(f"Adding tweets found in {str(json_file_path)}")
             for tweet in json_entries:
                 entry = Entry(
                     schema='social.twitter.tweet',
@@ -91,9 +67,4 @@ class TwitterArchive(BaseArchive):
                 if tweet.get('in_reply_to_status_id'):
                     entry.extra_attributes['post_parent_id'] = tweet['in_reply_to_status_id']
 
-                db_entries.append(entry)
-
-            logger.info(f"Adding {len(db_entries)} entries found in {str(json_file_path)}")
-            total_entries_created += len(Entry.objects.bulk_create(db_entries))
-
-        return total_entries_created
+                yield entry
