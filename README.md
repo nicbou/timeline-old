@@ -137,10 +137,27 @@ Imports a list of `activity.location` Entries from a GPX file. All points from t
 
 ### GoogleTakeoutArchive
 
-Imports various data from a Google Takeout export
+Imports various data from a Google Takeout export:
 
-* Location history
-* Google Chrome browsing history
+When you create a Google Takeout archive, you must select certain export settings:
+
+* Include all the necessary data sets:
+    * "Chrome"
+        * Browsing history (`activity.browsing.website`)
+    * "Location History"
+        * Location history (`activity.location`)
+    * "My Activity" `en` `json`
+        * Search history
+            * Google Search
+            * Google Image Search
+            * Google Finance
+            * Gmail
+            * Google Drive
+        * YouTube watch history
+* Set your account language to English. The file names and data are sometimes localized.
+* Set the export type to JSON whenever possible.
+
+If you don't use these export settings, the import will not fail, but some data might not be imported.
 
 ### TwitterArchive
 

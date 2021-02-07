@@ -9,8 +9,7 @@ This is a list of the schemas that are currently in use
 The activity of searching the internet
 
 - `title`: The search term
-- `url`: The search URL
-- `query`: The search query
+- `url`: The search URL**
 
 ### activity.browsing.video
 

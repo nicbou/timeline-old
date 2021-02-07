@@ -2,6 +2,8 @@ import json
 import logging
 from collections import Generator
 from datetime import datetime
+from pathlib import Path
+from typing import Iterable
 
 import pytz
 
@@ -67,10 +69,12 @@ class GoogleTakeoutArchive(CompressedArchive):
     def extract_entries(self) -> Generator[Entry, None, None]:
         yield from self.extract_location_history()
         yield from self.extract_browser_history()
+        yield from self.extract_search_history()
+        yield from self.extract_youtube_history()
 
-    def extract_browser_history(self):
+    def extract_browser_history(self) -> Generator[Entry, None, None]:
         json_files = list(self.files_path.glob('**/Chrome/BrowserHistory.json'))
-        logger.info(f'Processing browser history in "{self.key}" archive ({str(self.root_path)}). '
+        logger.info(f'Processing browser history in "{self.entry_source}". '
                     f'{len(json_files)} files found.')
 
         for json_file in json_files:
@@ -89,9 +93,9 @@ class GoogleTakeoutArchive(CompressedArchive):
                     archive=self,
                 )
 
-    def extract_location_history(self):
+    def extract_location_history(self) -> Generator[Entry, None, None]:
         json_files = list(self.files_path.glob('**/Semantic Location History/**/*.json'))
-        logger.info(f'Processing location history in "{self.key}" archive ({str(self.root_path)}). '
+        logger.info(f'Processing location history in "{self.entry_source}". '
                     f'{len(json_files)} files found.')
 
         for json_file in json_files:
@@ -147,3 +151,51 @@ class GoogleTakeoutArchive(CompressedArchive):
                         ),
                         archive=self,
                     )
+
+    def extract_search_history(self) -> Generator[Entry, None, None]:
+        yield from self.extract_history_entries(
+            json_files=(
+                self.files_path / 'Takeout/My Activity/Search/My Activity.json',
+                self.files_path / 'Takeout/My Activity/Image Search/My Activity.json',
+                self.files_path / 'Takeout/My Activity/Gmail/My Activity.json',
+                self.files_path / 'Takeout/My Activity/Finance/My Activity.json',
+                self.files_path / 'Takeout/My Activity/Drive/My Activity.json',
+            ),
+            schema='activity.browsing.search',
+            prefix='Searched for ',
+        )
+
+    def extract_youtube_history(self) -> Generator[Entry, None, None]:
+        yield from self.extract_history_entries(
+            json_files=(self.files_path / 'Takeout/My Activity/YouTube/My Activity.json', ),
+            schema='activity.browsing.watch',
+            prefix='Watched ',
+        )
+
+    def extract_history_entries(self, json_files: Iterable[Path], schema: str,
+                                prefix: str) -> Generator[Entry, None, None]:
+        for json_file in json_files:
+            logger.info(f'Processing activity in "{str(json_file)}"')
+            for entry in json.load(json_file.open('r')):
+                if entry['title'].startswith(prefix):
+                    try:
+                        time = datetime.strptime(entry['time'], '%Y-%m-%dT%H:%M:%S.%fZ')
+                    except ValueError:
+                        time = datetime.strptime(entry['time'], '%Y-%m-%dT%H:%M:%SZ')
+
+                    extra_attributes = {}
+                    if entry.get('titleUrl'):
+                        extra_attributes['url'] = entry['titleUrl']
+
+                    try:
+                        yield Entry(
+                            title=entry['title'].replace(prefix, '', 1),
+                            description='',
+                            source=self.entry_source,
+                            schema=schema,
+                            date_on_timeline=pytz.utc.localize(time),
+                            extra_attributes=extra_attributes
+                        )
+                    except:
+                        logging.exception(f"Could not parse entry: {entry}")
+                        raise
