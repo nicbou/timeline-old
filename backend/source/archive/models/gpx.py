@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 class GpxArchive(BaseArchive):
     """
-    A list of JSON entries, with the same format as the API responses
+    A single GPX file
     """
     source_name = 'gpx'
 

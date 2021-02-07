@@ -29,6 +29,9 @@ def twitter_date_to_datetime(twitter_date: str) -> datetime:
 
 
 class TwitterArchive(CompressedArchive):
+    """
+    A Twitter data dump import
+    """
     source_name = 'twitter'
 
     def get_account_info(self):

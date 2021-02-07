@@ -165,6 +165,10 @@ Imports tweets from a Twitter data export.
 
 Generally, you should import data with a `TwitterSource`, because it will keep looking for new tweets. A `TwitterArchive` is better for private accounts, or archives of deleted accounts. Unlike a `TwitterSource`, it does not require access to the Twitter API.
 
+### N26CsvArchive
+
+Imports transactions from an N26 CSV export.
+
 ## Authentication
 
 This project does not have authentication. Everything on the timeline is public, and anyone can make destructive API requests. You will need to include your own form of authentication.
