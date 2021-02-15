@@ -92,7 +92,7 @@ input, button, textarea, select{font:var(--font-m);border:var(--border);padding:
         .tile .tile-icons{position:absolute;bottom:0;right:0;padding:var(--spacing-m);font-size:var(--font-size-icons);}
     .tile.image, .tile.video{border:none;height:200px;}
         .tile img, .tile video{cursor:pointer;display:block;height:var(--height-tile);}
-    .tile.post{flex:1 1 100%;max-width:var(--tile-max-width);box-sizing:border-box;break-after:always;break-before:always;}
+    .tile.post{flex:0 1 var(--tile-max-width);max-width:calc(100% - 2 * var(--spacing-m));box-sizing:border-box;break-after:always;break-before:always;}
 
 .post{display:flex;flex-direction:column;}
     .post > header{display:flex;align-items:center;background:var(--tile-background-color-header);border-bottom:var(--border);padding:var(--spacing-m);display:flex;}
@@ -106,7 +106,7 @@ input, button, textarea, select{font:var(--font-m);border:var(--border);padding:
             .hackernews .post-icon{color:#f60}
         .post-title{flex:1 0;}
     .post main{flex:1 1 auto;padding:0 var(--spacing-m);font:overflow:auto;background-color:var(--color-tile-background)}
-        .post main h1, .post main h2, .post main h3, .post main h4, .post main b, .post main strong{font-weight:bold}
+        .post main h1, .post main h2, .post main h3, .post main h4, .post main b, .post main strong{font-weight:bold;margin:var(--spacing-m);}
         .post main img, .post main video{max-width:100%;height:auto;}
         .post main ul, .tile.post main ol{padding-left:0;margin-left:0}
         .post main li{list-style:inside;padding-left:0;margin-left:0;}
