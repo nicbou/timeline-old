@@ -29,13 +29,13 @@ class N26CsvArchive(BaseArchive):
 
             you = {
                 'currency': default_currency,
-                'amount': Decimal(line['Amount (EUR)']),
+                'amount': Decimal(line['Amount (EUR)']).copy_abs(),
                 'name': None,
             }
 
             other_party = {
                 'currency': line['Type Foreign Currency'] or default_currency,
-                'amount': Decimal(line['Amount (Foreign Currency)'] or line['Amount (EUR)']),
+                'amount': Decimal(line['Amount (Foreign Currency)'] or line['Amount (EUR)']).copy_abs(),
                 'name': line['Payee'],
             }
 
