@@ -27,6 +27,9 @@ export default Vue.component('entry-recap', {
     blogEntries: function() {
       return this.entries.filter(e => e.schema.startsWith('social.blog.'));
     },
+    transactionEntries: function() {
+      return this.entries.filter(e => e.schema === 'finance.income' || e.schema === 'finance.expense');
+    },
   },
   template: `
     <div>
@@ -62,6 +65,10 @@ export default Vue.component('entry-recap', {
         <li v-if="geolocationEntries.length">
           <i class="fas fa-map-marker-alt"></i>
           {{ geolocationEntries.length }} location pings
+        </li>
+        <li v-if="transactionEntries.length">
+          <i class="fas fa-piggy-bank"></i>
+          {{ transactionEntries.length }} transactions
         </li>
       </ul>
       <entry-map :entries="entries" width="300" height="200"></entry-map>

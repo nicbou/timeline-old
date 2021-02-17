@@ -115,6 +115,13 @@ input, button, textarea, select{font:var(--font-m);border:var(--border);padding:
         .post main textarea{height:30px;width:100%;box-sizing:border-box;padding:0;border:0;margin:var(--spacing-m) 0;outline:none;}
             .post main textarea:focus{height:400px;transition:height 0.5s;}
 
+        .post main table{width:100%;}
+            .post main table tr{border-top:var(--border);}
+                .post main table tr:first-child{border-top:none;}
+            .post main table td{padding:var(--spacing-xs);}
+                .post main table td.currency{text-align:right;vertical-align:bottom}
+            .post main table small{display:block;}
+
     .post.thread{max-height:var(--tile-max-height);flex:0 1 400px;break-after:auto;break-before:auto;overflow-y:auto;}
         .thread .message{margin-bottom:var(--spacing-m);list-style-type:none;position:relative;}
             .thread .message .name{display:block;font-weight:bold;}

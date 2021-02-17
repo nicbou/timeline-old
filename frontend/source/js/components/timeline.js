@@ -8,6 +8,7 @@ import TimelinePostTile from './tiles/post.js'
 import TimelineTextTile from './tiles/text.js'
 import TimelineThreadTile from './tiles/thread.js';
 import TimelineVideoTile from './tiles/video.js';
+import TransactionsTile from './tiles/transactions.js';
 import { RequestStatus } from './../models/requests.js';
 
 function makeRouteValid(to, from, next) {
@@ -53,6 +54,9 @@ export default Vue.component('timeline', {
     },
     messageEntries: function() {
       return this.entries.filter(e => e.schema.startsWith('message'));
+    },
+    transactionEntries: function() {
+      return this.entries.filter(e => e.schema === 'finance.income' || e.schema === 'finance.expense');
     },
     threads: function() {
       return this.messageEntries.reduce((threads, entry) => {
@@ -102,6 +106,7 @@ export default Vue.component('timeline', {
         <div class="tiles">
           <journal-editor></journal-editor>
           <thread-tile :thread="thread" v-for="thread in threads"></thread-tile>
+          <transactions-tile :entries="transactionEntries"></transactions-tile>
           <component class="tile" :is="tileType(entry)" v-if="tileType(entry)" :entry="entry" v-for="entry in entries" :key="entry.id" @select="openPreview"></component>
         </div>
       </div>
