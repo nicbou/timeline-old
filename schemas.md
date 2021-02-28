@@ -8,15 +8,15 @@ This is a list of the schemas that are currently in use
 
 The activity of searching the internet
 
-- `title`: The search term
-- `url`: The search URL**
+- `title`: Search term
+- `url`: Search URL
 
 ### activity.browsing.video
 
 The activity of watching a video
 
 - `title`: Video title
-- `Description`: Video description
+- `description`: Video description
 - `mixin:previews`
 - `url`: The URL of the video
 
@@ -24,8 +24,8 @@ The activity of watching a video
 
 The activity of visiting a page on a website
 
-- `title`: The title of the webpage
-- `url`: The URL of the webpage
+- `title`: Webpage title
+- `url`: Webpage URL
 
 ### activity.location
 
