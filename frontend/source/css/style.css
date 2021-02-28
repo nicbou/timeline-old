@@ -105,7 +105,7 @@ input, button, textarea, select{font:var(--font-m);border:var(--border);padding:
             .reddit .post-icon{color:#ff4500;}
             .hackernews .post-icon{color:#f60}
         .post-title{flex:1 0;}
-    .post main{flex:1 1 auto;padding:0 var(--spacing-m);font:overflow:auto;background-color:var(--color-tile-background)}
+    .post main{flex:1 1 auto;padding:0 var(--spacing-m);max-height:300px;overflow:auto;background-color:var(--color-tile-background)}
         .post main h1, .post main h2, .post main h3, .post main h4, .post main b, .post main strong{font-weight:bold;margin:var(--spacing-m) 0;}
         .post main img, .post main video{max-width:100%;height:auto;}
         .post main ul, .tile.post main ol{padding-left:0;margin-left:0}
@@ -133,6 +133,10 @@ input, button, textarea, select{font:var(--font-m);border:var(--border);padding:
             .thread .message.right main{margin-left:30px;border-top-right-radius:0px;text-align:left;}
         .thread .message.left main{}
             .thread .message.left main{margin-right:30px;background:#8af;color:#fff;border-top-left-radius:0px;}
+
+    .post.browsing-history li{list-style:none;border-bottom:var(--border);padding:var(--spacing-xs);}
+        .post.browsing-history .icon{margin-right;width:20px;}
+        .post.browsing-history time{display:inline-block;width:45px;}
 
 .preview{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:1000;overflow:hidden;}
     .preview > img, .preview > video{object-fit:contain;position:absolute;top:0;left:0;width:100%;height:100%;}
