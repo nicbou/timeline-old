@@ -104,7 +104,7 @@ export default Vue.component('timeline', {
         </div>
         <spinner v-if="isLoading"></spinner>
         <div class="tiles">
-          <journal-editor></journal-editor>
+          <journal-editor v-if="!isLoading"></journal-editor>
           <thread-tile :thread="thread" v-for="thread in threads"></thread-tile>
           <transactions-tile :entries="transactionEntries"></transactions-tile>
           <component class="tile" :is="tileType(entry)" v-if="tileType(entry)" :entry="entry" v-for="entry in entries" :key="entry.id" @select="openPreview"></component>
