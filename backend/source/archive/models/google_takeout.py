@@ -106,7 +106,6 @@ class GoogleTakeoutArchive(CompressedArchive):
             with json_file.open(encoding='utf-8') as json_file_handle:
                 json_entries = json.load(json_file_handle)['timelineObjects']
 
-            logger.info(f"Adding entries found in {str(json_file)}")
             for entry in json_entries:
                 if 'activitySegment' in entry:
                     if 'latitudeE7' in entry['activitySegment']['startLocation']:
