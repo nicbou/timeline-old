@@ -23,12 +23,18 @@ services:
       - backend_staticfiles:/srv/static
       - ./scripts:/usr/src/scripts:ro
       - ssh_keys:/root/.ssh
+    logging:
+      options:
+        max-size: "200k"
+        max-file: "10"
   timeline-frontend:
     image: nginx
     volumes:
       - ./frontend/source:/usr/share/nginx/html:ro
     depends_on:
       - timeline-backend
+    logging:
+      driver: "none"
   mqtt-broker:
     build: mqtt-broker
     environment:
@@ -48,6 +54,10 @@ services:
       - timeline-backend
     volumes:
       - ./geolocation-client/source:/usr/src/app
+    logging:
+      options:
+        max-size: "200k"
+        max-file: "10"
   proxy:
     build: proxy
     depends_on:
@@ -58,6 +68,10 @@ services:
       - backups:/srv/backups
       - previews:/srv/previews
       - backend_staticfiles:/srv/static
+    logging:
+      options:
+        max-size: "200k"
+        max-file: "10"
 volumes:
   db_persistence:
   mqtt_persistence:
