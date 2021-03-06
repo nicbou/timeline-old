@@ -1,4 +1,4 @@
-import EntryRecap from './entryRecap.js'
+import EntryMap from './entryMap.js'
 import JournalEditorTile from './tiles/journalEditor.js'
 import Preview from './preview.js';
 import SpinnerComponent from './spinner.js';
@@ -53,25 +53,122 @@ export default Vue.component('timeline', {
     entries: function() {
       return this.$store.state.timeline.entries;
     },
-    messageEntries: function() {
-      return this.entries.filter(e => e.schema.startsWith('message'));
+    isLoading: function() {
+      return this.$store.state.timeline.entriesRequestStatus === RequestStatus.PENDING;
     },
-    transactionEntries: function() {
-      return this.entries.filter(e => e.schema === 'finance.income' || e.schema === 'finance.expense');
+    entryGroups: function() {
+      const emptyGroups = {
+        blog: {
+          readableName: 'blog posts',
+          iconClass: 'fas fa-rss-square',
+          entries: [],
+        },
+        browsingHistory: {
+          readableName: 'browsing browsing',
+          iconClass: 'fas fa-globe-americas',
+          entries: [],
+        },
+        files: {
+          readableName: 'files',
+          iconClass: 'fas fa-file',
+          entries: [],
+        },
+        geolocation: {
+          readableName: 'geolocation pings',
+          iconClass: 'fas fa-map-marker-alt',
+          entries: [],
+        },
+        hackerNews: {
+          readableName: 'Hacker News comments',
+          iconClass: 'fab fa-y-combinator',
+          entries: [],
+        },
+        images: {
+          readableName: 'images',
+          iconClass: 'fas fa-image',
+          entries: [],
+        },
+        messages: {
+          readableName: 'messages',
+          iconClass: 'fas fa-comments',
+          entries: [],
+        },
+        reddit: {
+          readableName: 'reddit comments',
+          iconClass: 'fab fa-reddit',
+          entries: [],
+        },
+        transactions: {
+          readableName: 'transactions',
+          iconClass: 'fas fa-piggy-bank',
+          entries: [],
+        },
+        twitter: {
+          readableName: 'tweets',
+          iconClass: 'fab fa-twitter',
+          entries: [],
+        },
+        videos: {
+          readableName: 'videos',
+          iconClass: 'fas fa-video',
+          entries: [],
+        },
+      };
+
+      return this.entries.reduce(function(groups, entry) {
+        if (entry.schema.startsWith('social.blog.')) {
+          groups.blog.entries.push(entry);
+        }
+
+        if (entry.schema.startsWith('activity.browsing')) {
+          groups.browsingHistory.entries.push(entry);
+        }
+
+        if (entry.schema.startsWith('file.')) {
+          groups.files.entries.push(entry);
+        }
+
+        if (entry.extra_attributes.location && entry.extra_attributes.location.latitude && entry.extra_attributes.location.longitude) {
+          groups.geolocation.entries.push(entry);
+        }
+
+        if (entry.schema.startsWith('social.hackernews.')) {
+          groups.hackerNews.entries.push(entry);
+        }
+
+        if (entry.schema.startsWith('file.image.')) {
+          groups.images.entries.push(entry);
+        }
+
+        if (entry.schema.startsWith('message')) {
+          groups.messages.entries.push(entry);
+        }
+
+        if (entry.schema.startsWith('social.reddit.')) {
+          groups.reddit.entries.push(entry);
+        }
+
+        if (entry.schema === 'finance.income' || entry.schema === 'finance.expense') {
+          groups.transactions.entries.push(entry);
+        }
+
+        if (entry.schema.startsWith('social.twitter.')) {
+          groups.twitter.entries.push(entry);
+        }
+
+        if (entry.schema.startsWith('file.video.')) {
+          groups.videos.entries.push(entry);
+        }
+        return groups;
+      }, emptyGroups);
     },
-    browsingHistoryEntries: function() {
-      return this.entries.filter(e => e.schema.startsWith('activity.browsing'));
-    },
-    threads: function() {
-      return this.messageEntries.reduce((threads, entry) => {
+    messageThreads: function() {
+      return this.entryGroups.messages.entries.reduce((threads, entry) => {
         const key = [entry.extra_attributes.sender_id, entry.extra_attributes.recipient_id].sort().join('<>');
         threads[key] = threads[key] || [];
         threads[key].push(entry);
         return threads;
       }, {});
-    },
-    isLoading: function() {
-      return this.$store.state.timeline.entriesRequestStatus === RequestStatus.PENDING;
     },
   },
   methods: {
@@ -104,15 +201,28 @@ export default Vue.component('timeline', {
         <div class="sidebar">
           <h1 class="current-date">{{ timelineDate.format('LL') }}</h1>
           <span class="subtitle">{{ relativeTimelineDate }}</span>
-          <entry-recap :entries="entries"></entry-recap>
+          <ul class="recap" v-if="!isLoading">
+            <li v-for="group in entryGroups" v-if="group.entries.length">
+              <i :class="group.iconClass"></i>
+              {{ group.entries.length }} {{ group.readableName }}
+            </li>
+          </ul>
+          <entry-map v-if="!isLoading" :entries="entries" width="300" height="200"></entry-map>
         </div>
         <spinner v-if="isLoading"></spinner>
         <div class="tiles">
           <journal-editor v-if="!isLoading"></journal-editor>
-          <thread-tile :thread="thread" v-for="thread in threads"></thread-tile>
-          <transactions-tile :entries="transactionEntries"></transactions-tile>
-          <browsing-history-tile :entries="browsingHistoryEntries"></browsing-history-tile>
-          <component class="tile" :is="tileType(entry)" v-if="tileType(entry)" :entry="entry" v-for="entry in entries" :key="entry.id" @select="openPreview"></component>
+          <thread-tile v-if="!isLoading" :thread="thread" v-for="thread in messageThreads"></thread-tile>
+          <transactions-tile v-if="!isLoading" :entries="entryGroups.transactions.entries"></transactions-tile>
+          <browsing-history-tile v-if="!isLoading" :entries="entryGroups.browsingHistory.entries"></browsing-history-tile>
+          <component
+            :entry="entry"
+            :is="tileType(entry)"
+            :key="entry.id"
+            @select="openPreview"
+            class="tile"
+            v-for="entry in entries"
+            v-if="tileType(entry) && !isLoading"></component>
         </div>
       </div>
       <preview :entry="selectedEntry" v-if="selectedEntry" @close="closePreview"></preview>
