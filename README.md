@@ -2,13 +2,21 @@
 
 This software collects personal data from different sources, and displays it on a personal timeline. It's like the timeline in your photos app, but for more than just photos.
 
-The timeline is meant to be extended with all sorts of data: geolocation, social media posts, blog posts, journal entries etc.
+## The backend
+
+It can import data from different sources, including APIs and archives. The data sources and all the timeline entries can be managed with the API (URL: `/api`).
+
+## The frontend
+
+There's also a web app that lets you navigate your timeline day by day, and keep a daily diary.
 
 ![](https://nicolasbouliane.com/images/Screenshot-2021-02-03-at-14.56.20.png)
 
 ![](https://nicolasbouliane.com/images/Screenshot-2021-02-03-at-14.53.08.png)
 
 ## Setup
+
+You need [docker](https://www.docker.com/get-started) to run this project.
 
 1. Create a `.env` file with the following variables:
 ```
@@ -37,6 +45,8 @@ COMPOSE_FILE=docker-compose.yml:docker-compose.homeserver.yml
 
 ## Entries
 
+API URL: `/api/timeline/entries`
+
 An Entry represents one thing that appears on the timeline. It could be a photo, a journal entry, a tweet, etc.
 
 Entries have a `schema` attribute, like `file.document.pdf`. The schemas are read from left (general) to right (specific). The schemas determine what attributes you can expect in the `extra_attributes` field. For example, all `file.image` entries have `width` and `height` attributes.
@@ -47,6 +57,8 @@ Entries also have a `source` attribute. This allows you to query entries that ar
 
 ## Sources
 
+API URL: `/api/backup`
+
 Sources describe a regular source of data. For example, a daily backup, a social media feed or a blog. Sources are monitored for changes, and new data is automatically imported.
 
 Sources are suited for frequent, automatic data imports.
@@ -54,6 +66,8 @@ Sources are suited for frequent, automatic data imports.
 New sources can be added directly through the API. You can browse the API at `/api/backup`.
 
 ### RsyncSource
+
+API URL: `/api/backup/rsyncsources`
 
 A remote machine that will be backed up with rsync. When you create the source, you must supply a password. This will be used to copy SSH keys. the password will not be stored.
 
@@ -80,7 +94,9 @@ documents/invoices
 
 ### TwitterSource
 
-Describes a source of tweets.
+API URL: `/api/backup/twittersources`
+
+Describes a source of tweets. Requires Twitter API credentials. If you can't get API credentials, upload a Twitter dump with `TwitterArchive`.
 
 **Required fields:**
 
@@ -91,6 +107,8 @@ Describes a source of tweets.
 * `twitter_username`: The name of the Twitter user to back up, without the "@" (e.g. "nicolasbouliane")
 
 ### RedditSource
+
+API URL: `/api/backup/redditsources`
 
 Describes a source of reddit posts and comments.
 
@@ -103,6 +121,8 @@ Describes a source of reddit posts and comments.
 
 ### HackerNewsSource
 
+API URL: `/api/backup/hackernewssource`
+
 Describes a source of Hacker News posts and comments.
 
 **Required fields:**
@@ -110,6 +130,8 @@ Describes a source of Hacker News posts and comments.
 * `hackernews_username`: The name of the Hacker News user to back up (e.g. "dang")
 
 ### RssSource
+
+API URL: `/api/backup/rsssource`
 
 Describes a RSS feed.
 
@@ -119,6 +141,8 @@ Describes a RSS feed.
 
 ## Archives
 
+API URL: `/api/archive`
+
 Archives describe a source of data that will not change. For example, an email archive, a personal data export, or an archive of your text messages. Archives are not monitored for changes, and the data is only imported once.
 
 Archives are suited for irregular, manual data imports.
@@ -127,15 +151,21 @@ An Archive instance contains information about how to retrieve the archive.
 
 ### JsonArchive
 
-Imports a list of JSON entries. It expects the same format as the API at `/api/timeline/entries`. The entries are imported as-is, although the `source` attribute is overridden.
+API URL: `/api/archive/jsonarchives`
 
-This is preferable to importing a large number of entries through the API, because the process is repeatable, and reversible.
+Imports a list of Entry objects from a JSON file. The entries in the JSON file are imported as-is, but the `source` attribute is overridden.
+
+This is useful for one-off data imports. For example, I use it to process an SMS dump I found on an old hard drive.
 
 ### GpxArchive
+
+API URL: `/api/archive/gpxarchives`
 
 Imports a list of `activity.location` Entries from a GPX file. All points from tracks and routes are imported, and all waypoints.
 
 ### GoogleTakeoutArchive
+
+API URL: `/api/archive/googletakeoutarchives`
 
 Imports various data from a Google Takeout export:
 
@@ -161,11 +191,15 @@ If you don't use these export settings, the import will not fail, but some data 
 
 ### TwitterArchive
 
+API URL: `/api/archive/twitterarchive`
+
 Imports tweets from a Twitter data export.
 
 Generally, you should import data with a `TwitterSource`, because it will keep looking for new tweets. A `TwitterArchive` is better for private accounts, or archives of deleted accounts. Unlike a `TwitterSource`, it does not require access to the Twitter API.
 
 ### N26CsvArchive
+
+API URL: `/api/n26csvarchive`
 
 Imports transactions from an N26 CSV export.
 
