@@ -1,14 +1,14 @@
 # Personal timeline
 
-This software collects personal data from different sources, and displays it on a personal timeline. It's like the timeline in your photos app, but for more than just photos.
+This software collects my data (files, articles, comments, geolocation...) from different sources, and displays it on a timeline. It's a mix between a personal diary, a personal history, photo stream and backup tool.
 
 ## The backend
 
-It can import data from different sources, including APIs and archives. The data sources and all the timeline entries can be managed with the API (URL: `/api`).
+The backend routinely imports new data from different sources. The data is turned into entries that can appear on the timeline. The data sources and the timeline entries can be accessed through an API at `/api`.
 
 ## The frontend
 
-There's also a web app that lets you navigate your timeline day by day, and keep a daily diary.
+The frontend lets you browse your timeline day by day, and keep a daily diary.
 
 ![](https://nicolasbouliane.com/images/Screenshot-2021-02-03-at-14.56.20.png)
 
@@ -59,9 +59,9 @@ Entries also have a `source` attribute. This allows you to query entries that ar
 
 API URL: `/api/backup`
 
-Sources describe a regular source of data. For example, a daily backup, a social media feed or a blog. Sources are monitored for changes, and new data is automatically imported.
+Sources are suited for frequent, automatic data imports. You add a source (an API, an RSS feed, etc) to monitor, and new data is automatically imported.
 
-Sources are suited for frequent, automatic data imports.
+For example, you can use them to automatically import photos from your phone, import your new tweets, or watch a website for new posts.
 
 New sources can be added directly through the API. You can browse the API at `/api/backup`.
 
@@ -69,17 +69,22 @@ New sources can be added directly through the API. You can browse the API at `/a
 
 API URL: `/api/backup/rsyncsources`
 
-A remote machine that will be backed up with rsync. When you create the source, you must supply a password. This will be used to copy SSH keys. the password will not be stored.
+This is the best way to turn a set of files into a set of Entries.
+
+It uses rsync to synchronise files from a local or remote filesystem. The files in the backup are then turned into Entries.
+
+When you create the source, you must supply a password. This will be used to copy SSH keys. The password is never stored.
 
 **Required fields:**
 
-* `host`: hostname of the remote machine (e.g. "home.nicolasbouliane.com")
+* `host`: hostname of the remote machine (e.g. "home.nicolasbouliane.com" or "localhost")
 * `port`: SSH port on the remote machine (e.g. "22")
 * `user`: SSH user on the remote machine (e.g. "backups")
 * `path`: the path to backup on the remote machine (e.g. "/home/backups")
 * `key`: a unique name for this backup (e.g. "home-server")
+* `max_backups`: how many backup versions to keep. If null, old backups are never deleted. If "1", only the latest backup is kept.
 
-The backups are incremental. If you don't change any files, you can run a backup 100 times, and it won't use any extra bandwidth or disk space.
+The backups are incremental. If you don't change any files, you can run a backup 100 times, and it won't use any extra bandwidth or disk space. You can limit how many old backup versions to keep with the `max_backup` option.
 
 To exclude files from a backup, create `.rsyncignore` files on the source machine. The files listed in that file will not be backed up. It's a bit like a `.gitignore` file.
 
@@ -143,11 +148,11 @@ Describes a RSS feed.
 
 API URL: `/api/archive`
 
-Archives describe a source of data that will not change. For example, an email archive, a personal data export, or an archive of your text messages. Archives are not monitored for changes, and the data is only imported once.
+Archives are for irregular, manual data imports. You upload a file or an archive, and it's turned into new Entries.
 
-Archives are suited for irregular, manual data imports.
+For example, you can use them to import GPS logs, GDPR data exports, email dumps etc.
 
-An Archive instance contains information about how to retrieve the archive.
+New archives can be added directly through the API. You can browse the API at `/api/backup`.
 
 ### JsonArchive
 
