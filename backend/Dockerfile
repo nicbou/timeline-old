@@ -30,6 +30,8 @@ RUN pip install -r requirements.txt
 COPY ssh_config /etc/ssh/ssh_config
 COPY crontab /srv/crontab
 
+RUN mkdir -p /srv/mounts
+
 # Start the backend
 WORKDIR /usr/src/app
 EXPOSE 80

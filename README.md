@@ -97,6 +97,24 @@ images/*.jpg
 documents/invoices
 ```
 
+### FileSystemSource
+
+API URL: `/api/backup/filesystemsources`
+
+Describes a directory on the local filesystem. Entries are created from the files in that directory.
+
+A FileSystemSource requires more configuration than an RsyncSource, but it saves storage space because it does not copy any files. You can use it to import large file collections, like photo albums.
+
+**Usage:**
+
+1. Mount a volume under `/srv/mounts` on the `timeline-backend` image. You can find an example in `docker-compose.homeserver.yml`.
+2. Create a `.timelineinclude` file in the mounted volume. It lists which files will appear on the timeline. If you want all files to appear on the timeline, add two line to that file: `*` and `**/*`.
+3. Create a FileSystemSource through the API.
+
+**Required fields:**
+
+* `path`: path of the source directory, relative to `/srv/mounts`
+
 ### TwitterSource
 
 API URL: `/api/backup/twittersources`

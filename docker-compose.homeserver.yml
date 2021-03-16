@@ -1,12 +1,14 @@
 version: "3.5"
 services:
+  timeline-backend:
+    volumes:
+      - ./var/foldersync/photos:/srv/mounts/photos
   proxy:
     networks:
       default:
       homeserver:
          aliases:
             - timeline
-
 networks:
   homeserver:
     external:

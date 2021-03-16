@@ -43,7 +43,7 @@ Describes a file on a filesystem.
     - `mimetype`: The file's mimetype. For example "text/markdown"
     - `checksum`: The file's blake2b checksum
     - `path`: The file's absolute path on the filesystem
-- `backup_date`: The date of the Source backup that created this entry
+- `backup_date`: The date on which a backup created this entry
 
 ### file.text
 

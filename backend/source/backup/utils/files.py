@@ -3,18 +3,163 @@ import json
 import logging
 import mimetypes
 import subprocess
+from collections import Generator
 from datetime import datetime
+from fnmatch import fnmatch
 from pathlib import Path
+from typing import Iterable, List
+
+import pytz
 from PIL import Image
 from PIL.ExifTags import TAGS, GPSTAGS
 
+from backend import settings
+from backup.models.base import BaseSource
 from timeline.geo_utils import dms_to_decimal
+from timeline.models import Entry
 
 logger = logging.getLogger(__name__)
 
 
+def get_modification_date(file_path: Path) -> datetime:
+    return datetime.fromtimestamp(file_path.stat().st_mtime, pytz.UTC)
+
+
+def get_files_in_dir(dir_path: Path) -> Generator[Path, None, None]:
+    for path in dir_path.rglob('*'):
+        if path.is_file():
+            yield path
+
+
+def get_include_rules_for_dir(dir_path: Path, includefile_name: str) -> Generator[Path, None, None]:
+    timelineinclude_paths = dir_path.rglob(includefile_name)
+    for timelineinclude_path in timelineinclude_paths:
+        with open(timelineinclude_path, 'r') as timelineinclude_file:
+            for line in timelineinclude_file.readlines():
+                glob_path = timelineinclude_path.parent / Path(line.strip())
+                relative_glob_path = glob_path.relative_to(dir_path)
+                yield dir_path / relative_glob_path
+
+
+def get_files_matching_rules(files: Iterable[Path], rules: Iterable[Path]) -> Generator[Path, None, None]:
+    for file in files:
+        # Path.match() doesn't match ** to multiple subdirs, so we use fnmatch
+        if any(fnmatch(str(file), str(rule)) for rule in rules):
+            yield file
+
+
 def get_mimetype(file_path: Path) -> str:
     return mimetypes.guess_type(file_path, strict=False)[0]
+
+
+def get_schema_from_mimetype(mimetype) -> str:
+    schema = 'file'
+    if not mimetype:
+        return schema
+
+    if mimetype.startswith('image/'):
+        schema += '.image'
+    elif mimetype.startswith('video/'):
+        schema += '.video'
+    elif mimetype.startswith('audio/'):
+        schema += '.audio'
+    elif mimetype.startswith('text/'):
+        # TODO: Handle text/markdown
+        schema += '.text'
+    elif mimetype == 'application/pdf':
+        schema += '.document.pdf'
+
+    return schema
+
+
+def create_entries_from_files(files: Iterable[Path], source: BaseSource, backup_date: datetime) -> List[Entry]:
+    entries_to_create = []
+    for file in files:
+        mimetype = get_mimetype(file)
+        schema = get_schema_from_mimetype(mimetype)
+        entry = Entry(
+            schema=schema,
+            source=source.entry_source,
+            title=file.name,
+            description='',
+            date_on_timeline=get_modification_date(file),
+            extra_attributes={
+                'file': {
+                    'path': str(file.resolve()),
+                    'checksum': get_checksum(file),
+                },
+                'backup_date': backup_date.strftime('%Y-%m-%dT%H:%M:%SZ'),
+            }
+        )
+
+        if mimetype:
+            entry.extra_attributes['file']['mimetype'] = mimetype
+
+        if schema == 'file.text' or schema.startswith('file.text'):
+            _set_plaintext_description(entry)
+
+        if schema.startswith('file.image') or schema.startswith('file.video'):
+            _set_media_metadata(entry)
+
+        if schema == 'file.image' or schema.startswith('file.image'):
+            _set_exif_metadata(entry)
+
+        entries_to_create.append(entry)
+
+    return Entry.objects.bulk_create(entries_to_create)
+
+
+def _set_media_metadata(entry: Entry):
+    """
+    Sets width, height, duration and codec attributes for media files
+    """
+    if 'media' in entry.extra_attributes:
+        # Information is already set
+        return
+
+    entry.extra_attributes['media'] = {}
+    original_path = Path(entry.extra_attributes['file']['path'])
+    try:
+        original_media_attrs = get_media_metadata(original_path)
+        entry.extra_attributes['media'].update(original_media_attrs)
+        if (
+            entry.extra_attributes['file'].get('mimetype').startswith('image')
+            and 'codec' in entry.extra_attributes['media']
+        ):
+            # JPEG images are treated as MJPEG videos and have a duration of 1 frame
+            entry.extra_attributes['media'].pop('duration', None)
+            entry.extra_attributes['media'].pop('codec', None)
+    except:
+        logger.exception(f"Could not read metadata from file #{entry.pk} at {original_path}")
+        raise
+
+
+def _set_exif_metadata(entry: Entry):
+    if 'camera' in entry.extra_attributes.get('media', {}) or 'location' in entry.extra_attributes:
+        # TODO: Photos with missing exif data will be reprocessed
+        return
+
+    original_path = Path(entry.extra_attributes['file']['path'])
+    try:
+        metadata = get_metadata_from_exif(original_path)
+        if 'media' in metadata:
+            entry.extra_attributes['media'].update(metadata['media'])
+        if 'location' in metadata:
+            entry.extra_attributes['location'] = metadata['location']
+    except:
+        logger.exception(f"Could not read exif from file #{entry.pk} at {original_path}")
+        raise
+
+
+def _set_plaintext_description(entry: Entry):
+    """
+    Sets the description attribute for plain text files
+    """
+    if len(entry.description):
+        return
+    original_path = Path(entry.extra_attributes['file']['path'])
+    with original_path.open('r') as text_file:
+        entry.description = text_file.read(settings.MAX_PLAINTEXT_PREVIEW_SIZE)
 
 
 def get_checksum(file_path: Path) -> str:

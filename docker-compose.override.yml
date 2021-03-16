@@ -1,5 +1,8 @@
 version: "3.5"
 services:
+  timeline-backend:
+    volumes:
+      - ./test_mount:/srv/mounts/test
   proxy:
     ports:
       - "80:80"

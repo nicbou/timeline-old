@@ -11,6 +11,7 @@ MEDIA_URL = '/'
 ARCHIVES_ROOT = Path('/srv/archives')
 BACKUPS_ROOT = Path('/srv/backups')
 PREVIEWS_ROOT = Path('/srv/previews')
+MOUNTS_ROOT = Path('/srv/mounts')
 DEFAULT_PREVIEW_SUBDIR = 'other'  # Usually, it's the source name
 SSH_DIR = '/root/.ssh'
 TIMELINE_INCLUDE_FILE = '.timelineinclude'

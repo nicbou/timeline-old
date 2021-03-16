@@ -1,3 +1,4 @@
+from .models import FileSystemSource
 from .models.rsync import RsyncSource
 from .models.twitter import TwitterSource
 from .models.reddit import RedditSource
@@ -35,4 +36,10 @@ class HackerNewsSourceSerializer(serializers.HyperlinkedModelSerializer):
 class RssSourceSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = RssSource
+        fields = '__all__'
+
+
+class FileSystemSourceSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = FileSystemSource
         fields = '__all__'
