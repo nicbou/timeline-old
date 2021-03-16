@@ -54,7 +54,7 @@ class BackupViewSet(viewsets.ViewSet):
                 'paths': {
                     'root': str(backup.root_path.resolve()),
                     'files': str(backup.files_path.resolve()),
-                    'log': str(backup.log_path.resolve()),
+                    'log': str(backup.rsync_log_path.resolve()),
                 },
             }
             for backup in source.backups

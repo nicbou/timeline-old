@@ -11,7 +11,7 @@ class RsyncSourceSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = RsyncSource
-        fields = ['id', 'key', 'user', 'host', 'port', 'path', 'password']
+        fields = ['id', 'key', 'user', 'host', 'port', 'path', 'max_backups', 'password']
 
 
 class TwitterSourceSerializer(serializers.HyperlinkedModelSerializer):
