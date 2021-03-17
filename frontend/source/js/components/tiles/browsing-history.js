@@ -1,9 +1,6 @@
 export default Vue.component('browsing-history-tile', {
   props: ['entries'],
   computed: {
-    sortedEntries: function() {
-      
-    },
     activities: function() {
       return this.entries.map(entry => {
         const activity = {};

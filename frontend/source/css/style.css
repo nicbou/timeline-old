@@ -95,7 +95,7 @@ input, button, textarea, select{font:var(--font-m);border:var(--border);padding:
     .tile.post{flex:0 1 var(--tile-max-width);max-width:calc(100% - 2 * var(--spacing-m));box-sizing:border-box;break-after:always;break-before:always;}
 
 .post{display:flex;flex-direction:column;}
-    .post > header{display:flex;align-items:center;background:var(--tile-background-color-header);border-bottom:var(--border);padding:var(--spacing-m);display:flex;}
+    .post > header{display:flex;align-items:center;background:var(--tile-background-color-header);border-bottom:var(--border);padding:var(--spacing-s) var(--spacing-m);display:flex;}
         .post-score{flex:0 0 auto;}
             .reddit .post-score.positive:before{content:'+'}
         .post-icon{color:var(--tile-text-color);font-size:var(--font-size-icons);margin-right:var(--spacing-s);}
@@ -109,6 +109,7 @@ input, button, textarea, select{font:var(--font-m);border:var(--border);padding:
         .post main h1, .post main h2, .post main h3, .post main h4, .post main b, .post main strong{font-weight:bold;margin:var(--spacing-m) 0;}
         .post main img, .post main video{max-width:100%;height:auto;}
         .post main ul, .tile.post main ol{padding-left:0;margin-left:0}
+            .post main ul:first-child, .tile.post main ol:first-child{margin-top:0;}
         .post main li{list-style:inside;padding-left:0;margin-left:0;}
         .post main blockquote{padding-left:var(--spacing-s);font-style:italic;border-left:5px solid var(--color-background);}
         .post main pre{margin:var(--spacing-m) 0;max-width:100%;overflow:scroll}
