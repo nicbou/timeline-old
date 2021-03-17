@@ -11,17 +11,20 @@ export default Vue.component('image-tile', {
     hasGeolocation: function() {
       return !!this.entry.extra_attributes.location;
     },
+    imageSrc: function() {
+      return entry.extra_attributes.previews.thumbnail;
+    },
     imageSrcSet: function() {
       return `${this.entry.extra_attributes.previews.thumbnail} 1x, ${this.entry.extra_attributes.previews.thumbnail2x} 2x`;
-    }
+    },
   },
   template: `
     <div class="tile image" :style="tileStyle">
-      <img
+      <img v-if="entry.extra_attributes.previews"
         @click="$emit('select', entry)"
         loading="lazy"
         :alt="entry.title"
-        :src="entry.extra_attributes.previews.thumbnail"
+        :src="imageSrc"
         :srcset="imageSrcSet"
         />
       <div class="tile-icons">
