@@ -12,7 +12,7 @@ export default Vue.component('image-tile', {
       return !!this.entry.extra_attributes.location;
     },
     imageSrc: function() {
-      return entry.extra_attributes.previews.thumbnail;
+      return this.entry.extra_attributes.previews.thumbnail;
     },
     imageSrcSet: function() {
       return `${this.entry.extra_attributes.previews.thumbnail} 1x, ${this.entry.extra_attributes.previews.thumbnail2x} 2x`;
