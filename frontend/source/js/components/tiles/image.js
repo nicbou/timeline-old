@@ -1,13 +1,6 @@
 export default Vue.component('image-tile', {
   props: ['entry'],
   computed: {
-    tileStyle: function() {
-      if(this.entry.extra_attributes.media && this.entry.extra_attributes.media.width && this.entry.extra_attributes.media.height) {
-        return {
-          width: `${this.entry.extra_attributes.media.width / this.entry.extra_attributes.media.height * 200}px`,
-        }
-      }
-    },
     hasGeolocation: function() {
       return !!this.entry.extra_attributes.location;
     },
@@ -19,8 +12,8 @@ export default Vue.component('image-tile', {
     },
   },
   template: `
-    <div class="tile image" :style="tileStyle">
-      <img v-if="entry.extra_attributes.previews"
+    <div class="tile image" v-if="entry.extra_attributes.previews">
+      <img
         @click="$emit('select', entry)"
         loading="lazy"
         :alt="entry.title"
