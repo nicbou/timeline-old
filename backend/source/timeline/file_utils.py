@@ -9,6 +9,7 @@ def generate_pdf_preview(input_path: Path, output_path: Path, max_dimensions: (i
     try:
         command = [
             'convert',
+            '-auto-orient',
             '-pointsize', '72',
             '-density', str(int(max_dimensions[0] / 8.5)),  # A4 pages are 8.5 inches wide
             '-units', 'PixelsPerInch',
