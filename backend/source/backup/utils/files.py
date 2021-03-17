@@ -96,13 +96,23 @@ def create_entries_from_files(files: Iterable[Path], source: BaseSource, backup_
             entry.extra_attributes['file']['mimetype'] = mimetype
 
         if schema == 'file.text' or schema.startswith('file.text'):
-            _set_plaintext_description(entry)
+            try:
+                _set_plaintext_description(entry)
+            except:
+                logger.exception(
+                    f"Could not set plain text description for file {entry.extra_attributes['file']['path']}")
 
         if schema.startswith('file.image') or schema.startswith('file.video'):
-            _set_media_metadata(entry)
+            try:
+                _set_media_metadata(entry)
+            except:
+                logger.exception(f"Could not set media metadata for file {entry.extra_attributes['file']['path']}")
 
         if schema == 'file.image' or schema.startswith('file.image'):
-            _set_exif_metadata(entry)
+            try:
+                _set_exif_metadata(entry)
+            except:
+                logger.exception(f"Could not set exif metadata for file {entry.extra_attributes['file']['path']}")
 
         entries_to_create.append(entry)
 
@@ -130,7 +140,7 @@ def _set_media_metadata(entry: Entry):
             entry.extra_attributes['media'].pop('duration', None)
             entry.extra_attributes['media'].pop('codec', None)
     except:
-        logger.exception(f"Could not read metadata from file #{entry.pk} at {original_path}")
+        logger.exception(f"Could not read metadata from file {original_path}")
         raise
 
 
@@ -147,7 +157,7 @@ def _set_exif_metadata(entry: Entry):
         if 'location' in metadata:
             entry.extra_attributes['location'] = metadata['location']
     except:
-        logger.exception(f"Could not read exif from file #{entry.pk} at {original_path}")
+        logger.exception(f"Could not read exif from file {original_path}")
         raise
 
 
@@ -175,6 +185,7 @@ def get_media_metadata(input_path: Path) -> dict:
         [
             'ffprobe',
             '-v', 'error',
+            '-select_streams', 'v',
             '-show_entries', 'stream=width,height,duration,codec_name',
             '-of', 'json',
             str(input_path)
