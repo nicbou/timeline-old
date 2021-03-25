@@ -43,35 +43,6 @@ class RsyncSourceViewSet(viewsets.ModelViewSet):
         return super().perform_create(serializer)
 
 
-class BackupViewSet(viewsets.ViewSet):
-    """
-    List and manage Backups on the filesystem. A Backup is a set of files generated when a Source is backed up.
-    """
-    @staticmethod
-    def get_backups_for_source(source):
-        return [
-            {
-                'date': backup.date,
-                'paths': {
-                    'root': str(backup.root_path.resolve()),
-                    'files': str(backup.files_path.resolve()),
-                    'log': str(backup.rsync_log_path.resolve()),
-                },
-            }
-            for backup in source.backups
-        ]
-
-    def list(self, request):
-        backups_by_source_key = {
-            source.key: self.get_backups_for_source(source)
-            for source in RsyncSource.objects.all().order_by('key')
-        }
-        return Response(backups_by_source_key)
-
-    def retrieve(self, request, pk=None):
-        return Response(self.get_backups_for_source(RsyncSource.objects.get(pk=pk)))
-
-
 class TwitterSourceViewSet(viewsets.ModelViewSet):
     queryset = TwitterSource.objects.all().order_by('twitter_username')
     serializer_class = TwitterSourceSerializer

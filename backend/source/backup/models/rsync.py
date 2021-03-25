@@ -18,9 +18,8 @@ from backup.utils.files import get_files_in_dir, get_include_rules_for_dir, get_
 logger = logging.getLogger(__name__)
 
 
-class Backup:
+class RsyncBackup:
     """Describes a single Rsync backup (in a set of iterative backups)"""
-    # TODO: Rename to RsyncBackup
 
     source = None
     date = None
@@ -96,7 +95,7 @@ class Backup:
         self.get_entries().delete()
         shutil.rmtree(self.root_path)
 
-    def __eq__(self, other: 'Backup'):
+    def __eq__(self, other: 'RsyncBackup'):
         return self.root_path == other.root_path
 
     def __str__(self):
@@ -118,7 +117,7 @@ class RsyncSource(BaseSource):
         return settings.BACKUPS_ROOT / self.key
 
     @property
-    def backups(self) -> Generator[Backup, None, None]:
+    def backups(self) -> Generator[RsyncBackup, None, None]:
         """
         Returns a list of all rsync backups, from oldest to newest. The '/latest' backup is not returned, because it's
         just a symlink.
@@ -129,21 +128,21 @@ class RsyncSource(BaseSource):
             return
 
         for backup_dir in backup_dirs:
-            if not backup_dir.is_dir() or backup_dir.name == Backup.latest_backup_dirname:
+            if not backup_dir.is_dir() or backup_dir.name == RsyncBackup.latest_backup_dirname:
                 continue
 
             try:
-                yield Backup(source=self, path=backup_dir)
+                yield RsyncBackup(source=self, path=backup_dir)
             except ValueError:
                 continue
 
     @property
-    def oldest_backup(self) -> Backup:
+    def oldest_backup(self) -> RsyncBackup:
         return next(self.backups)
 
     @property
-    def latest_backup(self) -> Backup:
-        return Backup(source=self, date=None)
+    def latest_backup(self) -> RsyncBackup:
+        return RsyncBackup(source=self, date=None)
 
     def process(self) -> Tuple[int, int]:
         latest_backup = self.run_rsync_backup()
@@ -154,14 +153,14 @@ class RsyncSource(BaseSource):
 
         return self.create_file_entries(latest_backup), 0
 
-    def run_rsync_backup(self) -> Optional[Backup]:
+    def run_rsync_backup(self) -> Optional[RsyncBackup]:
         """
         Creates an incremental rsync backup
         """
         source_dir = self.path.strip().rstrip('/') + '/'
         source_path = f'{self.user}@{self.host}:"{source_dir}"'
 
-        current_backup = Backup(self, datetime.now(pytz.UTC))
+        current_backup = RsyncBackup(self, datetime.now(pytz.UTC))
         latest_backup = self.latest_backup
 
         # Rsync won't sync dotfiles in the root directory, unless you add a trailing slash
@@ -237,7 +236,7 @@ class RsyncSource(BaseSource):
         return 0
 
     @transaction.atomic
-    def create_file_entries(self, backup: Backup) -> int:
+    def create_file_entries(self, backup: RsyncBackup) -> int:
         """
         Delete all entries for this source, and recreate them from the latest backup. We could update the entries for
         the files that changed only (with get_changed_files), but it's safer to just reprocess everything.
