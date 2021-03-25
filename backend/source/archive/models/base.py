@@ -71,6 +71,10 @@ class CompressedArchive(BaseArchive):
         abstract = True
 
     def process(self, force=False) -> Tuple[int, int]:
+        if self.date_processed and not force:
+            logger.info(f"Archive {self.entry_source} was already processed. Skipping.")
+            return 0, 0
+
         try:
             self.delete_extracted_files()
             self.extract_compressed_files()
