@@ -19,7 +19,7 @@ class FileSystemSource(BaseSource):
 
     source_name = 'filesystem'
 
-    def process(self) -> Tuple[int, int]:
+    def process(self, force=False) -> Tuple[int, int]:
         return self.create_file_entries(), 0
 
     @transaction.atomic

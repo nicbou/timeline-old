@@ -15,7 +15,7 @@ class RssSource(BaseSource):
 
     source_name = 'rss'
 
-    def process(self) -> Tuple[int, int]:
+    def process(self, force=False) -> Tuple[int, int]:
         rss_feed = feedparser.parse(self.feed_url)
 
         updated_entries = []

@@ -10,14 +10,14 @@ logger = logging.getLogger(__name__)
 
 
 class BaseSourceManager(models.Manager):
-    def process(self):
+    def process(self, force=False):
         sources = self.all()
         source_count = sources.count()
         logger.info(f"Processing {source_count} sources")
         failure_count = 0
         for source in sources:
             try:
-                created_entries, updated_entries = source.process()
+                created_entries, updated_entries = source.process(force=force)
                 logger.info(
                     f"Retrieved {created_entries + updated_entries} entries for {source}. "
                     f"{created_entries} created, {updated_entries} updated."
@@ -64,7 +64,7 @@ class BaseSource(models.Model):
         logger.info(f'Deleted {deleted_count} existing entries for archive "{str(self)}"')
         return deleted_count
 
-    def process(self) -> Tuple[int, int]:
+    def process(self, force=False) -> Tuple[int, int]:
         """
         Extract and create entries for this source
         """

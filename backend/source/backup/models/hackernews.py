@@ -18,7 +18,7 @@ class HackerNewsSource(BaseSource):
 
     source_name = 'hackernews'
 
-    def process(self) -> Tuple[int, int]:
+    def process(self, force=False) -> Tuple[int, int]:
         base_schema = 'social.hackernews'
         latest_entry = self.get_entries().order_by('-extra_attributes__post_id').first()
         latest_entry_date = latest_entry.date_on_timeline if latest_entry else None

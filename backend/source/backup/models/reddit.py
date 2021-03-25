@@ -17,7 +17,7 @@ class RedditSource(BaseSource):
 
     source_name = 'reddit'
 
-    def process(self) -> Tuple[int, int]:
+    def process(self, force=False) -> Tuple[int, int]:
         created_posts, updated_posts = self.process_posts()
         created_comments, updated_comments = self.process_comments()
         return len(created_posts) + len(created_comments), len(updated_posts) + len(updated_comments)

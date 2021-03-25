@@ -144,7 +144,8 @@ class RsyncSource(BaseSource):
     def latest_backup(self) -> RsyncBackup:
         return RsyncBackup(source=self, date=None)
 
-    def process(self) -> Tuple[int, int]:
+    def process(self, force=False) -> Tuple[int, int]:
+        # TODO: Process if force=True
         latest_backup = self.run_rsync_backup()
         if latest_backup is None:
             return 0, 0

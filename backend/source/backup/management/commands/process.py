@@ -35,7 +35,7 @@ class Command(BaseCommand):
         logger.info(f"Processing source types {[model.__name__ for model in source_classes]}")
         for source_class in source_classes:
             logger.info(f"Processing sources of type {source_class.__name__}")
-            source_class.objects.process()
+            source_class.objects.process(force=options['force'])
         logger.info(f"All source types processed")
 
     def add_arguments(self, parser):
@@ -45,4 +45,9 @@ class Command(BaseCommand):
             type=str,
             help='One or more source classes to process (e.g. "TwitterSource" or "TwitterArchive"). By default, '
                  'all sources classes are processed.',
+        )
+        parser.add_argument(
+            '--force',
+            action='store_true',
+            help='Reprocess sources and archives that do not need to be processed.',
         )

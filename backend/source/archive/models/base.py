@@ -52,7 +52,11 @@ class BaseArchive(BaseSource):
     def extract_entries(self) -> Generator[Entry, None, None]:
         raise NotImplementedError
 
-    def process(self) -> Tuple[int, int]:
+    def process(self, force=False) -> Tuple[int, int]:
+        if self.date_processed and not force:
+            logger.info(f"Archive {self.entry_source} was already processed. Skipping.")
+            return 0, 0
+
         with transaction.atomic():
             self.delete_entries()
             entries_to_create = self.extract_entries()
@@ -66,11 +70,11 @@ class CompressedArchive(BaseArchive):
     class Meta:
         abstract = True
 
-    def process(self) -> Tuple[int, int]:
+    def process(self, force=False) -> Tuple[int, int]:
         try:
             self.delete_extracted_files()
             self.extract_compressed_files()
-            created_entries, updated_entries = super().process()
+            created_entries, updated_entries = super().process(force=force)
         except:
             logger.exception(f'Failed to process archive "{self.entry_source}"')
             raise
