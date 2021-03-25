@@ -3,6 +3,7 @@ import shutil
 import subprocess
 from datetime import datetime
 from pathlib import Path
+from pprint import pprint
 from typing import Generator, Tuple, Optional
 
 import pytz
@@ -18,7 +19,8 @@ logger = logging.getLogger(__name__)
 
 
 class Backup:
-    """Describes and manages the files created by a single backup run"""
+    """Describes a single Rsync backup (in a set of iterative backups)"""
+    # TODO: Rename to RsyncBackup
 
     source = None
     date = None
@@ -30,10 +32,13 @@ class Backup:
         if date:
             self.date = date.replace(microsecond=0, tzinfo=None)
         elif path:
-            try:
-                self.date = datetime.strptime(path.name, "%Y-%m-%dT%H.%M.%SZ")
-            except ValueError:
-                raise ValueError("Invalid path specified. Not a backup directory.")
+            if path.name != self.latest_backup_dirname:
+                try:
+                    self.date = datetime.strptime(path.name, "%Y-%m-%dT%H.%M.%SZ")
+                except ValueError:
+                    raise ValueError("Invalid path specified. Not a backup directory.")
+
+            assert path.exists(), "Invalid path specified. Path does not exist."
 
     @property
     def root_path(self) -> Path:
@@ -59,20 +64,25 @@ class Backup:
         """
         return self.root_path / 'files'
 
-    def get_changed_files(self) -> Generator[Path, None, None]:
+    def get_changed_files(self) -> Generator[Tuple[Path, str], None, None]:
         """
-        List all files that are new or modified in this backup
+        List all files that are new, deleted or modified by this backup. The paths are absolute.
         """
-        # When processing the oldest backup, assume that all files are new. The rsync log shows files that changed
-        # since the previous backup, but that backup might have been deleted.
-        if self == self.source.oldest_backup:
-            yield from self.get_files()
-        else:
-            for line in self.rsync_log_path.open('r').readlines():
-                is_file = line[1] == 'f'
-                has_content_changed = line[0] == '>' and not (line[3] == line[4] == '.')
-                if is_file and has_content_changed:
-                    yield self.files_path / line.split(' ', 1)[1].strip()
+        for line in self.rsync_log_path.open('r').readlines():
+            if not line[1] == 'f':
+                continue  # Not a file
+
+            action = None
+            if line[0] == '*' and str(line).startswith('*deleting'):
+                action = 'del'
+            elif line[0] == '>' and str(line).startswith('>f+++++++++'):
+                action = 'new'
+            elif line[0] == '>' and not (line[3] == line[4] == '.'):
+                action = 'chg'
+            else:
+                continue
+
+            yield self.files_path / line.split(' ', 1)[1].strip(), action
 
     def get_files(self) -> Generator[Path, None, None]:
         return get_files_in_dir(self.files_path)
@@ -90,7 +100,7 @@ class Backup:
         return self.root_path == other.root_path
 
     def __str__(self):
-        return f"{self.source.key} ({self.date})"
+        return f"{self.source.key} ({self.date or 'latest'})"
 
 
 class RsyncSource(BaseSource):
@@ -119,8 +129,9 @@ class RsyncSource(BaseSource):
             return
 
         for backup_dir in backup_dirs:
-            if not backup_dir.is_dir():
+            if not backup_dir.is_dir() or backup_dir.name == Backup.latest_backup_dirname:
                 continue
+
             try:
                 yield Backup(source=self, path=backup_dir)
             except ValueError:
@@ -135,52 +146,35 @@ class RsyncSource(BaseSource):
         return Backup(source=self, date=None)
 
     def process(self) -> Tuple[int, int]:
-        entries_created = 0
         latest_backup = self.run_rsync_backup()
         if latest_backup is None:
             return 0, 0
 
-        timelineinclude_has_changed = list(filter(
-            lambda file: file.name == settings.TIMELINE_INCLUDE_FILE,
-            latest_backup.get_changed_files()
-        ))
+        self.purge_old_backups()
 
-        backups_were_purged = self.purge_old_backups() > 0
-
-        if timelineinclude_has_changed:
-            # Reprocess all backups, because we changed which files are included on the timeline
-            logger.info(f'{settings.TIMELINE_INCLUDE_FILE} files have changed. Reprocessing all backups.')
-            entries_created = sum(self.create_file_entries(backup) for backup in self.backups)
-        else:
-            if backups_were_purged and len(list(self.backups)) > 1:
-                # If older backups were deleted, all files created before the current oldest backup will be missing.
-                # We must reprocess the oldest backup, and treat all files in it as new.
-                # -
-                # If the oldest backup and the latest backup are the same, don't process it twice.
-                entries_created += self.create_file_entries(self.oldest_backup)
-
-            entries_created += self.create_file_entries(latest_backup)
-
-        return entries_created, 0
+        return self.create_file_entries(latest_backup), 0
 
     def run_rsync_backup(self) -> Optional[Backup]:
-        current_backup = Backup(self, datetime.now(pytz.UTC))
-        latest_backup = self.latest_backup
-
+        """
+        Creates an incremental rsync backup
+        """
         source_dir = self.path.strip().rstrip('/') + '/'
         source_path = f'{self.user}@{self.host}:"{source_dir}"'
+
+        current_backup = Backup(self, datetime.now(pytz.UTC))
+        latest_backup = self.latest_backup
 
         # Rsync won't sync dotfiles in the root directory, unless you add a trailing slash
         #   https://stackoverflow.com/q/9046749/1067337
         # Pathlib automatically removes trailing slashes:
         #   https://stackoverflow.com/a/47572467/1067337
-        dest_path = str(current_backup.files_path.resolve() / '_')[:-1]
+        current_backup_path = str(current_backup.files_path.resolve() / '_')[:-1]
+        latest_backup_path = str(latest_backup.files_path.resolve() / '_')[:-1]
 
-        current_backup.files_path.mkdir(parents=True, exist_ok=True)
+        latest_backup.files_path.mkdir(parents=True, exist_ok=True)
 
         # Run rsync
-        logger.info(f"Backing up {self.entry_source} to {str(current_backup.files_path)}")
-        log_file = current_backup.rsync_log_path.open('w+')
+        logger.info(f"Backing up {self.entry_source} to {latest_backup_path}")
         rsync_command = [
             "rsync",
             "-az",
@@ -189,10 +183,11 @@ class RsyncSource(BaseSource):
             "-e", f"ssh -p {self.port}",
             "--timeout", "120",
             "--filter", ":- .rsyncignore",
-            "--link-dest", str(latest_backup.files_path.resolve()),
             source_path,
-            dest_path,
+            latest_backup_path,
         ]
+
+        log_file = latest_backup.rsync_log_path.open('w+')
         exit_code = subprocess.call(rsync_command, stdout=log_file, stderr=log_file)
 
         if exit_code != 0:
@@ -207,16 +202,27 @@ class RsyncSource(BaseSource):
 
             raise Exception("Rsync backup failed")
 
-        has_changed_files = next(current_backup.get_changed_files(), None) is not None
+        has_changed_files = next(latest_backup.get_changed_files(), None) is not None
         if has_changed_files:
-            logger.info(f"{self.entry_source} backup successful. Rsync log is at {str(current_backup.rsync_log_path)}")
+            logger.info(f"{self.entry_source} backup successful. Rsync log is at {str(latest_backup.rsync_log_path)}")
+            logger.info(f"Creating snapshot of {str(latest_backup.root_path)} at {str(current_backup.root_path)}")
 
-            # Symlink /latest to the new backup
-            latest_backup.root_path.unlink(missing_ok=True)
-            latest_backup.root_path.symlink_to(current_backup.root_path, target_is_directory=True)
+            # We don't use --link-dest, because when we do, deleted files are not logged.
+            # https://rsync.samba.narkive.com/9lakR0U3/
+            # We get the same result with cp -al:
+            # 1. Rsync remote files to /latest. This is our latest backup.
+            # 2. Use `cp -al` to create a snapshot of /latest under `current_backup_path`. This creates hard links
+            #    instead of copying the files. This is a snapshot of our latest backup on a specific date.
+            # 3. When another backup overwrites /latest, the snapshot does not change, and the files are still there.
+            current_backup.root_path.mkdir(parents=True, exist_ok=True)
+            subprocess.check_call([
+                'cp',
+                '-al',
+                str(latest_backup.root_path) + '/.',
+                str(current_backup.root_path) + '/',
+            ])
             return current_backup
         else:
-            current_backup.delete()
             logger.info(f"{self.entry_source} backup successful. No new files.")
             return None
 
@@ -232,10 +238,14 @@ class RsyncSource(BaseSource):
 
     @transaction.atomic
     def create_file_entries(self, backup: Backup) -> int:
+        """
+        Delete all entries for this source, and recreate them from the latest backup. We could update the entries for
+        the files that changed only (with get_changed_files), but it's safer to just reprocess everything.
+        """
         logger.info(f"Creating entries for {str(backup)}")
-        backup.get_entries().delete()
-        timelineinclude_rules = get_include_rules_for_dir(self.latest_backup.files_path, settings.TIMELINE_INCLUDE_FILE)
-        files_on_timeline = get_files_matching_rules(backup.get_changed_files(), timelineinclude_rules)
+        self.get_entries().delete()
+        timelineinclude_rules = list(get_include_rules_for_dir(backup.files_path, settings.TIMELINE_INCLUDE_FILE))
+        files_on_timeline = list(get_files_matching_rules(backup.get_files(), timelineinclude_rules))
         return len(create_entries_from_files(files_on_timeline, source=self, backup_date=backup.date))
 
     def __str__(self):

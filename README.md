@@ -69,26 +69,13 @@ New sources can be added directly through the API. You can browse the API at `/a
 
 API URL: `/api/backup/rsyncsources`
 
-This is the best way to turn a set of files into a set of Entries.
+It uses rsync to synchronise files from a local or remote filesystem. RsyncSource creates incremental backups. The files in the latest backup are then turned into Entries. Files in older backups are ignored.
 
-It uses rsync to synchronise files from a local or remote filesystem. The files in the backup are then turned into Entries.
+The backups are incremental. If you don't change any files, you can run a backup 100 times, and it won't use any bandwidth or disk space. You can limit how many old backup versions to keep with the `max_backup` option.
 
-When you create the source, you must supply a password. This will be used to copy SSH keys. The password is never stored.
+To exclude files from a backup, create `.rsyncignore` files on the source machine. The files listed in that file will not be backed up. It works like a `.gitignore` file.
 
-**Required fields:**
-
-* `host`: hostname of the remote machine (e.g. "home.nicolasbouliane.com" or "localhost")
-* `port`: SSH port on the remote machine (e.g. "22")
-* `user`: SSH user on the remote machine (e.g. "backups")
-* `path`: the path to backup on the remote machine (e.g. "/home/backups")
-* `key`: a unique name for this backup (e.g. "home-server")
-* `max_backups`: how many backup versions to keep. If null, old backups are never deleted. If "1", only the latest backup is kept.
-
-The backups are incremental. If you don't change any files, you can run a backup 100 times, and it won't use any extra bandwidth or disk space. You can limit how many old backup versions to keep with the `max_backup` option.
-
-To exclude files from a backup, create `.rsyncignore` files on the source machine. The files listed in that file will not be backed up. It's a bit like a `.gitignore` file.
-
-To back up files, but exclude them from the timeline, create `.timelineinclude` files on the source machine. If a file is not in the `.timelineinclude` file, it won't appear on the timeline.
+By default, none of the files are included on the timeline. To include files on the timeline, create `.timelineinclude` files, and list the files you want to include.
 
 Here is an example `.rsyncignore` or `.timelineinclude` file:
 ```
@@ -96,6 +83,16 @@ images/*.jpg
 **/*.pdf
 documents/invoices
 ```
+
+**Required fields:**
+
+* `host`: hostname of the remote machine (e.g. "home.nicolasbouliane.com" or "localhost")
+* `port`: SSH port on the remote machine (e.g. "22")
+* `user`: SSH user on the remote machine (e.g. "backups")
+* `password`: SSH password on the remote machine. This will be used to copy SSH keys. The password is never stored.
+* `path`: the path to backup on the remote machine (e.g. "/home/backups")
+* `key`: a unique name for this backup (e.g. "home-server")
+* `max_backups`: how many backup versions to keep. If null, old backups are never deleted. If "1", only the latest backup is kept.
 
 ### FileSystemSource
 
