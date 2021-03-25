@@ -43,6 +43,14 @@ COMPOSE_FILE=docker-compose.yml:docker-compose.homeserver.yml
     - Call the key `server.key`
 3. Run `docker-compose up --build -d` to start the server.
 
+## General principles
+
+The backend creates timeline entries from other sources of data. It follows these principles, in order of priority:
+
+* Repeatable: You should be able to regenerate entries from scratch at any point. The original data must be preserved as much as possible.
+* Automatic: The timeline should retrieve and show your latest data without any effort on your part.
+* Fast: Performance is important, but it's not as important as the other things.
+
 ## Entries
 
 API URL: `/api/timeline/entries`
@@ -100,7 +108,7 @@ API URL: `/api/backup/filesystemsources`
 
 Describes a directory on the local filesystem. Entries are created from the files in that directory.
 
-A FileSystemSource requires more configuration than an RsyncSource, but it saves storage space because it does not copy any files. You can use it to import large file collections, like photo albums.
+A FileSystemSource requires more configuration than an RsyncSource, but it saves storage space because it does not copy any files. You can use it to import large file collections, like photo albums, without using more disk space.
 
 **Usage:**
 
@@ -163,9 +171,9 @@ Describes a RSS feed.
 
 API URL: `/api/archive`
 
-Archives are for irregular, manual data imports. You upload a file or an archive, and it's turned into new Entries.
+Archives are for irregular, manual data imports. You upload a file or an archive, and it's turned into new Entries. For example, you can use them to import GPS logs, GDPR data exports, email dumps etc.
 
-For example, you can use them to import GPS logs, GDPR data exports, email dumps etc.
+Unlike Sources, Archives are only processed once. After processing, original archive is preserved. 
 
 New archives can be added directly through the API. You can browse the API at `/api/backup`.
 
