@@ -3,7 +3,6 @@ import shutil
 import subprocess
 from datetime import datetime
 from pathlib import Path
-from pprint import pprint
 from typing import Generator, Tuple, Optional
 
 import pytz
@@ -12,8 +11,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models, transaction
 
 from backup.models.base import BaseSource
-from backup.utils.files import get_files_in_dir, get_include_rules_for_dir, get_files_matching_rules, \
-    create_entries_from_files
+from backup.utils.files import get_files_in_dir, create_entries_from_files
 
 logger = logging.getLogger(__name__)
 
@@ -68,20 +66,15 @@ class RsyncBackup:
         List all files that are new, deleted or modified by this backup. The paths are absolute.
         """
         for line in self.rsync_log_path.open('r').readlines():
-            if not line[1] == 'f':
-                continue  # Not a file
+            absolute_path = self.files_path / line.split(' ', 1)[1].strip()
 
-            action = None
-            if line[0] == '*' and str(line).startswith('*deleting'):
-                action = 'del'
-            elif line[0] == '>' and str(line).startswith('>f+++++++++'):
-                action = 'new'
-            elif line[0] == '>' and not (line[3] == line[4] == '.'):
-                action = 'chg'
-            else:
-                continue
-
-            yield self.files_path / line.split(' ', 1)[1].strip(), action
+            if line[0] == '*' and line.startswith('*deleting'):
+                yield absolute_path, 'del'
+            elif line[1] == 'f' and line[0] == '>':
+                if str(line).startswith('>f+++++++++'):
+                    yield absolute_path, 'new'
+                elif line[3] != '.' and line[4] != '.':
+                    yield absolute_path, 'chg'
 
     def get_files(self) -> Generator[Path, None, None]:
         return get_files_in_dir(self.files_path)
@@ -168,7 +161,6 @@ class RsyncSource(BaseSource):
         #   https://stackoverflow.com/q/9046749/1067337
         # Pathlib automatically removes trailing slashes:
         #   https://stackoverflow.com/a/47572467/1067337
-        current_backup_path = str(current_backup.files_path.resolve() / '_')[:-1]
         latest_backup_path = str(latest_backup.files_path.resolve() / '_')[:-1]
 
         latest_backup.files_path.mkdir(parents=True, exist_ok=True)
@@ -243,10 +235,7 @@ class RsyncSource(BaseSource):
         the files that changed only (with get_changed_files), but it's safer to just reprocess everything.
         """
         logger.info(f"Creating entries for {str(backup)}")
-        self.get_entries().delete()
-        timelineinclude_rules = list(get_include_rules_for_dir(backup.files_path, settings.TIMELINE_INCLUDE_FILE))
-        files_on_timeline = list(get_files_matching_rules(backup.get_files(), timelineinclude_rules))
-        return len(create_entries_from_files(files_on_timeline, source=self, backup_date=backup.date))
+        return len(create_entries_from_files(backup.files_path, source=self, backup_date=backup.date))
 
     def __str__(self):
         return f"{self.source_name}/{self.key} ({self.user}@{self.host}:{self.port}, {self.path})"

@@ -25,7 +25,4 @@ class FileSystemSource(BaseSource):
     @transaction.atomic
     def create_file_entries(self) -> int:
         logger.info(f"Creating entries for {self.entry_source}")
-        self.get_entries().delete()
-        timelineinclude_rules = list(get_include_rules_for_dir(Path(self.path), settings.TIMELINE_INCLUDE_FILE))
-        files_on_timeline = get_files_matching_rules(get_files_in_dir(Path(self.path)), timelineinclude_rules)
-        return len(create_entries_from_files(files_on_timeline, source=self, backup_date=datetime.now()))
+        return len(create_entries_from_files(Path(self.path), source=self, backup_date=datetime.now()))

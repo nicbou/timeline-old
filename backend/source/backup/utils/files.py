@@ -72,9 +72,26 @@ def get_schema_from_mimetype(mimetype) -> str:
     return schema
 
 
-def create_entries_from_files(files: Iterable[Path], source: BaseSource, backup_date: datetime) -> List[Entry]:
+def create_entries_from_files(path: Path, source: BaseSource, backup_date: datetime) -> List[Entry]:
+    timelineinclude_rules = list(get_include_rules_for_dir(path, settings.TIMELINE_INCLUDE_FILE))
+    files = list(get_files_matching_rules(get_files_in_dir(path), timelineinclude_rules))
+
+    metadata_cache = {}
+    for entry in source.get_entries():
+        # Avoid expensive recalculation of metadata. If the checksum is the same, that metadata is also the same
+        metadata = {}
+        if 'media' in entry.extra_attributes:
+            metadata['media'] = entry.extra_attributes['media']
+        if 'location' in entry.extra_attributes:
+            metadata['location'] = entry.extra_attributes['location']
+        if entry.description:
+            metadata['description'] = entry.description
+
+        metadata_cache[entry.extra_attributes['file']['checksum']] = metadata
+
     entries_to_create = []
     for file in files:
+        checksum = get_checksum(file)
         mimetype = get_mimetype(file)
         schema = get_schema_from_mimetype(mimetype)
         entry = Entry(
@@ -86,7 +103,7 @@ def create_entries_from_files(files: Iterable[Path], source: BaseSource, backup_
             extra_attributes={
                 'file': {
                     'path': str(file.resolve()),
-                    'checksum': get_checksum(file),
+                    'checksum': checksum,
                 },
                 'backup_date': backup_date.strftime('%Y-%m-%dT%H:%M:%SZ'),
             }
@@ -95,27 +112,35 @@ def create_entries_from_files(files: Iterable[Path], source: BaseSource, backup_
         if mimetype:
             entry.extra_attributes['file']['mimetype'] = mimetype
 
-        if schema == 'file.text' or schema.startswith('file.text'):
-            try:
-                _set_plaintext_description(entry)
-            except:
-                logger.exception(
-                    f"Could not set plain text description for file {entry.extra_attributes['file']['path']}")
+        if checksum in metadata_cache:
+            entry.description = metadata_cache[checksum].get('description', '')
+            if 'media' in metadata_cache[checksum]:
+                entry.extra_attributes['media'] = metadata_cache[checksum]['media']
+            if 'location' in metadata_cache[checksum]:
+                entry.extra_attributes['location'] = metadata_cache[checksum]['location']
+        else:
+            if schema == 'file.text' or schema.startswith('file.text'):
+                try:
+                    _set_plaintext_description(entry)
+                except:
+                    logger.exception(
+                        f"Could not set plain text description for file {entry.extra_attributes['file']['path']}")
 
-        if schema.startswith('file.image') or schema.startswith('file.video'):
-            try:
-                _set_media_metadata(entry)
-            except:
-                logger.exception(f"Could not set media metadata for file {entry.extra_attributes['file']['path']}")
+            if schema.startswith('file.image') or schema.startswith('file.video'):
+                try:
+                    _set_media_metadata(entry)
+                except:
+                    logger.exception(f"Could not set media metadata for file {entry.extra_attributes['file']['path']}")
 
-        if schema == 'file.image' or schema.startswith('file.image'):
-            try:
-                _set_exif_metadata(entry)
-            except:
-                logger.exception(f"Could not set exif metadata for file {entry.extra_attributes['file']['path']}")
+            if schema == 'file.image' or schema.startswith('file.image'):
+                try:
+                    _set_exif_metadata(entry)
+                except:
+                    logger.exception(f"Could not set exif metadata for file {entry.extra_attributes['file']['path']}")
 
         entries_to_create.append(entry)
 
+    source.get_entries().delete()
     return Entry.objects.bulk_create(entries_to_create)
 
 
