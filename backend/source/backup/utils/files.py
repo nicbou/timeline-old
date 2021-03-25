@@ -77,9 +77,18 @@ def create_entries_from_files(path: Path, source: BaseSource, backup_date: datet
     files = list(get_files_matching_rules(get_files_in_dir(path), timelineinclude_rules))
 
     metadata_cache = {}
+    inode_checksum_cache = {}
     for entry in source.get_entries():
+        # Most of the files in the new backup are not new. They are hard links to the same files as in the old backup.
+        # If two files have the same inode, they are identical.
+        inode = Path(entry.extra_attributes['file']['path']).stat().st_ino
+        inode_checksum_cache[inode] = entry.extra_attributes['file']['checksum']
+
         # Avoid expensive recalculation of metadata. If the checksum is the same, that metadata is also the same
-        metadata = {}
+        metadata = {
+            'file': entry.extra_attributes['file']
+        }
+
         if 'media' in entry.extra_attributes:
             metadata['media'] = entry.extra_attributes['media']
         if 'location' in entry.extra_attributes:
@@ -91,7 +100,7 @@ def create_entries_from_files(path: Path, source: BaseSource, backup_date: datet
 
     entries_to_create = []
     for file in files:
-        checksum = get_checksum(file)
+        checksum = inode_checksum_cache.get(file.stat().st_ino) or get_checksum(file)
         mimetype = get_mimetype(file)
         schema = get_schema_from_mimetype(mimetype)
         entry = Entry(
