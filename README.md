@@ -108,7 +108,7 @@ API URL: `/api/backup/filesystemsources`
 
 Describes a directory on the local filesystem. Entries are created from the files in that directory.
 
-A FileSystemSource requires more configuration than an RsyncSource, but it saves storage space because it does not copy any files. You can use it to import large file collections, like photo albums, without using more disk space.
+A FileSystemSource requires more initial configuration than an RsyncSource, but it saves storage space because it does not copy any files. You can use it to import large file collections, like photo albums, without using more disk space. You can use it to add a Google Drive or Dropbox directory to your timeline.
 
 **Usage:**
 
