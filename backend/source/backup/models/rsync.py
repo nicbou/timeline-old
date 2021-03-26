@@ -139,34 +139,43 @@ class RsyncSource(BaseSource):
 
     def process(self, force=False) -> Tuple[int, int]:
         # TODO: Process if force=True
-        latest_backup = self.run_rsync_backup()
-        if latest_backup is None:
+        current_backup = self.run_rsync_backup()
+        if current_backup is None:
             return 0, 0
 
         self.purge_old_backups()
 
-        return self.create_file_entries(latest_backup), 0
+        return self.create_file_entries(current_backup), 0
 
     def run_rsync_backup(self) -> Optional[RsyncBackup]:
         """
         Creates an incremental rsync backup
         """
-        source_dir = self.path.strip().rstrip('/') + '/'
-        source_path = f'{self.user}@{self.host}:"{source_dir}"'
-
-        current_backup = RsyncBackup(self, datetime.now(pytz.UTC))
-        latest_backup = self.latest_backup
 
         # Rsync won't sync dotfiles in the root directory, unless you add a trailing slash
         #   https://stackoverflow.com/q/9046749/1067337
         # Pathlib automatically removes trailing slashes:
         #   https://stackoverflow.com/a/47572467/1067337
-        latest_backup_path = str(latest_backup.files_path.resolve() / '_')[:-1]
+        current_backup = RsyncBackup(self, datetime.now(pytz.UTC))
+        current_backup_path = str(current_backup.files_path.resolve() / '_')[:-1]  # Add trailing slash
 
-        latest_backup.files_path.mkdir(parents=True, exist_ok=True)
+        # Copy the latest backup's file to the current backup's dir. Rsync will overwrite those files, but only if they
+        # are new. We use hard links, so no disk space is used.
+        latest_backup = self.latest_backup
+        current_backup.files_path.mkdir(parents=True, exist_ok=False)
 
-        # Run rsync
-        logger.info(f"Backing up {self.entry_source} to {latest_backup_path}")
+        if latest_backup.files_path.exists():  # There might not be a /latest backup
+            subprocess.check_call([
+                'cp',
+                '-al',
+                str(latest_backup.files_path) + '/.',
+                str(current_backup.files_path) + '/',
+            ])
+
+        # Run rsync. Only transfer files that are different from what's in the current backup.
+        logger.info(f"Backing up {self.entry_source} to {current_backup_path}")
+        source_dir = self.path.strip().rstrip('/') + '/'
+        source_path = f'{self.user}@{self.host}:"{source_dir}"'
         rsync_command = [
             "rsync",
             "-az",
@@ -176,47 +185,36 @@ class RsyncSource(BaseSource):
             "--timeout", "120",
             "--filter", ":- .rsyncignore",
             source_path,
-            latest_backup_path,
+            current_backup_path,
         ]
 
-        log_file = latest_backup.rsync_log_path.open('w+')
-        exit_code = subprocess.call(rsync_command, stdout=log_file, stderr=log_file)
+        rsync_log_file = current_backup.rsync_log_path.open('w+')
+        rsync_exit_code = subprocess.call(rsync_command, stdout=rsync_log_file, stderr=rsync_log_file)
 
-        if exit_code != 0:
-            """
-            In case of failure, delete the backup. Only leave successful backups on the filesystem.
-            /latest still points to the latest successful backup.
-            """
-            logger.error(f"{self.entry_source} backup failed (exit code {exit_code})")
-
+        if rsync_exit_code != 0:
+            # In case of failure, delete the backup. Only leave successful backups on the filesystem. /latest still
+            # points to the latest successful backup.
+            logger.error(f"{self.entry_source} backup failed (exit code {rsync_exit_code})")
             logger.info(f"Deleting backup files at {str(current_backup.root_path)}")
             current_backup.delete()
-
             raise Exception("Rsync backup failed")
 
-        has_changed_files = next(latest_backup.get_changed_files(), None) is not None
-        if has_changed_files:
-            logger.info(f"{self.entry_source} backup successful. Rsync log is at {str(latest_backup.rsync_log_path)}")
-            logger.info(f"Creating snapshot of {str(latest_backup.root_path)} at {str(current_backup.root_path)}")
+        changed_files_count = len(list(current_backup.get_changed_files()))
+        logger.info(f"{self.entry_source} backup successful. "
+                    f"{changed_files_count} files changed. "
+                    f"Rsync log is at {str(current_backup.rsync_log_path)}")
 
-            # We don't use --link-dest, because when we do, deleted files are not logged.
-            # https://rsync.samba.narkive.com/9lakR0U3/
-            # We get the same result with cp -al:
-            # 1. Rsync remote files to /latest. This is our latest backup.
-            # 2. Use `cp -al` to create a snapshot of /latest under `current_backup_path`. This creates hard links
-            #    instead of copying the files. This is a snapshot of our latest backup on a specific date.
-            # 3. When another backup overwrites /latest, the snapshot does not change, and the files are still there.
-            current_backup.root_path.mkdir(parents=True, exist_ok=True)
-            subprocess.check_call([
-                'cp',
-                '-al',
-                str(latest_backup.root_path) + '/.',
-                str(current_backup.root_path) + '/',
-            ])
-            return current_backup
-        else:
-            logger.info(f"{self.entry_source} backup successful. No new files.")
+        if changed_files_count == 0:
+            # Don't keep multiple identical backups. If `max_backups` is set, it pushes older backups out.
+            logger.info("Deleting backup because no files have changed.")
+            current_backup.delete()
             return None
+
+        # Hard link /latest to the current backup
+        latest_backup.root_path.unlink(missing_ok=True)
+        latest_backup.root_path.symlink_to(current_backup.root_path, target_is_directory=True)
+
+        return current_backup
 
     def purge_old_backups(self) -> int:
         all_backups = list(self.backups)

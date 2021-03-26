@@ -81,13 +81,14 @@ def create_entries_from_files(path: Path, source: BaseSource, backup_date: datet
     for entry in source.get_entries():
         # Most of the files in the new backup are not new. They are hard links to the same files as in the old backup.
         # If two files have the same inode, they are identical.
-        inode = Path(entry.extra_attributes['file']['path']).stat().st_ino
-        inode_checksum_cache[inode] = entry.extra_attributes['file']['checksum']
+        try:
+            inode = Path(entry.extra_attributes['file']['path']).stat().st_ino
+            inode_checksum_cache[inode] = entry.extra_attributes['file']['checksum']
+        except FileNotFoundError:
+            pass
 
         # Avoid expensive recalculation of metadata. If the checksum is the same, that metadata is also the same
-        metadata = {
-            'file': entry.extra_attributes['file']
-        }
+        metadata = {}
 
         if 'media' in entry.extra_attributes:
             metadata['media'] = entry.extra_attributes['media']
