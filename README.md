@@ -49,7 +49,7 @@ The backend creates timeline entries from other sources of data. It follows thes
 
 * Repeatable: You should be able to regenerate entries from scratch at any point. The original data must be preserved as much as possible.
 * Automatic: The timeline should retrieve and show your latest data without any effort on your part.
-* Fast: Performance is important, but it's not as important as the other things.
+* Fast: Processing entries should be reasonably fast, but not at the expense of the other principles.
 
 ## Entries
 
