@@ -2,6 +2,7 @@ import hashlib
 import json
 import logging
 import mimetypes
+import re
 import subprocess
 from collections import Generator
 from datetime import datetime
@@ -23,6 +24,21 @@ logger = logging.getLogger(__name__)
 
 def get_modification_date(file_path: Path) -> datetime:
     return datetime.fromtimestamp(file_path.stat().st_mtime, pytz.UTC)
+
+
+def get_filename_date(file_path: Path) -> datetime:
+    default_timezone = 'Europe/Berlin'  # TODO: If this thing gets a million users, that assumption could be wrong
+    date_regex = "(\d{4})-([0][1-9]|1[0-2])-([0-2][1-9]|[1-3]0|3[01])"
+    if matches := re.search(f'.*({date_regex})$', file_path.stem):
+        try:
+            return pytz.timezone(default_timezone) \
+                .localize(datetime.strptime(matches.groups()[0], '%Y-%m-%d')) \
+                .replace(hour=12) \
+                .astimezone(pytz.UTC)
+        except ValueError:
+            pass
+    else:
+        return None
 
 
 def get_files_in_dir(dir_path: Path) -> Generator[Path, None, None]:
@@ -85,6 +101,7 @@ def create_entries_from_files(path: Path, source: BaseSource, backup_date: datet
             inode = Path(entry.extra_attributes['file']['path']).stat().st_ino
             inode_checksum_cache[inode] = entry.extra_attributes['file']['checksum']
         except FileNotFoundError:
+            # This can happen if the backup files were deleted.
             pass
 
         # Avoid expensive recalculation of metadata. If the checksum is the same, that metadata is also the same
@@ -147,6 +164,14 @@ def create_entries_from_files(path: Path, source: BaseSource, backup_date: datet
                     _set_exif_metadata(entry)
                 except:
                     logger.exception(f"Could not set exif metadata for file {entry.extra_attributes['file']['path']}")
+
+        if filename_date := get_filename_date(file):
+            entry.date_on_timeline = filename_date
+        elif exif_date := entry.extra_attributes.get('media', {}).get('creation_date'):
+            entry.date_on_timeline = min(
+                entry.date_on_timeline,
+                pytz.utc.localize(datetime.strptime(exif_date, '%Y-%m-%dT%H:%M:%SZ'))
+            )
 
         entries_to_create.append(entry)
 
