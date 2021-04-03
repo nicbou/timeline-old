@@ -19,6 +19,7 @@ class JsonArchive(BaseArchive):
         json_entries = json.load(self.archive_file.file)
         for json_entry in json_entries:
             json_entry['source'] = self.entry_source
+            json_entry.pop('id', None)
             serializer = EntrySerializer(data=json_entry)
             assert serializer.is_valid()
             yield Entry(**serializer.validated_data)

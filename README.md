@@ -181,7 +181,7 @@ New archives can be added directly through the API. You can browse the API at `/
 
 API URL: `/api/archive/jsonarchives`
 
-Imports a list of Entry objects from a JSON file. The entries in the JSON file are imported as-is, but the `source` attribute is overridden.
+Imports a list of Entry objects from a JSON file. It expects the same format as the API. The entries in the JSON file are imported as-is, but the `source` attribute is overridden, and the `id` attribute is ignored.
 
 This is useful for one-off data imports. For example, I use it to process an SMS dump I found on an old hard drive.
 
