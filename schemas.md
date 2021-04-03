@@ -75,7 +75,7 @@ Describes a file on a filesystem.
 A journal entry
 
 - `title`: Optional entry title
-- `description`: The journal entry
+- `description`: The journal entry, as Markdown.
 
 
 ## message
