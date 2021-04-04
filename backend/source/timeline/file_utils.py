@@ -34,7 +34,7 @@ def generate_video_preview(input_path: Path, output_path: Path, video_duration: 
         raise FileExistsError
 
     if video_duration is None or video_duration == 0:
-        raise Exception(
+        raise ValueError(
             f'Could not generate video preview. Video duration is {video_duration}.'
         )
 

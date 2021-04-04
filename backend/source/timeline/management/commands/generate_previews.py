@@ -104,6 +104,8 @@ class Command(BaseCommand):
             except FileExistsError:
                 logger.debug(f'"{preview_name}" preview for #{entry.pk} already exists.')
                 entry.extra_attributes['previews'][preview_name] = str(preview_path)
+            except ValueError as e:
+                logger.exception(f'Could not generate video preview for entry #{entry.pk} ({str(original_path)}). {str(e)}')
             except KeyboardInterrupt:
                 raise
             except:
