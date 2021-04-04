@@ -25,10 +25,7 @@ export default Vue.component('entry-map', {
   },
   template: `
     <div class="map" v-if="geolocationEntries.length">
-      <img
-        loading="lazy"
-        :src="mapUrl"
-        />
+      <img :src="mapUrl"/>
     </div>
   `
 });

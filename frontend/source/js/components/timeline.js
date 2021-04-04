@@ -64,7 +64,7 @@ export default Vue.component('timeline', {
           entries: [],
         },
         browsingHistory: {
-          readableName: 'browsing browsing',
+          readableName: 'browsing entries',
           iconClass: 'fas fa-globe-americas',
           entries: [],
         },

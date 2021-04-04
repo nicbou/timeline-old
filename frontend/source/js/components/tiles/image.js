@@ -15,7 +15,6 @@ export default Vue.component('image-tile', {
     <div class="tile image" v-if="entry.extra_attributes.previews">
       <img
         @click="$emit('select', entry)"
-        loading="lazy"
         :alt="entry.title"
         :src="imageSrc"
         :srcset="imageSrcSet"
