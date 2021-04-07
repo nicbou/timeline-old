@@ -213,8 +213,6 @@ export default Vue.component('timeline', {
         <div class="tiles">
           <journal-editor v-if="!isLoading"></journal-editor>
           <thread-tile v-if="!isLoading" :thread="thread" v-for="thread in messageThreads"></thread-tile>
-          <transactions-tile v-if="!isLoading" :entries="entryGroups.transactions.entries"></transactions-tile>
-          <browsing-history-tile v-if="!isLoading" :entries="entryGroups.browsingHistory.entries"></browsing-history-tile>
           <component
             :entry="entry"
             :is="tileType(entry)"
@@ -224,6 +222,8 @@ export default Vue.component('timeline', {
             v-for="entry in entries"
             v-if="tileType(entry) && !isLoading"></component>
         </div>
+        <browsing-history-tile v-if="!isLoading" :entries="entryGroups.browsingHistory.entries"></browsing-history-tile>
+        <transactions-tile v-if="!isLoading" :entries="entryGroups.transactions.entries"></transactions-tile>
       </div>
       <preview :entry="selectedEntry" v-if="selectedEntry" @close="closePreview"></preview>
     </div>
