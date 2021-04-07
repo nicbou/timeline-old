@@ -109,6 +109,7 @@ input, button, textarea, select{font:var(--font-m);border:var(--border);padding:
         .post main h1, .post main h2, .post main h3, .post main h4, .post main b, .post main strong{font-weight:bold;margin:var(--spacing-m) 0;}
         .post main img, .post main video{max-width:100%;height:auto;}
         .post main ul, .tile.post main ol{padding-left:0;margin-left:0}
+            .post main ul ul, .post main ul ol, .post main ol ul, .post main ol ol{margin:0 0 0 var(--spacing-l)}
             .post main ul:first-child, .tile.post main ol:first-child{margin-top:0;}
         .post main li{list-style:inside;padding-left:0;margin-left:0;}
         .post main blockquote{padding-left:var(--spacing-s);font-style:italic;border-left:5px solid var(--color-background);}
