@@ -1,12 +1,12 @@
 from .management.commands.copy_ssh_keys import SSHTimeoutError, SSHCredentialsError
 from .models import FileSystemSource
-from .models.rsync import RsyncSource
+from .models.rsync import RsyncSource, RsyncDestination
 from .models.twitter import TwitterSource
 from .models.reddit import RedditSource
 from .models.hackernews import HackerNewsSource
 from .models.rss import RssSource
 from .serializers import RsyncSourceSerializer, TwitterSourceSerializer, RedditSourceSerializer, \
-    HackerNewsSourceSerializer, RssSourceSerializer, FileSystemSourceSerializer
+    HackerNewsSourceSerializer, RssSourceSerializer, FileSystemSourceSerializer, RsyncDestinationSerializer
 from django.core.management import call_command
 from rest_framework import permissions
 from rest_framework import viewsets
@@ -41,6 +41,11 @@ class RsyncSourceViewSet(viewsets.ModelViewSet):
             raise APIException('Could not fetch SSH keys. The operation timed out. Are the host and port correct?')
 
         return super().perform_create(serializer)
+
+
+class RsyncDestinationViewSet(RsyncSourceViewSet):
+    queryset = RsyncDestination.objects.all().order_by('key')
+    serializer_class = RsyncDestinationSerializer
 
 
 class TwitterSourceViewSet(viewsets.ModelViewSet):

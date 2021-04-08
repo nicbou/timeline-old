@@ -5,18 +5,19 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-STATIC_ROOT = '/assets/static'
 STATIC_URL = '/api/static/'
 MEDIA_ROOT = '/'
 MEDIA_URL = '/'
 
-# /data: Data that can be served, and must be backed up
-# /
-ARCHIVES_ROOT = Path('/data/archives')
-BACKUPS_ROOT = Path('/data/backups')
-PREVIEWS_ROOT = Path('/assets/previews')
-MOUNTS_ROOT = Path('/data/mounts')
-DEFAULT_PREVIEW_SUBDIR = 'other'  # Usually, it's the source name
+DATA_ROOT = Path('/data')  # Files that are included in the backup
+ASSETS_ROOT = Path('/assets')  # Files that can be regenerated, and don't need to be backed up
+
+ARCHIVES_ROOT = DATA_ROOT / 'archives'
+BACKUPS_ROOT = DATA_ROOT / 'backups'
+MOUNTS_ROOT = DATA_ROOT / 'mounts'
+PREVIEWS_ROOT = ASSETS_ROOT / 'previews'
+STATIC_ROOT = ASSETS_ROOT / 'static'
+
 SSH_DIR = '/root/.ssh'
 TIMELINE_INCLUDE_FILE = '.timelineinclude'
 

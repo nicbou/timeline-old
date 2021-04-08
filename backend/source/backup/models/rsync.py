@@ -10,6 +10,7 @@ from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models, transaction
 
+from backup.models.destination import BaseDestination
 from backup.models.source import BaseSource
 from backup.utils.datetime import datetime_to_json
 from backup.utils.files import get_files_in_dir, create_entries_from_files
@@ -17,12 +18,27 @@ from backup.utils.files import get_files_in_dir, create_entries_from_files
 logger = logging.getLogger(__name__)
 
 
-class RsyncConnectionMixin:
+def pathlib_to_rsync_path(path: Path) -> str:
+    # Rsync won't sync dotfiles in the root directory, unless you add a trailing slash
+    #   https://stackoverflow.com/q/9046749/1067337
+    # Pathlib automatically removes trailing slashes:
+    #   https://stackoverflow.com/a/47572467/1067337
+    return str(path.resolve()).strip().rstrip('/') + '/'
+
+
+def remote_rsync_path(user: str, host: str, path: str) -> str:
+    return f'{user}@{host}:"{path}"'
+
+
+class RsyncConnectionMixin(models.Model):
     user = models.CharField(max_length=80, blank=False)
     host = models.CharField(max_length=255, blank=False)
     port = models.PositiveIntegerField(default=22, validators=[MaxValueValidator(65535)])
     path = models.TextField(blank=False)
     key = models.CharField(max_length=80, blank=False, unique=True)
+
+    class Meta:
+        abstract = True
 
     def __str__(self):
         return f"{super().__str__()} ({self.user}@{self.host}:{self.port}, {self.path})"
@@ -107,7 +123,7 @@ class RsyncBackup:
         return f"{self.source.key} ({self.date or 'latest'})"
 
 
-class RsyncSource(BaseSource, RsyncConnectionMixin):
+class RsyncSource(RsyncConnectionMixin, BaseSource):
     max_backups = models.PositiveSmallIntegerField(null=True, validators=[MinValueValidator(1)])
 
     source_name = 'rsync'
@@ -162,13 +178,8 @@ class RsyncSource(BaseSource, RsyncConnectionMixin):
         """
         Creates an incremental rsync backup
         """
-
-        # Rsync won't sync dotfiles in the root directory, unless you add a trailing slash
-        #   https://stackoverflow.com/q/9046749/1067337
-        # Pathlib automatically removes trailing slashes:
-        #   https://stackoverflow.com/a/47572467/1067337
         current_backup = RsyncBackup(self, datetime.now(pytz.UTC))
-        current_backup_path = str(current_backup.files_path.resolve() / '_')[:-1]  # Add trailing slash
+        current_backup_path = pathlib_to_rsync_path(current_backup.files_path)
 
         # Copy the latest backup's file to the current backup's dir. Rsync will overwrite those files, but only if they
         # are new. We use hard links, so no disk space is used.
@@ -185,8 +196,8 @@ class RsyncSource(BaseSource, RsyncConnectionMixin):
 
         # Run rsync. Only transfer files that are different from what's in the current backup.
         logger.info(f"Backing up {self.entry_source} to {current_backup_path}")
-        source_dir = self.path.strip().rstrip('/') + '/'
-        source_path = f'{self.user}@{self.host}:"{source_dir}"'
+        source_dir = pathlib_to_rsync_path(Path(self.path))
+        source_path = remote_rsync_path(self.user, self.host, source_dir)
         rsync_command = [
             "rsync",
             "-az",
@@ -247,5 +258,21 @@ class RsyncSource(BaseSource, RsyncConnectionMixin):
         return len(create_entries_from_files(backup.files_path, source=self, backup_date=backup.date))
 
 
-class RsyncDestination(BaseSource, RsyncConnectionMixin):
-    pass
+class RsyncDestination(RsyncConnectionMixin, BaseDestination):
+    """
+    Backs up the timeline using rsync
+    """
+    def process(self, force=False):
+        source_dir = pathlib_to_rsync_path(settings.DATA_ROOT)
+        destination_dir = pathlib_to_rsync_path(Path(self.path))
+        rsync_command = [
+            "rsync",
+            "-az",
+            "--itemize-changes",
+            "--delete",
+            "-e", f"ssh -p {self.port}",
+            "--timeout", "120",
+            source_dir,
+            remote_rsync_path(self.user, self.host, destination_dir),
+        ]
+        subprocess.check_call(rsync_command)
