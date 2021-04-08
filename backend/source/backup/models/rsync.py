@@ -233,8 +233,10 @@ class RsyncSource(RsyncConnectionMixin, BaseSource):
             return None
 
         # Hard link /latest to the current backup
+        # The root_path paths are absolute. We convert them to relative paths, to ensure they keep working if the
+        # backups are moved elsewhere.
         latest_backup.root_path.unlink(missing_ok=True)
-        latest_backup.root_path.symlink_to(current_backup.root_path, target_is_directory=True)
+        latest_backup.root_path.symlink_to(current_backup.root_path.name, target_is_directory=True)
 
         return current_backup
 

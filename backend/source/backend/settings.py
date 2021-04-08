@@ -9,7 +9,7 @@ STATIC_URL = '/api/static/'
 MEDIA_ROOT = '/'
 MEDIA_URL = '/'
 
-DATA_ROOT = Path('/data')  # Files that are included in the backup
+DATA_ROOT = Path('/data')  # Files that are included in backups
 ASSETS_ROOT = Path('/assets')  # Files that can be regenerated, and don't need to be backed up
 
 ARCHIVES_ROOT = DATA_ROOT / 'archives'
