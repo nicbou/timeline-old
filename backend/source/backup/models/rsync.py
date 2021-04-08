@@ -269,8 +269,8 @@ class RsyncDestination(RsyncConnectionMixin, BaseDestination):
         destination_dir = pathlib_to_rsync_path(Path(self.path))
         rsync_command = [
             "rsync",
-            "-az",
-            "--itemize-changes",
+            "-avz",
+            "-H",
             "--delete",
             "-e", f"ssh -p {self.port}",
             "--timeout", "120",
