@@ -3,6 +3,8 @@ services:
   timeline-backend:
     volumes:
       - /var/foldersync/photos:/data/mounts/photos
+      - /var/foldersync/screenshots:/data/mounts/screenshots
+      - /var/foldersync/telegram:/data/mounts/telegram
   proxy:
     networks:
       default:
