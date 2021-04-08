@@ -6,11 +6,9 @@ from .models.hackernews import HackerNewsSource
 from .models.rss import RssSource
 from .serializers import RsyncSourceSerializer, TwitterSourceSerializer, RedditSourceSerializer, \
     HackerNewsSourceSerializer, RssSourceSerializer, FileSystemSourceSerializer, RsyncDestinationSerializer
-from django.core.management import call_command
 from rest_framework import permissions
 from rest_framework import viewsets
 from rest_framework.exceptions import APIException, AuthenticationFailed
-from rest_framework.response import Response
 import logging
 
 from .utils.ssh import copy_ssh_keys, SSHCredentialsError, SSHTimeoutError
@@ -51,6 +49,7 @@ class RsyncSourceViewSet(viewsets.ModelViewSet):
 class RsyncDestinationViewSet(RsyncSourceViewSet):
     queryset = RsyncDestination.objects.all().order_by('key')
     serializer_class = RsyncDestinationSerializer
+    permission_classes = [permissions.AllowAny]
 
 
 class TwitterSourceViewSet(viewsets.ModelViewSet):
