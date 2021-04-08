@@ -6,7 +6,7 @@ import feedparser
 import pytz
 from django.db import models, transaction
 
-from backup.models.base import BaseSource
+from backup.models.source import BaseSource
 from timeline.models import Entry
 
 

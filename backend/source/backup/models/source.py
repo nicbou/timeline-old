@@ -19,11 +19,11 @@ class BaseSourceManager(models.Manager):
             try:
                 created_entries, updated_entries = source.process(force=force)
                 logger.info(
-                    f"Retrieved {created_entries + updated_entries} entries for {source}. "
+                    f"Retrieved {created_entries + updated_entries} entries for source {source}. "
                     f"{created_entries} created, {updated_entries} updated."
                 )
             except:
-                logger.exception(f"Failed to process {str(source)}")
+                logger.exception(f"Failed to process source {str(source)}")
                 failure_count += 1
                 pass
         logger.info(f"{source_count} sources processed. "

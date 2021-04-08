@@ -10,11 +10,22 @@ from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models, transaction
 
-from backup.models.base import BaseSource
+from backup.models.source import BaseSource
 from backup.utils.datetime import datetime_to_json
 from backup.utils.files import get_files_in_dir, create_entries_from_files
 
 logger = logging.getLogger(__name__)
+
+
+class RsyncConnectionMixin:
+    user = models.CharField(max_length=80, blank=False)
+    host = models.CharField(max_length=255, blank=False)
+    port = models.PositiveIntegerField(default=22, validators=[MaxValueValidator(65535)])
+    path = models.TextField(blank=False)
+    key = models.CharField(max_length=80, blank=False, unique=True)
+
+    def __str__(self):
+        return f"{super().__str__()} ({self.user}@{self.host}:{self.port}, {self.path})"
 
 
 class RsyncBackup:
@@ -96,15 +107,14 @@ class RsyncBackup:
         return f"{self.source.key} ({self.date or 'latest'})"
 
 
-class RsyncSource(BaseSource):
-    user = models.CharField(max_length=80, blank=False)
-    host = models.CharField(max_length=255, blank=False)
-    port = models.PositiveIntegerField(default=22, validators=[MaxValueValidator(65535)])
-    path = models.TextField(blank=False)
-    key = models.CharField(max_length=80, blank=False, unique=True)
+class RsyncSource(BaseSource, RsyncConnectionMixin):
     max_backups = models.PositiveSmallIntegerField(null=True, validators=[MinValueValidator(1)])
 
     source_name = 'rsync'
+
+    @property
+    def source_id(self) -> str:
+        return str(self.key)
 
     @property
     def backups_root(self) -> Path:
@@ -236,5 +246,6 @@ class RsyncSource(BaseSource):
         logger.info(f"Creating entries for {str(backup)}")
         return len(create_entries_from_files(backup.files_path, source=self, backup_date=backup.date))
 
-    def __str__(self):
-        return f"{self.source_name}/{self.key} ({self.user}@{self.host}:{self.port}, {self.path})"
+
+class RsyncDestination(BaseSource, RsyncConnectionMixin):
+    pass

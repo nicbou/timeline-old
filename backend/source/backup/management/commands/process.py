@@ -4,7 +4,7 @@ from typing import List
 from django.apps import apps
 from django.core.management import BaseCommand
 
-from backup.models.base import BaseSource
+from backup.models.source import BaseSource
 
 
 logger = logging.getLogger(__name__)

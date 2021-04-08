@@ -8,7 +8,7 @@ import pytz
 from django.db import models, transaction
 
 from backend.settings import ARCHIVES_ROOT
-from backup.models.base import BaseSource
+from backup.models.source import BaseSource
 from timeline.models import Entry
 
 logger = logging.getLogger(__name__)
