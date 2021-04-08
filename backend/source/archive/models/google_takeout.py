@@ -8,6 +8,7 @@ from typing import Iterable
 import pytz
 
 from archive.models.base import BaseArchive, CompressedArchive
+from backup.utils.datetime import json_to_datetime
 from timeline.models import Entry
 
 logger = logging.getLogger(__name__)
@@ -183,7 +184,7 @@ class GoogleTakeoutArchive(CompressedArchive):
                     try:
                         time = datetime.strptime(entry['time'], '%Y-%m-%dT%H:%M:%S.%fZ')
                     except ValueError:
-                        time = datetime.strptime(entry['time'], '%Y-%m-%dT%H:%M:%SZ')
+                        time = json_to_datetime(entry['time'])
 
                     extra_attributes = {}
                     if entry.get('titleUrl'):

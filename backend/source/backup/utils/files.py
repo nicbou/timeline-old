@@ -8,7 +8,7 @@ from collections import Generator
 from datetime import datetime
 from fnmatch import fnmatch
 from pathlib import Path
-from typing import Iterable, List
+from typing import Iterable, List, Optional
 
 import pytz
 from PIL import Image
@@ -16,6 +16,7 @@ from PIL.ExifTags import TAGS, GPSTAGS
 
 from backend import settings
 from backup.models.base import BaseSource
+from backup.utils.datetime import parse_exif_date, datetime_to_json, json_to_datetime
 from timeline.geo_utils import dms_to_decimal
 from timeline.models import Entry
 
@@ -26,7 +27,7 @@ def get_modification_date(file_path: Path) -> datetime:
     return datetime.fromtimestamp(file_path.stat().st_mtime, pytz.UTC)
 
 
-def get_filename_date(file_path: Path) -> datetime:
+def get_filename_date(file_path: Path) -> Optional[datetime]:
     default_timezone = 'Europe/Berlin'  # TODO: If this thing gets a million users, that assumption could be wrong
     date_regex = "(\d{4})-([0][1-9]|1[0-2])-([0-2][1-9]|[1-3]0|3[01])"
     if matches := re.search(f'.*({date_regex})$', file_path.stem):
@@ -132,7 +133,7 @@ def create_entries_from_files(path: Path, source: BaseSource, backup_date: datet
                     'path': str(file.resolve()),
                     'checksum': checksum,
                 },
-                'backup_date': backup_date.strftime('%Y-%m-%dT%H:%M:%SZ'),
+                'backup_date': datetime_to_json(backup_date),
             }
         )
 
@@ -170,7 +171,7 @@ def create_entries_from_files(path: Path, source: BaseSource, backup_date: datet
         elif exif_date := entry.extra_attributes.get('media', {}).get('creation_date'):
             entry.date_on_timeline = min(
                 entry.date_on_timeline,
-                pytz.utc.localize(datetime.strptime(exif_date, '%Y-%m-%dT%H:%M:%SZ'))
+                json_to_datetime(exif_date)
             )
 
         entries_to_create.append(entry)
@@ -290,6 +291,7 @@ def get_exif(input_path: Path) -> dict:
     return exif
 
 
+
 def get_metadata_from_exif(input_path: Path) -> dict:
     metadata = {}
     try:
@@ -327,16 +329,15 @@ def get_metadata_from_exif(input_path: Path) -> dict:
             gps_date = exif['GPSInfo']['GPSDateStamp']
             gps_time = ":".join(f"{float(timefragment):02.0f}" for timefragment in exif['GPSInfo']['GPSTimeStamp'])
             metadata['media'] = metadata.get('media', {})
-            metadata['media']['creation_date'] = datetime\
-                .strptime(f"{gps_date} {gps_time}".replace('\x00', '').replace('-', ':'), '%Y:%m:%d %H:%M:%S')\
-                .strftime('%Y-%m-%dT%H:%M:%SZ')
+            metadata['media']['creation_date'] = datetime_to_json(parse_exif_date(f"{gps_date} {gps_time}"))
         except KeyError:
             pass
-    elif 'DateTimeOriginal' in exif:
+    elif exif_date := (exif.get('DateTimeOriginal') or exif.get('DateTime')):
         # There is no timezone information on this date
-        metadata['media'] = metadata.get('media', {})
-        metadata['media']['creation_date'] = datetime\
-            .strptime(exif['DateTimeOriginal'].replace('\x00', '').replace('-', ':'), '%Y:%m:%d %H:%M:%S')\
-            .strftime('%Y-%m-%dT%H:%M:%SZ')
+        try:
+            metadata['media'] = metadata.get('media', {})
+            metadata['media']['creation_date'] = datetime_to_json(parse_exif_date(exif_date))
+        except ValueError:
+            logging.exception(f"Could not parse EXIF date '{exif_date}'")
 
     return metadata

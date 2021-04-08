@@ -11,6 +11,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models, transaction
 
 from backup.models.base import BaseSource
+from backup.utils.datetime import datetime_to_json
 from backup.utils.files import get_files_in_dir, create_entries_from_files
 
 logger = logging.getLogger(__name__)
@@ -21,7 +22,7 @@ class RsyncBackup:
 
     source = None
     date = None
-    date_format = '%Y-%m-%dT%H.%M.%SZ'  # Using colons would break things
+    date_format = '%Y-%m-%dT%H.%M.%SZ'  # Colons are not always allowed in file names
     latest_backup_dirname = 'latest'
 
     def __init__(self, source: 'RsyncSource', date: datetime = None, path: Path = None):
@@ -31,7 +32,7 @@ class RsyncBackup:
         elif path:
             if path.name != self.latest_backup_dirname:
                 try:
-                    self.date = datetime.strptime(path.name, "%Y-%m-%dT%H.%M.%SZ")
+                    self.date = datetime.strptime(path.name, self.date_format)
                 except ValueError:
                     raise ValueError("Invalid path specified. Not a backup directory.")
 
@@ -80,7 +81,7 @@ class RsyncBackup:
         return get_files_in_dir(self.files_path)
 
     def get_entries(self):
-        return self.source.get_entries().filter(extra_attributes__backup_date=self.date.strftime('%Y-%m-%dT%H:%M:%SZ'))
+        return self.source.get_entries().filter(extra_attributes__backup_date=datetime_to_json(self.date))
 
     @transaction.atomic
     def delete(self):

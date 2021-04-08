@@ -4,6 +4,7 @@ from collections import Generator
 import gpxpy as gpxpy
 
 from archive.models.base import BaseArchive
+from backup.utils.datetime import datetime_to_json
 from timeline.models import Entry
 
 logger = logging.getLogger(__name__)
@@ -15,7 +16,7 @@ class GpxArchive(BaseArchive):
     """
     source_name = 'gpx'
 
-    def entry_from_point(self, point):
+    def entry_from_point(self, point) -> Entry:
         return Entry(
             schema='activity.location',
             source=self.entry_source,
@@ -28,7 +29,7 @@ class GpxArchive(BaseArchive):
                     'altitude': point.elevation,
                 },
             },
-            date_on_timeline=point.time.strftime('%Y-%m-%dT%H:%M:%SZ')
+            date_on_timeline=datetime_to_json(point.time)
         )
 
     def extract_entries(self) -> Generator[Entry, None, None]:
