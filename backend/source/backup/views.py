@@ -26,7 +26,8 @@ class RsyncSourceViewSet(viewsets.ModelViewSet):
     serializer_class = RsyncSourceSerializer
     permission_classes = [permissions.AllowAny]
 
-    def perform_create(self, serializer):
+    @staticmethod
+    def copy_ssh_keys(serializer):
         data = serializer.validated_data
         try:
             logger.info(f"Copying SSH keys to {data['host']}")
@@ -38,7 +39,13 @@ class RsyncSourceViewSet(viewsets.ModelViewSet):
         except:
             raise APIException('Could not fetch SSH keys.')
 
+    def perform_create(self, serializer):
+        self.copy_ssh_keys(serializer)
         return super().perform_create(serializer)
+
+    def perform_update(self, serializer):
+        self.copy_ssh_keys(serializer)
+        return super().perform_update(serializer)
 
 
 class RsyncDestinationViewSet(RsyncSourceViewSet):
