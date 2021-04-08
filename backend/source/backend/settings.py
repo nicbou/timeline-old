@@ -17,6 +17,7 @@ BACKUPS_ROOT = DATA_ROOT / 'backups'
 MOUNTS_ROOT = DATA_ROOT / 'mounts'
 PREVIEWS_ROOT = ASSETS_ROOT / 'previews'
 STATIC_ROOT = ASSETS_ROOT / 'static'
+ENTRIES_DUMP_PATH = DATA_ROOT / 'all-entries.json'
 
 SSH_DIR = '/root/.ssh'
 TIMELINE_INCLUDE_FILE = '.timelineinclude'

@@ -9,11 +9,14 @@ import pytz
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models, transaction
+from rest_framework.renderers import JSONRenderer
 
 from backup.models.destination import BaseDestination
 from backup.models.source import BaseSource
 from backup.utils.datetime import datetime_to_json
 from backup.utils.files import get_files_in_dir, create_entries_from_files
+from timeline.models import Entry
+from timeline.serializers import EntrySerializer
 
 logger = logging.getLogger(__name__)
 
@@ -264,13 +267,26 @@ class RsyncDestination(RsyncConnectionMixin, BaseDestination):
     """
     Backs up the timeline using rsync
     """
+    @staticmethod
+    def dump_entries():
+        with settings.ENTRIES_DUMP_PATH.open('w+') as entry_dump:
+            entry_dump.write('[')
+            entries = Entry.objects.iterator(chunk_size=5000)
+            for index, entry in enumerate(entries):
+                if index > 0:
+                    entry_dump.write(',')
+                entry_dump.write(JSONRenderer().render(EntrySerializer(entry).data).decode("utf-8"))
+            entry_dump.write(']')
+
     def process(self, force=False):
+        self.dump_entries()
+
         source_dir = pathlib_to_rsync_path(settings.DATA_ROOT)
         destination_dir = pathlib_to_rsync_path(Path(self.path))
         rsync_command = [
             "rsync",
-            "-avz",
-            "-H",
+            "-az",
+            "-H",  # Preserve hard links. Avoids retransfering hard linked files in incremental backups
             "--delete",
             "-e", f"ssh -p {self.port}",
             "--timeout", "120",
