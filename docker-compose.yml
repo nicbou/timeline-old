@@ -21,7 +21,6 @@ services:
       - backups:/data/backups
       - previews:/data/previews
       - backend_staticfiles:/assets/static
-      - ./scripts:/usr/src/scripts:ro
       - ssh_keys:/root/.ssh
     logging:
       options:

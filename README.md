@@ -75,7 +75,7 @@ New sources can be added directly through the API. You can browse the API at `/a
 
 ### RsyncSource
 
-API URL: `/api/backup/rsyncsources`
+API URL: `/api/backup/rsyncsource`
 
 It uses rsync to synchronise files from a local or remote filesystem. RsyncSource creates incremental backups. The files in the latest backup are then turned into Entries. Files in older backups are ignored.
 
@@ -104,7 +104,7 @@ documents/invoices
 
 ### FileSystemSource
 
-API URL: `/api/backup/filesystemsources`
+API URL: `/api/backup/filesystemsource`
 
 Describes a directory on the local filesystem. Entries are created from the files in that directory.
 
@@ -122,7 +122,7 @@ A FileSystemSource requires more initial configuration than an RsyncSource, but 
 
 ### TwitterSource
 
-API URL: `/api/backup/twittersources`
+API URL: `/api/backup/twittersource`
 
 Describes a source of tweets. Requires Twitter API credentials. If you can't get API credentials, upload a Twitter dump with `TwitterArchive`.
 
@@ -136,7 +136,7 @@ Describes a source of tweets. Requires Twitter API credentials. If you can't get
 
 ### RedditSource
 
-API URL: `/api/backup/redditsources`
+API URL: `/api/backup/redditsource`
 
 Describes a source of reddit posts and comments.
 
@@ -179,7 +179,7 @@ New archives can be added directly through the API. You can browse the API at `/
 
 ### JsonArchive
 
-API URL: `/api/archive/jsonarchives`
+API URL: `/api/archive/jsonarchive`
 
 Imports a list of Entry objects from a JSON file. It expects the same format as the API. The entries in the JSON file are imported as-is, but the `source` attribute is overridden, and the `id` attribute is ignored.
 
@@ -187,13 +187,13 @@ This is useful for one-off data imports. For example, I use it to process an SMS
 
 ### GpxArchive
 
-API URL: `/api/archive/gpxarchives`
+API URL: `/api/archive/gpxarchive`
 
 Imports a list of `activity.location` Entries from a GPX file. All points from tracks and routes are imported, and all waypoints.
 
 ### GoogleTakeoutArchive
 
-API URL: `/api/archive/googletakeoutarchives`
+API URL: `/api/archive/googletakeoutarchive`
 
 Imports various data from a Google Takeout export:
 

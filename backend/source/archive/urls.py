@@ -4,11 +4,11 @@ from .views import GoogleTakeoutArchiveViewSet, TwitterArchiveViewSet, JsonArchi
     N26CsvArchiveViewSet
 
 router = routers.DefaultRouter()
-router.register(r'googletakeoutarchives', GoogleTakeoutArchiveViewSet)
-router.register(r'twitterarchives', TwitterArchiveViewSet)
-router.register(r'jsonarchives', JsonArchiveViewSet)
-router.register(r'gpxarchives', GpxArchiveViewSet)
-router.register(r'n26csvarchives', N26CsvArchiveViewSet)
+router.register(r'googletakeoutarchive', GoogleTakeoutArchiveViewSet)
+router.register(r'twitterarchive', TwitterArchiveViewSet)
+router.register(r'jsonarchive', JsonArchiveViewSet)
+router.register(r'gpxarchive', GpxArchiveViewSet)
+router.register(r'n26csvarchive', N26CsvArchiveViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
