@@ -17,7 +17,7 @@ from PIL.ExifTags import TAGS, GPSTAGS
 from backend import settings
 from backup.models.source import BaseSource
 from backup.utils.datetime import parse_exif_date, datetime_to_json, json_to_datetime
-from timeline.geo_utils import dms_to_decimal
+from backup.utils.geo import dms_to_decimal
 from timeline.models import Entry
 
 logger = logging.getLogger(__name__)
