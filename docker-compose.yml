@@ -17,10 +17,10 @@ services:
       - timeline-db
     volumes:
       - ./backend/source:/usr/src/app
-      - archives:/srv/archives
-      - backups:/srv/backups
-      - previews:/srv/previews
-      - backend_staticfiles:/srv/static
+      - archives:/data/archives
+      - backups:/data/backups
+      - previews:/data/previews
+      - backend_staticfiles:/assets/static
       - ./scripts:/usr/src/scripts:ro
       - ssh_keys:/root/.ssh
     logging:
@@ -64,10 +64,10 @@ services:
       - timeline-frontend
       - timeline-backend
     volumes:
-      - archives:/srv/archives
-      - backups:/srv/backups
-      - previews:/srv/previews
-      - backend_staticfiles:/srv/static
+      - archives:/data/archives
+      - backups:/data/backups
+      - previews:/assets/previews
+      - backend_staticfiles:/assets/static
     logging:
       options:
         max-size: "200k"

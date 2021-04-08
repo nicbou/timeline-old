@@ -67,7 +67,7 @@ Entries also have a `source` attribute. This allows you to query entries that ar
 
 API URL: `/api/backup`
 
-Sources are suited for frequent, automatic data imports. You add a source (an API, an RSS feed, etc) to monitor, and new data is automatically imported.
+A Source is a source of data. Sources are suited for frequent, automatic data imports. You add a source (an API, an RSS feed, etc) to monitor, and new data is automatically imported.
 
 For example, you can use them to automatically import photos from your phone, import your new tweets, or watch a website for new posts.
 
@@ -94,7 +94,7 @@ documents/invoices
 
 **Required fields:**
 
-* `host`: hostname of the remote machine (e.g. "home.nicolasbouliane.com" or "localhost")
+* `host`: hostname of the remote machine (e.g. "home.nicolasbouliane.com")
 * `port`: SSH port on the remote machine (e.g. "22")
 * `user`: SSH user on the remote machine (e.g. "backups")
 * `password`: SSH password on the remote machine. This will be used to copy SSH keys. The password is never stored.
@@ -112,13 +112,13 @@ A FileSystemSource requires more initial configuration than an RsyncSource, but 
 
 **Usage:**
 
-1. Mount a volume under `/srv/mounts` on the `timeline-backend` image. You can find an example in `docker-compose.homeserver.yml`.
+1. Mount a volume under `/data/mounts` on the `timeline-backend` image. You can find an example in `docker-compose.homeserver.yml`.
 2. Create a `.timelineinclude` file in the mounted volume. It lists which files will appear on the timeline. If you want all files to appear on the timeline, add two line to that file: `*` and `**/*`.
 3. Create a FileSystemSource through the API.
 
 **Required fields:**
 
-* `path`: path of the source directory, relative to `/srv/mounts`
+* `path`: path of the source directory, relative to `/data/mounts`
 
 ### TwitterSource
 
@@ -171,7 +171,7 @@ Describes a RSS feed.
 
 API URL: `/api/archive`
 
-Archives are for irregular, manual data imports. You upload a file or an archive, and it's turned into new Entries. For example, you can use them to import GPS logs, GDPR data exports, email dumps etc.
+An archive is a source of data. Archives are for irregular, manual data imports. You upload a file or an archive, and it's turned into new Entries. For example, you can use them to import GPS logs, GDPR data exports, email dumps etc.
 
 Unlike Sources, Archives are only processed once. After processing, original archive is preserved. 
 

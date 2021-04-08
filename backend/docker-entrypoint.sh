@@ -13,15 +13,15 @@ touch /var/log/backend/access.log
 tail -n 0 -f /var/log/backend/*.log &
 
 # Activate cron with all Django environment variables
-> /srv/cronenv
-printf "export BACKEND_SECRET_KEY=%q\n" "${BACKEND_SECRET_KEY}" >> /srv/cronenv
+> /etc/timeline-cronenv
+printf "export BACKEND_SECRET_KEY=%q\n" "${BACKEND_SECRET_KEY}" >> /etc/timeline-cronenv
 
 mkfifo /tmp/stdout /tmp/stderr
 chmod 0666 /tmp/stdout /tmp/stderr
 tail -f /tmp/stdout &
 tail -f /tmp/stderr >&2 &
 
-crontab /srv/crontab
+crontab /etc/timeline-crontab
 service cron start
 
 # Start Gunicorn processes

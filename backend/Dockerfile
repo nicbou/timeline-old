@@ -28,9 +28,9 @@ COPY requirements.txt ./
 RUN pip install -r requirements.txt
 
 COPY ssh_config /etc/ssh/ssh_config
-COPY crontab /srv/crontab
+COPY crontab /etc/timeline-crontab
 
-RUN mkdir -p /srv/mounts
+RUN mkdir -p /data/mounts
 
 # Start the backend
 WORKDIR /usr/src/app

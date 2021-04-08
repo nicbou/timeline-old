@@ -5,13 +5,17 @@ import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-STATIC_ROOT = '/srv/static'
+STATIC_ROOT = '/assets/static'
+STATIC_URL = '/api/static/'
 MEDIA_ROOT = '/'
 MEDIA_URL = '/'
-ARCHIVES_ROOT = Path('/srv/archives')
-BACKUPS_ROOT = Path('/srv/backups')
-PREVIEWS_ROOT = Path('/srv/previews')
-MOUNTS_ROOT = Path('/srv/mounts')
+
+# /data: Data that can be served, and must be backed up
+# /
+ARCHIVES_ROOT = Path('/data/archives')
+BACKUPS_ROOT = Path('/data/backups')
+PREVIEWS_ROOT = Path('/assets/previews')
+MOUNTS_ROOT = Path('/data/mounts')
 DEFAULT_PREVIEW_SUBDIR = 'other'  # Usually, it's the source name
 SSH_DIR = '/root/.ssh'
 TIMELINE_INCLUDE_FILE = '.timelineinclude'
@@ -193,7 +197,3 @@ TIME_ZONE = 'UTC'
 USE_I18N = False
 USE_L10N = False
 USE_TZ = True
-
-
-# Static files (CSS, JavaScript, Images)
-STATIC_URL = '/api/static/'
