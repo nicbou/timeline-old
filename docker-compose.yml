@@ -19,7 +19,7 @@ services:
       - ./backend/source:/usr/src/app
       - archives:/data/archives
       - backups:/data/backups
-      - previews:/data/previews
+      - previews:/assets/previews
       - backend_staticfiles:/assets/static
       - ssh_keys:/root/.ssh
     logging:
