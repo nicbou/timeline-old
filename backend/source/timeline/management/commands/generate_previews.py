@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
-from timeline.file_utils import generate_pdf_preview, generate_video_preview, generate_image_preview
+from timeline.utils.files import generate_pdf_preview, generate_video_preview, generate_image_preview
 from timeline.models import Entry
 
 logger = logging.getLogger(__name__)
