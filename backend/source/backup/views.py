@@ -1,4 +1,3 @@
-from .management.commands.copy_ssh_keys import SSHTimeoutError, SSHCredentialsError
 from .models import FileSystemSource
 from .models.rsync import RsyncSource, RsyncDestination
 from .models.twitter import TwitterSource
@@ -14,6 +13,8 @@ from rest_framework.exceptions import APIException, AuthenticationFailed
 from rest_framework.response import Response
 import logging
 
+from .utils.ssh import copy_ssh_keys, SSHCredentialsError, SSHTimeoutError
+
 logger = logging.getLogger(__name__)
 
 
@@ -28,17 +29,14 @@ class RsyncSourceViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         data = serializer.validated_data
         try:
-            call_command(
-                'copy_ssh_keys',
-                user=data.get('user'),
-                password=data.pop('password'),
-                host=data.get('host'),
-                port=data.get('port'),
-            )
+            logger.info(f"Copying SSH keys to {data['host']}")
+            copy_ssh_keys(data['host'], data['port'], data['user'], data['password'])
         except SSHCredentialsError:
             raise AuthenticationFailed('Could not fetch SSH keys. The credentials are incorrect.')
         except SSHTimeoutError:
             raise APIException('Could not fetch SSH keys. The operation timed out. Are the host and port correct?')
+        except:
+            raise APIException('Could not fetch SSH keys.')
 
         return super().perform_create(serializer)
 

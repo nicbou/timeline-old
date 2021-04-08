@@ -19,7 +19,7 @@ PREVIEWS_ROOT = ASSETS_ROOT / 'previews'
 STATIC_ROOT = ASSETS_ROOT / 'static'
 ENTRIES_DUMP_PATH = DATA_ROOT / 'all-entries.json'
 
-SSH_DIR = '/root/.ssh'
+SSH_DIR = Path('/root/.ssh')
 TIMELINE_INCLUDE_FILE = '.timelineinclude'
 
 
