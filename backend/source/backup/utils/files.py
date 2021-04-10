@@ -119,7 +119,12 @@ def create_entries_from_files(path: Path, source: BaseSource, backup_date: datet
 
     entries_to_create = []
     for file in files:
-        checksum = inode_checksum_cache.get(file.stat().st_ino) or get_checksum(file)
+        try:
+            checksum = inode_checksum_cache.get(file.stat().st_ino) or get_checksum(file)
+        except OSError:
+            logger.exception(f"Could not generate checksum for {str(file)}")
+            continue
+
         mimetype = get_mimetype(file)
         schema = get_schema_from_mimetype(mimetype)
         entry = Entry(
