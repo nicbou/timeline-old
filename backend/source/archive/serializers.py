@@ -6,30 +6,40 @@ from archive.models.twitter import TwitterArchive
 
 
 class GoogleTakeoutArchiveSerializer(serializers.HyperlinkedModelSerializer):
+    key = serializers.CharField()
+
     class Meta:
         model = GoogleTakeoutArchive
-        fields = ['key', 'description', 'date_processed', 'archive_file']
+        fields = '__all__'
 
 
 class TwitterArchiveSerializer(serializers.HyperlinkedModelSerializer):
+    key = serializers.CharField()
+
     class Meta:
         model = TwitterArchive
-        fields = ['key', 'description', 'date_processed', 'archive_file']
+        fields = '__all__'
 
 
 class JsonArchiveSerializer(serializers.HyperlinkedModelSerializer):
+    key = serializers.CharField()
+
     class Meta:
         model = JsonArchive
-        fields = ['key', 'description', 'date_processed', 'archive_file']
+        fields = '__all__'
 
 
 class GpxArchiveSerializer(serializers.HyperlinkedModelSerializer):
+    key = serializers.CharField()
+
     class Meta:
         model = GpxArchive
-        fields = ['key', 'description', 'date_processed', 'archive_file']
+        fields = '__all__'
 
 
 class N26CsvArchiveSerializer(serializers.HyperlinkedModelSerializer):
+    key = serializers.CharField()
+
     class Meta:
         model = N26CsvArchive
-        fields = ['key', 'description', 'date_processed', 'archive_file']
+        fields = '__all__'
