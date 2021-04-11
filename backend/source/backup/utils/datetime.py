@@ -7,7 +7,7 @@ def parse_exif_date(date_str: str) -> datetime:
     # Official format: YYYY:MM:DD HH:MM:SS
     # Also seen: YYYY-MM-DD HH:MM:SS and YYYY-MM-DDTHH:MM:SS+ZZZZ
     return datetime.strptime(
-        date_str.replace('\x00', '').replace('-', ':').replace('T', ' '),
+        date_str.replace('\x00', '').replace('-', ':').replace('T', ' ')[:19],
         '%Y:%m:%d %H:%M:%S'
     )
 

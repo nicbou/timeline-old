@@ -330,11 +330,15 @@ def get_metadata_from_exif(input_path: Path) -> dict:
 
     if 'GPSDateStamp' in exif.get('GPSInfo', {}) and 'GPSTimeStamp' in exif.get('GPSInfo', {}):
         # GPS dates are UTC
+        gps_datetime = ''
         try:
             gps_date = exif['GPSInfo']['GPSDateStamp']
-            gps_time = ":".join(f"{float(timefragment):02.0f}" for timefragment in exif['GPSInfo']['GPSTimeStamp'])
+            gps_time = ":".join(f"{int(timefragment):02}" for timefragment in exif['GPSInfo']['GPSTimeStamp'])
+            gps_datetime = f"{gps_date} {gps_time}"
             metadata['media'] = metadata.get('media', {})
-            metadata['media']['creation_date'] = datetime_to_json(parse_exif_date(f"{gps_date} {gps_time}"))
+            metadata['media']['creation_date'] = datetime_to_json(parse_exif_date(gps_datetime))
+        except ValueError:
+            logging.exception(f"Could not parse EXIF GPS date '{gps_datetime}'")
         except KeyError:
             pass
     elif exif_date := (exif.get('DateTimeOriginal') or exif.get('DateTime')):
