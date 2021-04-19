@@ -154,7 +154,7 @@ def create_entries_from_files(path: Path, source: BaseSource, backup_date: datet
         else:
             if schema == 'file.text' or schema.startswith('file.text'):
                 try:
-                    _set_plaintext_description(entry)
+                    _set_entry_plaintext_description(entry)
                 except:
                     logger.exception(
                         f"Could not set plain text description for file {entry.extra_attributes['file']['path']}")
@@ -167,7 +167,7 @@ def create_entries_from_files(path: Path, source: BaseSource, backup_date: datet
 
             if schema == 'file.image' or schema.startswith('file.image'):
                 try:
-                    _set_exif_metadata(entry)
+                    _set_entry_exif_metadata(entry)
                 except:
                     logger.exception(f"Could not set exif metadata for file {entry.extra_attributes['file']['path']}")
 
@@ -210,7 +210,7 @@ def _set_media_metadata(entry: Entry):
         raise
 
 
-def _set_exif_metadata(entry: Entry):
+def _set_entry_exif_metadata(entry: Entry):
     if 'camera' in entry.extra_attributes.get('media', {}) or 'location' in entry.extra_attributes:
         # TODO: Photos with missing exif data will be reprocessed
         return
@@ -222,12 +222,18 @@ def _set_exif_metadata(entry: Entry):
             entry.extra_attributes['media'].update(metadata['media'])
         if 'location' in metadata:
             entry.extra_attributes['location'] = metadata['location']
+
+        if 'title' in metadata:
+            entry.title = metadata.pop('title')
+
+        if 'description' in metadata:
+            entry.description = metadata.pop('description')
     except:
         logger.exception(f"Could not read exif from file {original_path}")
         raise
 
 
-def _set_plaintext_description(entry: Entry):
+def _set_entry_plaintext_description(entry: Entry):
     """
     Sets the description attribute for plain text files
     """
@@ -247,6 +253,9 @@ def get_checksum(file_path: Path) -> str:
 
 
 def get_media_metadata(input_path: Path) -> dict:
+    """
+    Extracts metadata (resolution, duration, codec...) from images and videos
+    """
     ffprobe_cmd = subprocess.run(
         [
             'ffprobe',
@@ -273,7 +282,7 @@ def get_media_metadata(input_path: Path) -> dict:
     return metadata
 
 
-def get_exif(input_path: Path) -> dict:
+def get_exif_from_image(input_path: Path) -> dict:
     image = Image.open(input_path)
     image.verify()
     raw_exif = image.getexif()
@@ -296,14 +305,14 @@ def get_exif(input_path: Path) -> dict:
     return exif
 
 
-
 def get_metadata_from_exif(input_path: Path) -> dict:
     metadata = {}
     try:
-        exif = get_exif(input_path)
+        exif = get_exif_from_image(input_path)
     except:
         return metadata
 
+    # Geolocation
     if 'GPSInfo' in exif:
         metadata['location'] = {}
         if 'GPSLatitude' in exif['GPSInfo'] and 'GPSLongitude' in exif['GPSInfo']:
@@ -324,10 +333,12 @@ def get_metadata_from_exif(input_path: Path) -> dict:
         if 'GPSDestBearing' in exif['GPSInfo']:
             metadata['location']['bearing'] = float(exif['GPSInfo']['GPSDestBearing'])
 
+    # Camera info
     if 'Make' in exif or 'Model' in exif:
         metadata['media'] = metadata.get('media', {})
         metadata['media']['camera'] = f"{exif.get('Make', '')} {exif.get('Model', '')}".replace('\x00', '').strip()
 
+    # Date
     if 'GPSDateStamp' in exif.get('GPSInfo', {}) and 'GPSTimeStamp' in exif.get('GPSInfo', {}):
         # GPS dates are UTC
         gps_datetime = ''
@@ -348,5 +359,16 @@ def get_metadata_from_exif(input_path: Path) -> dict:
             metadata['media']['creation_date'] = datetime_to_json(parse_exif_date(exif_date))
         except ValueError:
             logging.exception(f"Could not parse EXIF date '{exif_date}'")
+
+    # Title and description
+    def _get_longest_exif_value(fields):
+        values = [str(exif[field]).strip() for field in fields if field in exif]
+        return sorted(values, key=len, reverse=True)[0] if values else None
+
+    if title := _get_longest_exif_value(exif, ('DocumentName', 'XPTitle', 'XPSubject')):
+        metadata['title'] = title
+
+    if description := _get_longest_exif_value(exif, ('ImageDescription', 'XPComment', 'Description')):
+        metadata['description'] = description
 
     return metadata
