@@ -29,7 +29,7 @@ class RsyncSourceViewSet(viewsets.ModelViewSet):
         data = serializer.validated_data
         try:
             logger.info(f"Copying SSH keys to {data['host']}")
-            copy_ssh_keys(data['host'], data['port'], data['user'], data['password'])
+            copy_ssh_keys(data['host'], data['port'], data['user'], data['password'], data['key_exchange_method'])
         except SSHCredentialsError:
             raise AuthenticationFailed('Could not fetch SSH keys. The credentials are incorrect.')
         except SSHTimeoutError:
@@ -39,10 +39,12 @@ class RsyncSourceViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         self.copy_ssh_keys(serializer)
+        serializer.validated_data.pop('password')
         return super().perform_create(serializer)
 
     def perform_update(self, serializer):
         self.copy_ssh_keys(serializer)
+        serializer.validated_data.pop('password')
         return super().perform_update(serializer)
 
 

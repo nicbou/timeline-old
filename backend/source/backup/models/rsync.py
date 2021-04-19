@@ -15,6 +15,7 @@ from backup.models.destination import BaseDestination
 from backup.models.source import BaseSource
 from backup.utils.datetime import datetime_to_json
 from backup.utils.files import get_files_in_dir, create_entries_from_files
+from backup.utils.ssh import KEY_EXCHANGE_SSH_COPY_ID, KEY_EXCHANGE_METHODS
 from timeline.models import Entry
 from timeline.serializers import EntrySerializer
 
@@ -22,11 +23,14 @@ logger = logging.getLogger(__name__)
 
 
 def pathlib_to_rsync_path(path: Path) -> str:
+    return str_to_rsync_path(str(path.resolve()))
+
+def str_to_rsync_path(path: str) -> str:
     # Rsync won't sync dotfiles in the root directory, unless you add a trailing slash
     #   https://stackoverflow.com/q/9046749/1067337
     # Pathlib automatically removes trailing slashes:
     #   https://stackoverflow.com/a/47572467/1067337
-    return str(path.resolve()).strip().rstrip('/') + '/'
+    return path.strip().rstrip('/') + '/'
 
 
 def remote_rsync_path(user: str, host: str, path: str) -> str:
@@ -39,6 +43,11 @@ class RsyncConnectionMixin(models.Model):
     port = models.PositiveIntegerField(default=22, validators=[MaxValueValidator(65535)])
     path = models.TextField(blank=False)
     key = models.CharField(max_length=80, blank=False, unique=True)
+    key_exchange_method = models.CharField(
+        max_length=20,
+        choices=[(method, method) for method in KEY_EXCHANGE_METHODS],
+        default=KEY_EXCHANGE_SSH_COPY_ID
+    )
 
     class Meta:
         abstract = True
@@ -279,18 +288,21 @@ class RsyncDestination(RsyncConnectionMixin, BaseDestination):
             entry_dump.write(']')
 
     def process(self, force=False):
+        logger.info("Dumping all entries")
         self.dump_entries()
 
         source_dir = pathlib_to_rsync_path(settings.DATA_ROOT)
-        destination_dir = pathlib_to_rsync_path(Path(self.path))
+        destination_dir = str_to_rsync_path(self.path)
+        remote_destination = remote_rsync_path(self.user, self.host, destination_dir)
+        logger.info(f"Exporting data with rsync to {remote_destination}")
         rsync_command = [
             "rsync",
             "-az",
             "-H",  # Preserve hard links. Avoids retransfering hard linked files in incremental backups
             "--delete",
-            "-e", f"ssh -p {self.port}",
+            "-e", f"ssh -p{self.port}",
             "--timeout", "120",
             source_dir,
-            remote_rsync_path(self.user, self.host, destination_dir),
+            remote_destination,
         ]
         subprocess.check_call(rsync_command)
