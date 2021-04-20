@@ -1,59 +1,68 @@
 # Personal timeline
 
-This software collects my data (files, articles, comments, geolocation...) from different sources, and displays it on a timeline. It's a mix between a personal diary, a personal history, photo stream and backup tool.
+## Introduction
 
-## The backend
+This software collects personal data (files, articles, comments, geolocation...) from different sources, and shows it on a timeline. It backs up the data it collects to remote locations.
 
-The backend routinely imports new data from different sources. The data is turned into entries that can appear on the timeline. The data sources and the timeline entries can be accessed through an API at `/api`.
+It's a mix of a few things:
 
-## The frontend
+* A photo stream
+* A personal diary
+* A browsable personal history
+* A backup tool
 
-The frontend lets you browse your timeline day by day, and keep a daily diary.
+There is [a longer introduction](nicolasbouliane.com/projects/timeline) with more screenshots on my website.
 
-![](https://nicolasbouliane.com/images/Screenshot-2021-02-03-at-14.56.20.png)
+### The backend
 
-![](https://nicolasbouliane.com/images/Screenshot-2021-02-03-at-14.53.08.png)
+The backend constantly imports new data from different sources (Twitter, Reddit, Google Takeout, etc). It turns the data into timeline entries, generates thumbnails, etc. It is served through a REST API.
+
+You can also add timeline entries through the REST API. This lets you write external services that create timeline entries.
+
+### The frontend
+
+The frontend lets you browse your timeline day by day. It also lets you keep a daily diary.
+
+![](https://nicolasbouliane.com/images/_ultrawide2x/timeline-1.png)
 
 ## Setup
 
 You need [docker](https://www.docker.com/get-started) to run this project.
 
-1. Create a `.env` file with the following variables:
-```
-# A long, random, secret key used by Django
-BACKEND_SECRET_KEY=...
-
-# Optional. Turns on debugging for the Django backend
-BACKEND_DEBUG=1
-
-# Username and password for the MQTT client
-# OwnTracks connects to this client to log the phone's location
-MQTT_USERNAME=johntheuser
-MQTT_PASSWORD=superextrasecret
-
-# Optional. Sets the prefix for this project's docker images
-COMPOSE_PROJECT_NAME=timeline
-
-# Optional. Overrides the default docker-compose.yml file with your extra configs
-COMPOSE_FILE=docker-compose.yml:docker-compose.homeserver.yml
-```
-
+0. Clone this repository.
+1. Create a `.env` file, and put it in the project root (next to `docker-compose.yml`). Here's a template:
+    ```
+    # A long, random, secret key used by Django
+    BACKEND_SECRET_KEY=5d41402abc4b2a...
+    
+    # Username and password for the MQTT client
+    # OwnTracks connects to this client to log the phone's location
+    MQTT_USERNAME=johntheuser
+    MQTT_PASSWORD=superextrasecret
+    
+    # Optional. Turns on debugging for the Django backend.
+    # Backend error messages are much more detailed, but can be a security risk.
+    BACKEND_DEBUG=1
+    
+    # Optional. Sets the prefix for this project's docker images
+    # Set this variable to avoid conflicts with other docker projects running on the
+    # same machine.
+    COMPOSE_PROJECT_NAME=timeline
+    
+    # Optional. Override the default docker-compose.yml file with extra docker configs
+    # See `docker-compose.homeserver.yml` for an example.
+    COMPOSE_FILE=docker-compose.yml:docker-compose.homeserver.yml
+    ```
 2. Copy your SSL certificate chain and key under `./proxy/ssl-certs`:
     - Call the cert chain `cert-chain.crt`
     - Call the key `server.key`
-3. Run `docker-compose up --build -d` to start the server.
-
-## General principles
-
-The backend creates timeline entries from other sources of data. It follows these principles, in order of priority:
-
-* Repeatable: You should be able to regenerate entries from scratch at any point. The original data must be preserved as much as possible.
-* Automatic: The timeline should retrieve and show your latest data without any effort on your part.
-* Fast: Processing entries should be reasonably fast, but not at the expense of the other principles.
+3. Run `docker-compose up --build -d` to build the project and start the server.
+4. Access the timeline at `https://localhost` (or wherever you run your server).
+5. Create new Sources and upload new Archives to see new data appear on the timeline.
 
 ## Entries
 
-API URL: `/api/timeline/entries`
+`/api/timeline/entries`
 
 An Entry represents one thing that appears on the timeline. It could be a photo, a journal entry, a tweet, etc.
 
@@ -65,7 +74,7 @@ Entries also have a `source` attribute. This allows you to query entries that ar
 
 ## Sources
 
-API URL: `/api/backup`
+`/api/backup`
 
 A Source is a source of data. Sources are suited for frequent, automatic data imports. You add a source (an API, an RSS feed, etc) to monitor, and new data is automatically imported.
 
@@ -75,7 +84,7 @@ New sources can be added directly through the API. You can browse the API at `/a
 
 ### RsyncSource
 
-API URL: `/api/backup/rsyncsource`
+`/api/backup/rsyncsource`
 
 It uses rsync to synchronise files from a local or remote filesystem. RsyncSource creates incremental backups. The files in the latest backup are then turned into Entries. Files in older backups are ignored.
 
@@ -100,11 +109,12 @@ documents/invoices
 * `password`: SSH password on the remote machine. This will be used to copy SSH keys. The password is never stored.
 * `path`: the path to backup on the remote machine (e.g. "/home/backups")
 * `key`: a unique name for this backup (e.g. "home-server")
+* `key_exchange_method`: The method used to copy SSH keys to the remote host. The default (`ssh-copy-id`) works in most cases.
 * `max_backups`: how many backup versions to keep. If null, old backups are never deleted. If "1", only the latest backup is kept.
 
 ### FileSystemSource
 
-API URL: `/api/backup/filesystemsource`
+`/api/backup/filesystemsource`
 
 Describes a directory on the local filesystem. Entries are created from the files in that directory.
 
@@ -122,7 +132,7 @@ A FileSystemSource requires more initial configuration than an RsyncSource, but 
 
 ### TwitterSource
 
-API URL: `/api/backup/twittersource`
+`/api/backup/twittersource`
 
 Describes a source of tweets. Requires Twitter API credentials. If you can't get API credentials, upload a Twitter dump with `TwitterArchive`.
 
@@ -136,7 +146,7 @@ Describes a source of tweets. Requires Twitter API credentials. If you can't get
 
 ### RedditSource
 
-API URL: `/api/backup/redditsource`
+`/api/backup/redditsource`
 
 Describes a source of reddit posts and comments.
 
@@ -149,7 +159,7 @@ Describes a source of reddit posts and comments.
 
 ### HackerNewsSource
 
-API URL: `/api/backup/hackernewssource`
+`/api/backup/hackernewssource`
 
 Describes a source of Hacker News posts and comments.
 
@@ -159,7 +169,7 @@ Describes a source of Hacker News posts and comments.
 
 ### RssSource
 
-API URL: `/api/backup/rsssource`
+`/api/backup/rsssource`
 
 Describes a RSS feed.
 
@@ -169,7 +179,7 @@ Describes a RSS feed.
 
 ## Archives
 
-API URL: `/api/archive`
+`/api/archive`
 
 An archive is a source of data. Archives are for irregular, manual data imports. You upload a file or an archive, and it's turned into new Entries. For example, you can use them to import GPS logs, GDPR data exports, email dumps etc.
 
@@ -179,7 +189,7 @@ New archives can be added directly through the API. You can browse the API at `/
 
 ### JsonArchive
 
-API URL: `/api/archive/jsonarchive`
+`/api/archive/jsonarchive`
 
 Imports a list of Entry objects from a JSON file. It expects the same format as the API. The entries in the JSON file are imported as-is, but the `source` attribute is overridden, and the `id` attribute is ignored.
 
@@ -187,13 +197,13 @@ This is useful for one-off data imports. For example, I use it to process an SMS
 
 ### GpxArchive
 
-API URL: `/api/archive/gpxarchive`
+`/api/archive/gpxarchive`
 
 Imports a list of `activity.location` Entries from a GPX file. All points from tracks and routes are imported, and all waypoints.
 
 ### GoogleTakeoutArchive
 
-API URL: `/api/archive/googletakeoutarchive`
+`/api/archive/googletakeoutarchive`
 
 Imports various data from a Google Takeout export:
 
@@ -219,7 +229,7 @@ If you don't use these export settings, the import will not fail, but some data 
 
 ### TwitterArchive
 
-API URL: `/api/archive/twitterarchive`
+`/api/archive/twitterarchive`
 
 Imports tweets from a Twitter data export.
 
@@ -227,9 +237,35 @@ Generally, you should import data with a `TwitterSource`, because it will keep l
 
 ### N26CsvArchive
 
-API URL: `/api/n26csvarchive`
+`/api/n26csvarchive`
 
 Imports transactions from an N26 CSV export.
+
+## Destinations
+
+`/api/backup`
+
+A Destination is a place where the timeline data is exported. This is how you back up your timeline.
+
+The backups include all timeline entries, all uploaded archives, and all imported files. All data that would be lost in a crash is backed up.
+
+The backups do not include generated assets like thumbnails. All data that can be recreated is ignored.
+
+### RsyncDestination
+
+`/api/backup/rsyncdestination`
+
+It uses rsync to back up timeline entries and files to a remote filesystem. The backups are not incremental.
+
+**Required fields:**
+
+* `host`: hostname of the remote machine (e.g. "home.nicolasbouliane.com")
+* `port`: SSH port on the remote machine (e.g. "22")
+* `user`: SSH user on the remote machine (e.g. "backups")
+* `password`: SSH password on the remote machine. This will be used to copy SSH keys. The password is never stored.
+* `path`: the destination path on the remote machine (e.g. "/home/backups")
+* `key`: a unique name for this backup (e.g. "home-server")
+* `key_exchange_method`: The method used to copy SSH keys to the remote host. The default (`ssh-copy-id`) works in most cases.
 
 ## Authentication
 
