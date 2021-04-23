@@ -365,10 +365,10 @@ def get_metadata_from_exif(input_path: Path) -> dict:
         values = [str(exif[field]).strip() for field in fields if field in exif]
         return sorted(values, key=len, reverse=True)[0] if values else None
 
-    if title := _get_longest_exif_value(exif, ('DocumentName', 'XPTitle', 'XPSubject')):
+    if title := _get_longest_exif_value(('DocumentName', 'XPTitle', 'XPSubject')):
         metadata['title'] = title
 
-    if description := _get_longest_exif_value(exif, ('ImageDescription', 'XPComment', 'Description')):
+    if description := _get_longest_exif_value(('ImageDescription', 'XPComment', 'Description')):
         metadata['description'] = description
 
     return metadata
