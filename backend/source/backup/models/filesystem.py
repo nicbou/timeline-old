@@ -3,13 +3,12 @@ from datetime import datetime
 from pathlib import Path
 from typing import Tuple
 
-from django.conf import settings
 from django.db import models, transaction
 
 from backend.settings import MOUNTS_ROOT
 from backup.models.source import BaseSource
-from backup.utils.files import get_include_rules_for_dir, get_files_matching_rules, create_entries_from_files, \
-    get_files_in_dir
+from backup.utils.files import create_entries_from_files
+from timeline.utils.postprocessing import generate_previews
 
 logger = logging.getLogger(__name__)
 
@@ -26,3 +25,8 @@ class FileSystemSource(BaseSource):
     def create_file_entries(self) -> int:
         logger.info(f"Creating entries for {self.entry_source}")
         return len(create_entries_from_files(Path(self.path), source=self, backup_date=datetime.now()))
+
+    def get_postprocessing_tasks(self):
+        return [
+            generate_previews,
+        ]

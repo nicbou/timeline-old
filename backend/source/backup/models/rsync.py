@@ -9,15 +9,14 @@ import pytz
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models, transaction
-from rest_framework.renderers import JSONRenderer
 
 from backup.models.destination import BaseDestination
 from backup.models.source import BaseSource
 from backup.utils.datetime import datetime_to_json
 from backup.utils.files import get_files_in_dir, create_entries_from_files
 from backup.utils.ssh import KEY_EXCHANGE_SSH_COPY_ID, KEY_EXCHANGE_METHODS
-from timeline.models import Entry
-from timeline.serializers import EntrySerializer
+from backup.utils.preprocessing import dump_entries
+from timeline.utils.postprocessing import generate_previews
 
 logger = logging.getLogger(__name__)
 
@@ -271,26 +270,22 @@ class RsyncSource(RsyncConnectionMixin, BaseSource):
         logger.info(f"Creating entries for {str(backup)}")
         return len(create_entries_from_files(backup.files_path, source=self, backup_date=backup.date))
 
+    def get_postprocessing_tasks(self):
+        return [
+            generate_previews,
+        ]
+
 
 class RsyncDestination(RsyncConnectionMixin, BaseDestination):
     """
     Backs up the timeline using rsync
     """
-    @staticmethod
-    def dump_entries():
-        with settings.ENTRIES_DUMP_PATH.open('w+') as entry_dump:
-            entry_dump.write('[')
-            entries = Entry.objects.iterator(chunk_size=5000)
-            for index, entry in enumerate(entries):
-                if index > 0:
-                    entry_dump.write(',')
-                entry_dump.write(JSONRenderer().render(EntrySerializer(entry).data).decode("utf-8"))
-            entry_dump.write(']')
+    def get_preprocessing_tasks(self):
+        return [
+            dump_entries,
+        ]
 
     def process(self, force=False):
-        logger.info("Dumping all entries")
-        self.dump_entries()
-
         source_dir = pathlib_to_rsync_path(settings.DATA_ROOT)
         destination_dir = str_to_rsync_path(self.path)
         remote_destination = remote_rsync_path(self.user, self.host, destination_dir)
