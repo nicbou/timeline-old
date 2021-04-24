@@ -267,6 +267,10 @@ It uses rsync to back up timeline entries and files to a remote filesystem. The 
 * `key`: a unique name for this backup (e.g. "home-server")
 * `key_exchange_method`: The method used to copy SSH keys to the remote host. The default (`ssh-copy-id`) works in most cases.
 
+**Usage notes:**
+
+* `path` should point to an empty directory, because anything in that directory will be overwritten by Rsync. If using Hetzner, don't set it to `./`, because it will delete the SSH keys in `./.ssh`.
+
 ## Authentication
 
 This project does not have authentication. Everything on the timeline is public, and anyone can make destructive API requests. You will need to include your own form of authentication.
