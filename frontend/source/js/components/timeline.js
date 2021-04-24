@@ -2,6 +2,7 @@ import EntryMap from './entryMap.js'
 import JournalEditorTile from './tiles/journalEditor.js'
 import Preview from './preview.js';
 import SpinnerComponent from './spinner.js';
+import TimelineActivityTile from './tiles/activity.js';
 import TimelineImageTile from './tiles/image.js';
 import TimelineNav from './timeline-nav.js';
 import TimelinePostTile from './tiles/post.js'
@@ -9,7 +10,6 @@ import TimelineTextTile from './tiles/text.js'
 import TimelineThreadTile from './tiles/thread.js';
 import TimelineVideoTile from './tiles/video.js';
 import TransactionsTile from './tiles/transactions.js';
-import BrowsingHistoryTile from './tiles/browsing-history.js';
 import { RequestStatus } from './../models/requests.js';
 
 function makeRouteValid(to, from, next) {
@@ -192,6 +192,9 @@ export default Vue.component('timeline', {
       else if(s.startsWith('file.text')) {
         return 'text-tile';
       }
+      else if(s.startsWith('activity.browsing')) {
+        return 'activity-tile';
+      }
     },
   },
   template: `
@@ -221,7 +224,6 @@ export default Vue.component('timeline', {
             class="tile"
             v-for="entry in entries"
             v-if="tileType(entry) && !isLoading"></component>
-          <browsing-history-tile v-if="!isLoading" :entries="entryGroups.browsingHistory.entries"></browsing-history-tile>
           <transactions-tile v-if="!isLoading" :entries="entryGroups.transactions.entries"></transactions-tile>
         </div>
       </div>

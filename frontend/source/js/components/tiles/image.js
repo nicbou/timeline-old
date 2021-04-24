@@ -12,14 +12,14 @@ export default Vue.component('image-tile', {
     },
   },
   template: `
-    <div class="tile image" v-if="entry.extra_attributes.previews">
+    <div class="image" v-if="entry.extra_attributes.previews">
       <img
         @click="$emit('select', entry)"
         :alt="entry.title"
         :src="imageSrc"
         :srcset="imageSrcSet"
         />
-      <div class="tile-icons">
+      <div class="media-icons">
         <i v-if="hasGeolocation" class="fas fa-map-marker-alt"></i>
       </div>
     </div>

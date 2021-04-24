@@ -15,7 +15,7 @@ export default Vue.component('video-tile', {
     },
   },
   template: `
-    <div class="tile" @click="$emit('select', entry)" v-if="entry.extra_attributes.previews">
+    <div class="video" @click="$emit('select', entry)" v-if="entry.extra_attributes.previews">
       <video
         :alt="entry.title"
         :src="entry.extra_attributes.previews.thumbnail"
@@ -23,7 +23,7 @@ export default Vue.component('video-tile', {
         @mouseover="videoHoverStart"
         loop
         ref="videoElement"/>
-      <div class="tile-icons">
+      <div class="media-icons">
         <i v-if="hasGeolocation" class="fas fa-map-marker-alt"></i>
         <i class="fas fa-play-circle"></i>
       </div>
