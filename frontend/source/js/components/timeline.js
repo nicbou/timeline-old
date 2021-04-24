@@ -221,9 +221,9 @@ export default Vue.component('timeline', {
             class="tile"
             v-for="entry in entries"
             v-if="tileType(entry) && !isLoading"></component>
+          <browsing-history-tile v-if="!isLoading" :entries="entryGroups.browsingHistory.entries"></browsing-history-tile>
+          <transactions-tile v-if="!isLoading" :entries="entryGroups.transactions.entries"></transactions-tile>
         </div>
-        <browsing-history-tile v-if="!isLoading" :entries="entryGroups.browsingHistory.entries"></browsing-history-tile>
-        <transactions-tile v-if="!isLoading" :entries="entryGroups.transactions.entries"></transactions-tile>
       </div>
       <preview :entry="selectedEntry" v-if="selectedEntry" @close="closePreview"></preview>
     </div>
