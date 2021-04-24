@@ -4,7 +4,7 @@ from django.conf import settings
 from rest_framework.renderers import JSONRenderer
 
 from timeline.models import Entry
-from timeline.serializers import EntrySerializer
+from timeline.serializers import serialize_entry
 
 logger = logging.getLogger(__name__)
 
@@ -17,5 +17,5 @@ def dump_entries():
         for index, entry in enumerate(entries):
             if index > 0:
                 entry_dump.write(',')
-            entry_dump.write(JSONRenderer().render(EntrySerializer(entry).data).decode("utf-8"))
+            entry_dump.write(JSONRenderer().render(serialize_entry(entry)).decode("utf-8"))
         entry_dump.write(']')

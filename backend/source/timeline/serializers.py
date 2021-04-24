@@ -14,3 +14,13 @@ class EntrySerializer(serializers.HyperlinkedModelSerializer):
             'extra_attributes',
             'date_on_timeline',
         ]
+
+
+def serialize_entry(entry: Entry):
+    """
+    Much faster serializer for entry dumps
+    """
+    return {
+        field: getattr(entry, field)
+        for field in EntrySerializer().fields.keys()
+    }

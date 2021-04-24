@@ -60,6 +60,8 @@ You need [docker](https://www.docker.com/get-started) to run this project.
 4. Access the timeline at `https://localhost` (or wherever you run your server).
 5. Create new Sources and upload new Archives to see new data appear on the timeline.
 
+If you need help setting up this project, just [email me](https://nicolasbouliane.com/contact). I don't expect this project to have many users, the documentation is not perfect.
+
 ## Entries
 
 `/api/timeline/entries`
