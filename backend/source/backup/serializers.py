@@ -1,10 +1,11 @@
+from rest_framework import serializers
+
 from .models import FileSystemSource
+from .models.hackernews import HackerNewsSource
+from .models.reddit import RedditSource
+from .models.rss import RssSource
 from .models.rsync import RsyncSource, RsyncDestination
 from .models.twitter import TwitterSource
-from .models.reddit import RedditSource
-from .models.hackernews import HackerNewsSource
-from .models.rss import RssSource
-from rest_framework import serializers
 
 
 class RsyncSourceSerializer(serializers.HyperlinkedModelSerializer):

@@ -12,7 +12,6 @@ from backup.models.rsync import RsyncSource
 from backup.models.twitter import TwitterSource
 from timeline.models import Entry
 
-
 logger = logging.getLogger(__name__)
 
 

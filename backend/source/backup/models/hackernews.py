@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime, timedelta
-from typing import Tuple, List
+from typing import Tuple
 
 import pytz
 import requests
@@ -8,7 +8,6 @@ from django.db import models, transaction
 
 from backup.models.source import BaseSource
 from timeline.models import Entry
-
 
 logger = logging.getLogger(__name__)
 

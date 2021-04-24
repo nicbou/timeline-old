@@ -14,8 +14,8 @@ from backup.models.destination import BaseDestination
 from backup.models.source import BaseSource
 from backup.utils.datetime import datetime_to_json
 from backup.utils.files import get_files_in_dir, create_entries_from_files
-from backup.utils.ssh import KEY_EXCHANGE_SSH_COPY_ID, KEY_EXCHANGE_METHODS
 from backup.utils.preprocessing import dump_entries
+from backup.utils.ssh import KEY_EXCHANGE_SSH_COPY_ID, KEY_EXCHANGE_METHODS
 from timeline.utils.postprocessing import generate_previews
 
 logger = logging.getLogger(__name__)

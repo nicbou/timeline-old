@@ -1,9 +1,8 @@
+import logging
+import subprocess
 from pathlib import Path
 
 from django.conf import settings
-import logging
-import subprocess
-
 
 logger = logging.getLogger(__name__)
 

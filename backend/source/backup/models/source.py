@@ -5,7 +5,6 @@ from django.db import models
 
 from timeline.models import Entry
 
-
 logger = logging.getLogger(__name__)
 
 
