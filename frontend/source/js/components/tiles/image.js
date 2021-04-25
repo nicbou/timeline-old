@@ -18,6 +18,8 @@ export default Vue.component('image-tile', {
         :alt="entry.title"
         :src="imageSrc"
         :srcset="imageSrcSet"
+        :width="Math.floor(entry.extra_attributes.media.width/entry.extra_attributes.media.height * 200)"
+        height="200"
         />
       <div class="media-icons">
         <i v-if="hasGeolocation" class="fas fa-map-marker-alt"></i>
