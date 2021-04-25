@@ -87,7 +87,7 @@ input, button, textarea, select{font:var(--font-m);border:var(--border);padding:
     .current-date{font:var(--font-h3);margin-top:0;}
     .sidebar .recap li{list-style-type:none;}
         .sidebar .recap li > i{width:18px;text-align:center}
-    .sidebar .map{max-width:100%;padding-bottom:calc(100% * 400 / 600);height:0px;border:1px solid var(--color-border);border-radius:var(--border-radius);overflow:hidden;background:#d4e1cf;}
+    .sidebar .map{max-width:100%;padding-bottom:calc(100% * 400 / 600);height:0px;border:var(--border);border-radius:var(--border-radius);overflow:hidden;background:#d4e1cf;margin:var(--spacing-m) 0;}
         .sidebar .map img{width:100%;}
 
 #page{height:100%;}
@@ -172,10 +172,10 @@ input, button, textarea, select{font:var(--font-m);border:var(--border);padding:
     .content-with-sidebar{display:block;}
         .content-with-sidebar .sidebar{border-right:none;padding-bottom:0;}
             .sidebar .recap{display:none;}
-            .sidebar .subtitle{margin-bottom:0;}
 }
 
 @media screen and ( max-width:801px ){
+    h1 + .subtitle{margin-bottom:var(--spacing-m);}
     .timeline-nav{max-width:calc(100% - var(--spacing-m) * 2);}
         .timeline-nav .year, .timeline-nav .month, .timeline-nav .week, .timeline-nav .today{display:none;}
         .timeline-nav .plus-1-day{border-radius:0 var(--border-radius) var(--border-radius) 0;}
