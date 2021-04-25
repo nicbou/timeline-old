@@ -4,8 +4,10 @@ const postTypes = {
     getUser: entry => `@${entry.extra_attributes.post_user}`,
     getUserUrl: entry => `https://twitter.com/${entry.extra_attributes.post_user}`,
     getPostUrl: entry => `https://twitter.com/${entry.extra_attributes.post_user}/status/${entry.extra_attributes.post_id}`,
+    getPostWebsite: entry => 'Twitter',
     getPostCommunity: entry => null,
     getPostCommunityUrl: entry => null,
+    getPostType: entry => 'tweet',
     getRichDescription: entry => `<p>${entry.description}</p>`.replace(/@([\w]{1,50})/ig, '<a target="_blank" href="https://twitter.com/$1">@$1</a>'),
   },
   reddit: {
@@ -13,8 +15,10 @@ const postTypes = {
     getUser: entry => entry.extra_attributes.post_user,
     getUserUrl: entry => `https://reddit.com/user/${entry.extra_attributes.post_user}`,
     getPostUrl: entry => `https://reddit.com/comments/${entry.extra_attributes.post_thread_id}/_/${entry.extra_attributes.post_id}`,
-    getPostCommunity: entry => entry.extra_attributes.post_community,
+    getPostWebsite: entry => 'Reddit',
+    getPostCommunity: entry => `/r/${entry.extra_attributes.post_community}`,
     getPostCommunityUrl: entry => `https://www.reddit.com/r/${entry.extra_attributes.post_community}`,
+    getPostType: entry => entry.schema === 'social.reddit.comment' ? 'comment' : 'post',
     getRichDescription: entry => {
       if(entry.schema === 'social.reddit.post') {
         return `<h3><a href="${entry.extra_attributes.post_url}">${entry.title}</a></h3>`;
@@ -27,8 +31,10 @@ const postTypes = {
     getUser: entry => entry.extra_attributes.post_user,
     getUserUrl: entry => `https://news.ycombinator.com/submitted?id=${entry.extra_attributes.post_user}`,
     getPostUrl: entry => `https://news.ycombinator.com/item?id=${entry.extra_attributes.post_id}`,
+    getPostWebsite: entry => 'Hacker News',
     getPostCommunity: entry => null,
     getPostCommunityUrl: entry => null,
+    getPostType: entry => entry.schema === 'social.hackernews.comment' ? 'comment' : 'submission',
     getRichDescription: entry => {
       if(entry.schema === 'social.hackernews.story'){
         return `<h3><a href="https://news.ycombinator.com/item?id=${entry.extra_attributes.post_id}">${entry.title}</a></h3>`
@@ -44,8 +50,10 @@ const postTypes = {
     getUser: entry => entry.extra_attributes.post_user,
     getUserUrl: entry => null,
     getPostUrl: entry => entry.extra_attributes.post_url,
+    getPostWebsite: entry => 'Website',
     getPostCommunity: entry => new URL(entry.extra_attributes.post_url).hostname,
     getPostCommunityUrl: entry => new URL(entry.extra_attributes.post_url).hostname,
+    getPostType: entry => 'post',
     getRichDescription: entry => entry.extra_attributes.post_body_html,
   },
 }
@@ -67,6 +75,10 @@ export default Vue.component('post-tile', {
           <i :class="postType.getIconClass(entry)"></i>
         </a>
         <span class="post-title">
+          <a :href="postType.getPostUrl(entry)" class="post-type" target="_blank">
+            {{ postType.getPostWebsite(entry) }} {{ postType.getPostType(entry) }}
+          </a>
+          by
           <a :href="postType.getUserUrl(entry)" class="post-user">{{ postType.getUser(entry) }}</a>
           <span v-if="postType.getPostCommunity(entry)">
             on <a :href="postType.getPostCommunityUrl(entry)" class="post-community">{{ postType.getPostCommunity(entry) }}</a>

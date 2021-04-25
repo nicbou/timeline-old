@@ -203,7 +203,7 @@ export default Vue.component('timeline', {
       <div class="content-with-sidebar">
         <div class="sidebar">
           <h1 class="current-date">{{ timelineDate.format('LL') }}</h1>
-          <span class="subtitle">{{ relativeTimelineDate }}</span>
+          <span class="subtitle">{{ timelineDate.format('dddd') }}, {{ relativeTimelineDate }}</span>
           <ul class="recap" v-if="!isLoading">
             <li v-for="group in entryGroups" v-if="group.entries.length">
               <i :class="group.iconClass"></i>
