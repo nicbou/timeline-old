@@ -12,6 +12,7 @@ RUN apt-get update \
         openssh-client \
         rsync \
         sshpass \
+        util-linux \
     && rm -rf /var/lib/apt/lists/*
 
 # cron: To run the backups on a schedule
@@ -20,6 +21,7 @@ RUN apt-get update \
 # openssh-client: To copy SSH keys to sources
 # rsync: To backup files
 # rsyslog: To log everything
+# util-linux: For flock
 
 # https://stackoverflow.com/questions/52998331/imagemagick-security-policy-pdf-blocking-conversion
 RUN sed -i '/disable ghostscript format types/,+6d' /etc/ImageMagick-6/policy.xml 
