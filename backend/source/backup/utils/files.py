@@ -168,6 +168,13 @@ def create_entries_from_files(path: Path, source: BaseSource, backup_date: datet
             if schema == 'file.image' or schema.startswith('file.image'):
                 try:
                     _set_entry_exif_metadata(entry)
+                    if orientation := entry.extra_attributes.get('media', {}).get('orientation'):
+                        # Set the correct width/height according to EXIF orientation
+                        if orientation == 90 or orientation == 270:
+                            w, h = entry.extra_attributes['media']['width'], entry.extra_attributes['media']['height']
+                            entry.extra_attributes['media']['width'] = h
+                            entry.extra_attributes['media']['height'] = w
+                        del entry.extra_attributes['media']['orientation']
                 except:
                     logger.exception(f"Could not set exif metadata for file {entry.extra_attributes['file']['path']}")
 
@@ -337,6 +344,18 @@ def get_metadata_from_exif(input_path: Path) -> dict:
     if 'Make' in exif or 'Model' in exif:
         metadata['media'] = metadata.get('media', {})
         metadata['media']['camera'] = f"{exif.get('Make', '')} {exif.get('Model', '')}".replace('\x00', '').strip()
+
+    if 'Orientation' in exif:
+        orientation_map = {
+            1: 0,
+            3: 180,
+            6: 270,
+            8: 90,
+        }
+        try:
+            metadata['orientation'] = orientation_map[exif['Orientation']]
+        except KeyError:
+            logger.warning(f"{input_path} had unexpected EXIF orientation: {exif['Orientation']}")
 
     # Date
     if 'GPSDateStamp' in exif.get('GPSInfo', {}) and 'GPSTimeStamp' in exif.get('GPSInfo', {}):
