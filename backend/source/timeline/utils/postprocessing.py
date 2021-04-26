@@ -18,7 +18,7 @@ def _get_previews_dir(entry: Entry, mkdir=False):
     return previews_dir
 
 
-def _generate_pdf_previews(entry: Entry):
+def _generate_pdf_previews(entry: Entry, overwrite=False):
     original_path = Path(entry.extra_attributes['file']['path'])
     entry.extra_attributes['previews'] = entry.extra_attributes.get('previews', {})
 
@@ -29,7 +29,7 @@ def _generate_pdf_previews(entry: Entry):
                 original_path,
                 preview_path,
                 (preview_params['width'], preview_params['height']),
-                overwrite=False
+                overwrite=overwrite
             )
             entry.extra_attributes['previews'][preview_name] = str(preview_path)
         except FileExistsError:
@@ -42,7 +42,7 @@ def _generate_pdf_previews(entry: Entry):
             raise
 
 
-def _generate_image_previews(entry: Entry):
+def _generate_image_previews(entry: Entry, overwrite=False):
     original_path = Path(entry.extra_attributes['file']['path'])
 
     if 'width' not in entry.extra_attributes['media']:
@@ -57,7 +57,7 @@ def _generate_image_previews(entry: Entry):
                 original_path,
                 preview_path,
                 (preview_params['width'], preview_params['height']),
-                overwrite=False
+                overwrite=overwrite
             )
             entry.extra_attributes['previews'][preview_name] = str(preview_path)
         except FileExistsError:
@@ -70,7 +70,7 @@ def _generate_image_previews(entry: Entry):
             raise
 
 
-def _generate_video_previews(entry: Entry):
+def _generate_video_previews(entry: Entry, overwrite=False):
     original_path = Path(entry.extra_attributes['file']['path'])
 
     if 'duration' not in entry.extra_attributes['media']:
@@ -86,7 +86,7 @@ def _generate_video_previews(entry: Entry):
                 preview_path,
                 video_duration=entry.extra_attributes['media']['duration'],
                 max_dimensions=(preview_params['width'], preview_params['height']),
-                overwrite=False
+                overwrite=overwrite
             )
             entry.extra_attributes['previews'][preview_name] = str(preview_path)
         except FileExistsError:
@@ -116,14 +116,15 @@ def _get_processing_tasks(entry: Entry) -> List[Callable[[Entry], None]]:
     return tasks
 
 
-def generate_previews():
+def generate_previews(force=False):
     """
     Generates previews on the timeline
     """
     entries = Entry.objects.filter(schema__startswith='file.')
 
     entry_count = len(entries)
-    logger.info(f"Generating previews and metadata for {entry_count} file entries")
+    force_message = 'and overwriting existing previews' if force else ''
+    logger.info(f"Generating previews and metadata for {entry_count} file entries {force_message}")
     missing_entry_count = 0
 
     with transaction.atomic():
@@ -139,9 +140,10 @@ def generate_previews():
                          f" (#{entry.id} - {entry.extra_attributes['file']['path']})")
 
             if processing_tasks := _get_processing_tasks(entry):
+                logger.debug(f"Generating preview for {str(entry)} at {entry.extra_attributes['file']['path']}")
                 for task in processing_tasks:
                     try:
-                        task(entry)
+                        task(entry, overwrite=force)
                     except:
                         logger.exception(f"Could not process entry #{entry.pk} "
                                          f"({ str(Path(entry.extra_attributes['file']['path'])) }).")

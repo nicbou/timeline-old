@@ -15,6 +15,7 @@ class ModelProcessingCommand(BaseCommand):
     def handle(self, *args, **options):
         classes_to_process = get_models_by_name(options.get('classes_to_process') or [self.default_class.__name__])
         logger.info(f"Processing {self.class_name} types: {[model.__name__ for model in classes_to_process]}")
+        force_message = ' (with --force)' if options['force'] else ''
 
         instances_to_process = list(chain.from_iterable([c.objects.all() for c in classes_to_process]))
 
@@ -25,14 +26,14 @@ class ModelProcessingCommand(BaseCommand):
             preprocessing_tasks.update(instance.get_preprocessing_tasks())
             postprocessing_tasks.update(instance.get_postprocessing_tasks())
 
-        logger.info(f"Running {len(preprocessing_tasks)} preprocessing tasks")
+        logger.info(f"Running {len(preprocessing_tasks)} preprocessing tasks{force_message}")
         for task in preprocessing_tasks:
-            task()
+            task(force=options['force'])
 
         failure_count = 0
         for instance in instances_to_process:
             try:
-                logger.info(f"Processing {self.class_name} {instance}")
+                logger.info(f"Processing {self.class_name} {instance}{force_message}")
                 created_entries, updated_entries = instance.process(force=options['force'])
                 logger.info(
                     f"Retrieved {created_entries + updated_entries} entries for {self.class_name} {instance}. "
@@ -45,9 +46,9 @@ class ModelProcessingCommand(BaseCommand):
         logger.info(f"{len(instances_to_process)} {self.class_name} instances processed. "
                     f"{len(instances_to_process) - failure_count} successful, {failure_count} failed.")
 
-        logger.info(f"Running {len(postprocessing_tasks)} postprocessing tasks")
+        logger.info(f"Running {len(postprocessing_tasks)} postprocessing tasks{force_message}")
         for task in postprocessing_tasks:
-            task()
+            task(force=options['force'])
 
         logger.info(f"All {self.class_name} types processed")
 

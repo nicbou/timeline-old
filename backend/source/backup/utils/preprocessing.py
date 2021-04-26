@@ -9,7 +9,7 @@ from timeline.serializers import serialize_entry
 logger = logging.getLogger(__name__)
 
 
-def dump_entries():
+def dump_entries(force=False):
     logger.info(f"Dumping all entries in {settings.ENTRIES_DUMP_PATH}")
     with settings.ENTRIES_DUMP_PATH.open('w+') as entry_dump:
         entry_dump.write('[')

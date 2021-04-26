@@ -78,6 +78,7 @@ def generate_video_preview(input_path: Path, output_path: Path, video_duration: 
 
         command = [
             'ffmpeg',
+            '-y',  # Overwrite if exists, without asking
             '-i', str(input_path),
             '-filter_complex', ffmpeg_filter,
             '-map', '[out]',

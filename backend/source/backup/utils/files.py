@@ -89,33 +89,34 @@ def get_schema_from_mimetype(mimetype) -> str:
     return schema
 
 
-def create_entries_from_files(path: Path, source: BaseSource, backup_date: datetime) -> List[Entry]:
+def create_entries_from_files(path: Path, source: BaseSource, backup_date: datetime, use_cache=True) -> List[Entry]:
     timelineinclude_rules = list(get_include_rules_for_dir(path, settings.TIMELINE_INCLUDE_FILE))
     files = list(get_files_matching_rules(get_files_in_dir(path), timelineinclude_rules))
 
     metadata_cache = {}
     inode_checksum_cache = {}
-    for entry in source.get_entries():
+    if use_cache:
         # Most of the files in the new backup are not new. They are hard links to the same files as in the old backup.
         # If two files have the same inode, they are identical.
-        try:
-            inode = Path(entry.extra_attributes['file']['path']).stat().st_ino
-            inode_checksum_cache[inode] = entry.extra_attributes['file']['checksum']
-        except FileNotFoundError:
-            # This can happen if the backup files were deleted.
-            pass
+        for entry in source.get_entries():
+            try:
+                inode = Path(entry.extra_attributes['file']['path']).stat().st_ino
+                inode_checksum_cache[inode] = entry.extra_attributes['file']['checksum']
+            except FileNotFoundError:
+                # This can happen if the backup files were deleted.
+                pass
 
-        # Avoid expensive recalculation of metadata. If the checksum is the same, that metadata is also the same
-        metadata = {}
+            # Avoid expensive recalculation of metadata. If the checksum is the same, that metadata is also the same
+            metadata = {}
 
-        if 'media' in entry.extra_attributes:
-            metadata['media'] = entry.extra_attributes['media']
-        if 'location' in entry.extra_attributes:
-            metadata['location'] = entry.extra_attributes['location']
-        if entry.description:
-            metadata['description'] = entry.description
+            if 'media' in entry.extra_attributes:
+                metadata['media'] = entry.extra_attributes['media']
+            if 'location' in entry.extra_attributes:
+                metadata['location'] = entry.extra_attributes['location']
+            if entry.description:
+                metadata['description'] = entry.description
 
-        metadata_cache[entry.extra_attributes['file']['checksum']] = metadata
+            metadata_cache[entry.extra_attributes['file']['checksum']] = metadata
 
     entries_to_create = []
     for file in files:

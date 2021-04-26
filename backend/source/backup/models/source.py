@@ -8,46 +8,7 @@ from timeline.models import Entry
 logger = logging.getLogger(__name__)
 
 
-class BaseSourceManager(models.Manager):
-    def process(self, force=False):
-        sources = self.all()
-        source_count = sources.count()
-        logger.info(f"Processing {source_count} sources")
-        failure_count = 0
-
-        preprocessing_tasks = set()
-        postprocessing_tasks = set()
-
-        for source in sources:
-            preprocessing_tasks.update(source.get_preprocessing_tasks())
-            postprocessing_tasks.update(source.get_postprocessing_tasks())
-
-        logger.info(f"Running {len(preprocessing_tasks)} preprocessing tasks")
-        for task in preprocessing_tasks:
-            task()
-
-        for source in sources:
-            try:
-                created_entries, updated_entries = source.process(force=force)
-                logger.info(
-                    f"Retrieved {created_entries + updated_entries} entries for source {source}. "
-                    f"{created_entries} created, {updated_entries} updated."
-                )
-            except:
-                logger.exception(f"Failed to process source {str(source)}")
-                failure_count += 1
-
-        logger.info(f"{source_count} sources processed. "
-                    f"{source_count - failure_count} successful, {failure_count} failed.")
-
-        logger.info(f"Running {len(postprocessing_tasks)} postprocessing tasks")
-        for task in postprocessing_tasks:
-            task()
-
-
 class BaseSource(models.Model):
-    objects = BaseSourceManager()
-
     class Meta:
         abstract = True
 

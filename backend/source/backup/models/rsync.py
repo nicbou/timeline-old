@@ -176,14 +176,12 @@ class RsyncSource(RsyncConnectionMixin, BaseSource):
         return RsyncBackup(source=self, date=None)
 
     def process(self, force=False) -> Tuple[int, int]:
-        # TODO: Process if force=True
         current_backup = self.run_rsync_backup()
-        if current_backup is None:
-            return 0, 0
-
         self.purge_old_backups()
-
-        return self.create_file_entries(current_backup), 0
+        if current_backup or force:
+            return self.create_file_entries(use_cache=(not force)), 0
+        else:
+            return 0, 0
 
     def run_rsync_backup(self) -> Optional[RsyncBackup]:
         """
@@ -262,13 +260,24 @@ class RsyncSource(RsyncConnectionMixin, BaseSource):
         return 0
 
     @transaction.atomic
-    def create_file_entries(self, backup: RsyncBackup) -> int:
+    def create_file_entries(self, use_cache=True) -> int:
         """
         Delete all entries for this source, and recreate them from the latest backup. We could update the entries for
         the files that changed only (with get_changed_files), but it's safer to just reprocess everything.
         """
-        logger.info(f"Creating entries for {str(backup)}")
-        return len(create_entries_from_files(backup.files_path, source=self, backup_date=backup.date))
+        try:
+            latest_backup = list(self.backups)[-1]  # self.latest_backup does not have a .date
+        except IndexError:
+            logger.info(f'{str(self)} has no backups to process.')
+            return 0
+
+        logger.info(f"Creating entries for {str(latest_backup)}")
+        return len(create_entries_from_files(
+            latest_backup.files_path,
+            source=self,
+            backup_date=latest_backup.date,
+            use_cache=use_cache
+        ))
 
     def get_postprocessing_tasks(self):
         return [

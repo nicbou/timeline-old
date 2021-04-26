@@ -19,12 +19,14 @@ class FileSystemSource(BaseSource):
     source_name = 'filesystem'
 
     def process(self, force=False) -> Tuple[int, int]:
-        return self.create_file_entries(), 0
+        return self.create_file_entries(use_cache=(not force)), 0
 
     @transaction.atomic
-    def create_file_entries(self) -> int:
+    def create_file_entries(self, use_cache=True) -> int:
         logger.info(f"Creating entries for {self.entry_source}")
-        return len(create_entries_from_files(Path(self.path), source=self, backup_date=datetime.now()))
+        return len(
+            create_entries_from_files(Path(self.path), source=self, backup_date=datetime.now(), use_cache=use_cache)
+        )
 
     def get_postprocessing_tasks(self):
         return [
