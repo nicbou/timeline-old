@@ -2,4 +2,4 @@
 # Output to /tmp/stdout to show output in the docker logs
 SHELL=/bin/bash
 
-* * * * * /usr/src/app/cron-tasks.sh > /tmp/stdout 2>&1
+0 * * * * /usr/src/app/cron-tasks.sh > /tmp/stdout 2>&1
