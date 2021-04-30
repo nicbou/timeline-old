@@ -291,6 +291,9 @@ def get_media_metadata(input_path: Path) -> dict:
 
 
 def get_exif_from_image(input_path: Path) -> dict:
+    def _normalize_exif(value):
+        return value.replace('\x00', '').strip()
+
     image = Image.open(input_path)
     image.verify()
     raw_exif = image.getexif()
@@ -300,13 +303,13 @@ def get_exif_from_image(input_path: Path) -> dict:
 
     exif = {}
     for (key, val) in raw_exif.items():
-        exif[TAGS.get(key)] = val
+        exif[TAGS.get(key)] = _normalize_exif(val)
 
     gpsinfo_tags = {}
     if 'GPSInfo' in exif:
         for (key, val) in GPSTAGS.items():
             if key in exif['GPSInfo']:
-                gpsinfo_tags[val] = exif['GPSInfo'][key]
+                gpsinfo_tags[val] = _normalize_exif(exif['GPSInfo'][key])
 
         exif['GPSInfo'] = gpsinfo_tags
 
@@ -344,7 +347,7 @@ def get_metadata_from_exif(input_path: Path) -> dict:
     # Camera info
     if 'Make' in exif or 'Model' in exif:
         metadata['media'] = metadata.get('media', {})
-        metadata['media']['camera'] = f"{exif.get('Make', '')} {exif.get('Model', '')}".replace('\x00', '').strip()
+        metadata['media']['camera'] = f"{exif.get('Make', '')} {exif.get('Model', '')}"
 
     if 'Orientation' in exif:
         orientation_map = {
@@ -382,7 +385,7 @@ def get_metadata_from_exif(input_path: Path) -> dict:
 
     # Title and description
     def _get_longest_exif_value(fields):
-        values = [str(exif[field]).strip().replace('\x00', '') for field in fields if field in exif]
+        values = [str(exif[field]) for field in fields if field in exif]
         return sorted(values, key=len, reverse=True)[0] if values else None
 
     if title := _get_longest_exif_value(('DocumentName', 'XPTitle', 'XPSubject')):
