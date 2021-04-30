@@ -124,7 +124,7 @@ def generate_previews(force=False):
 
     entry_count = len(entries)
     force_message = 'and overwriting existing previews' if force else ''
-    logger.info(f"Generating previews and metadata for {entry_count} file entries {force_message}")
+    logger.info(f"Generating previews for {entry_count} file entries {force_message}")
     missing_entry_count = 0
 
     with transaction.atomic():
