@@ -382,7 +382,7 @@ def get_metadata_from_exif(input_path: Path) -> dict:
 
     # Title and description
     def _get_longest_exif_value(fields):
-        values = [str(exif[field]).strip() for field in fields if field in exif]
+        values = [str(exif[field]).strip().replace('\x00', '') for field in fields if field in exif]
         return sorted(values, key=len, reverse=True)[0] if values else None
 
     if title := _get_longest_exif_value(('DocumentName', 'XPTitle', 'XPSubject')):
