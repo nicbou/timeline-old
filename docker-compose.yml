@@ -4,7 +4,7 @@ services:
     image: postgres:9.6
     environment:
       - POSTGRES_USER=postgres
-      - POSTGRES_DB=postgres
+      - POSTGRES_DB=timeline
       - POSTGRES_PASSWORD=postgres
     volumes:
       - db_persistence:/var/lib/postgresql/data
