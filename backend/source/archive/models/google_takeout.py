@@ -182,7 +182,7 @@ class GoogleTakeoutArchive(CompressedArchive):
             for entry in json.load(json_file.open('r')):
                 if entry['title'].startswith(prefix):
                     try:
-                        time = datetime.strptime(entry['time'], '%Y-%m-%dT%H:%M:%S.%fZ')
+                        time = pytz.utc.localize(datetime.strptime(entry['time'], '%Y-%m-%dT%H:%M:%S.%fZ'))
                     except ValueError:
                         time = json_to_datetime(entry['time'])
 
@@ -196,7 +196,7 @@ class GoogleTakeoutArchive(CompressedArchive):
                             description='',
                             source=self.entry_source,
                             schema=schema,
-                            date_on_timeline=pytz.utc.localize(time),
+                            date_on_timeline=time,
                             extra_attributes=extra_attributes
                         )
                     except:
