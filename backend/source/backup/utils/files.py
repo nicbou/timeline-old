@@ -292,9 +292,12 @@ def get_media_metadata(input_path: Path) -> dict:
 
 
 def get_exif_from_image(input_path: Path) -> dict:
-    image = Image.open(input_path)
-    image.verify()
-    raw_exif = image.getexif()
+    # https://github.com/python-pillow/Pillow/issues/4007
+    with Image.open(input_path) as image:
+        image.verify()
+
+    with Image.open(input_path) as image:
+        raw_exif = image.getexif()
 
     if not raw_exif:
         return {}
