@@ -11,7 +11,7 @@ It's a mix of a few things:
 * A browsable personal history
 * A backup tool
 
-There is [a longer introduction](nicolasbouliane.com/projects/timeline) with more screenshots on my website.
+There is [a longer introduction](https://nicolasbouliane.com/projects/timeline) with more screenshots on my website.
 
 ### The backend
 
