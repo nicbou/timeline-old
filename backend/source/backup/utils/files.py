@@ -172,9 +172,10 @@ def create_entries_from_files(path: Path, source: BaseSource, backup_date: datet
                     if orientation := entry.extra_attributes.get('media', {}).get('orientation'):
                         # Set the correct width/height according to EXIF orientation
                         if orientation == 90 or orientation == 270:
-                            w, h = entry.extra_attributes['media']['width'], entry.extra_attributes['media']['height']
-                            entry.extra_attributes['media']['width'] = h
-                            entry.extra_attributes['media']['height'] = w
+                            width = entry.extra_attributes['media']['width']
+                            height = entry.extra_attributes['media']['height']
+                            entry.extra_attributes['media']['width'] = height
+                            entry.extra_attributes['media']['height'] = width
                         del entry.extra_attributes['media']['orientation']
                 except:
                     logger.exception(f"Could not set exif metadata for file {entry.extra_attributes['file']['path']}")
@@ -355,7 +356,8 @@ def get_metadata_from_exif(input_path: Path) -> dict:
             8: 90,
         }
         try:
-            metadata['orientation'] = orientation_map[exif['Orientation']]
+            metadata['media'] = metadata.get('media', {})
+            metadata['media']['orientation'] = orientation_map[exif['Orientation']]
         except KeyError:
             logger.warning(f"{input_path} had unexpected EXIF orientation: {exif['Orientation']}")
 
