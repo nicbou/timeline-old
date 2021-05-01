@@ -318,6 +318,7 @@ def get_metadata_from_exif(input_path: Path) -> dict:
     try:
         exif = get_exif_from_image(input_path)
     except:
+        logging.exception(f"Could not parse exif for {input_path}")
         return metadata
 
     # Geolocation
