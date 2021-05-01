@@ -370,7 +370,7 @@ def get_metadata_from_exif(input_path: Path) -> dict:
             metadata['media'] = metadata.get('media', {})
             metadata['media']['creation_date'] = datetime_to_json(parse_exif_date(gps_datetime))
         except ValueError:
-            logging.exception(f"Could not parse EXIF GPS date '{gps_datetime}'")
+            logging.exception(f"Could not parse EXIF GPS date '{gps_datetime} ({input_path})'")
         except KeyError:
             pass
     elif exif_date := (exif.get('DateTimeOriginal') or exif.get('DateTime')):
@@ -379,7 +379,7 @@ def get_metadata_from_exif(input_path: Path) -> dict:
             metadata['media'] = metadata.get('media', {})
             metadata['media']['creation_date'] = datetime_to_json(parse_exif_date(exif_date))
         except ValueError:
-            logging.exception(f"Could not parse EXIF date '{exif_date}'")
+            logging.exception(f"Could not parse EXIF date '{exif_date}' ({input_path})")
 
     # Title and description
     def _get_longest_exif_value(fields):
