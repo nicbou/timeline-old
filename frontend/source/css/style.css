@@ -140,7 +140,8 @@ input, button, textarea, select{font:var(--font-m);border:var(--border);padding:
 
     .post.journal{}
         .post.journal main div p{margin:22px 0}
-            .post.journal main div p:first-child, .post.journal main div p:last-child{margin:0}
+            .post.journal main div *:first-child{margin-top:0;}
+            .post.journal main div *:last-child{margin-bottom:0}
             .post.journal main div:hover{background:var(--color-background-02)}
         .post.journal main textarea{background:var(--color-background-02);width:100%;height:400px;box-sizing:border-box;padding:0;border:0;margin:0;outline:none;display:block;font:var(--font-m);color:var(--color-text);}
 
