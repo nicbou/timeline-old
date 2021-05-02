@@ -19,7 +19,6 @@ def archive_path(instance: 'BaseArchive', filename: str):
 
 
 class BaseArchive(BaseSource):
-    key = models.SlugField(max_length=80, allow_unicode=True, primary_key=True)
     description = models.TextField()
     date_processed = models.DateTimeField(null=True)
     archive_file = models.FileField(upload_to=archive_path)

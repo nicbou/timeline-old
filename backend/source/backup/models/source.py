@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 class BaseSource(models.Model):
-    key = models.SlugField(max_length=80, primary_key=False, null=True)
+    key = models.SlugField(max_length=80, primary_key=True)
 
     class Meta:
         abstract = True
