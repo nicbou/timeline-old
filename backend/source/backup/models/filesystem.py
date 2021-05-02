@@ -16,8 +16,6 @@ logger = logging.getLogger(__name__)
 class FileSystemSource(BaseSource):
     path = models.FilePathField(blank=False, path=str(MOUNTS_ROOT.resolve()), allow_folders=True, allow_files=False)
 
-    source_name = 'filesystem'
-
     def process(self, force=False) -> Tuple[int, int]:
         return self.create_file_entries(use_cache=(not force)), 0
 

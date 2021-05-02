@@ -18,8 +18,6 @@ class TwitterSource(BaseSource):
     access_token_secret = models.CharField(max_length=50, blank=False)
     twitter_username = models.CharField(max_length=50, blank=False)
 
-    source_name = 'twitter'
-
     def process(self, force=False) -> Tuple[int, int]:
         auth = tweepy.OAuthHandler(self.consumer_key, self.consumer_secret)
         auth.set_access_token(self.access_token, self.access_token_secret)
@@ -75,6 +73,3 @@ class TwitterSource(BaseSource):
                     updated_entries.append(entry)
 
         return len(created_entries), len(updated_entries)
-
-    def __str__(self):
-        return f"{self.source_name}/{self.twitter_username}"

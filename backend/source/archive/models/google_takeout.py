@@ -68,8 +68,6 @@ class GoogleTakeoutArchive(CompressedArchive):
     """
     A Google Takeout data export. Can contain all data, or only data from some services
     """
-    source_name = 'google'
-
     def extract_entries(self) -> Generator[Entry, None, None]:
         yield from self.extract_location_history()
         yield from self.extract_browser_history()

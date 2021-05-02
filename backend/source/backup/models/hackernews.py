@@ -15,8 +15,6 @@ logger = logging.getLogger(__name__)
 class HackerNewsSource(BaseSource):
     hackernews_username = models.CharField(max_length=20, blank=False)
 
-    source_name = 'hackernews'
-
     def process(self, force=False) -> Tuple[int, int]:
         base_schema = 'social.hackernews'
         latest_entry = self.get_entries().order_by('-extra_attributes__post_id').first()

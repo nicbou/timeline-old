@@ -9,24 +9,23 @@ logger = logging.getLogger(__name__)
 
 
 class BaseSource(models.Model):
+    key = models.SlugField(max_length=80, primary_key=False, null=True)
+
     class Meta:
         abstract = True
+        ordering = ['key']
 
     @property
     def source_name(self) -> str:
         return type(self).__name__
 
     @property
-    def source_id(self) -> str:
-        return str(self.pk)
-
-    @property
     def entry_source(self) -> str:
         """
         A "source" value shared by all entries created by this Source instance.
-        For example "twitter/katyperry" or "rsync/macbook"
+        For example "TwitterSource/katyperry" or "RsyncSource/macbook"
         """
-        return f"{self.source_name}/{self.source_id}"
+        return f"{self.source_name}/{self.key}"
 
     def __str__(self) -> str:
         return self.entry_source

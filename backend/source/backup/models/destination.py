@@ -7,6 +7,8 @@ logger = logging.getLogger(__name__)
 
 
 class BaseDestination(models.Model):
+    key = models.SlugField(max_length=80, primary_key=False, null=True)
+
     class Meta:
         abstract = True
 
@@ -15,7 +17,7 @@ class BaseDestination(models.Model):
         return type(self).__name__
 
     def __str__(self) -> str:
-        return f"{self.destination_name}/{self.pk}"
+        return f"{self.destination_name}/{self.key}"
 
     def get_preprocessing_tasks(self) -> Iterable:
         return []

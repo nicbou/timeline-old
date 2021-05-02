@@ -14,8 +14,6 @@ class GpxArchive(BaseArchive):
     """
     A single GPX file
     """
-    source_name = 'gpx'
-
     def entry_from_point(self, point) -> Entry:
         return Entry(
             schema='activity.location',

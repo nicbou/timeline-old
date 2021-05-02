@@ -13,8 +13,6 @@ class JsonArchive(BaseArchive):
     """
     A list of JSON entries, as returned by the API
     """
-    source_name = 'json'
-
     def extract_entries(self) -> Generator[Entry, None, None]:
         json_entries = json.load(self.archive_file.file)
         for json_entry in json_entries:

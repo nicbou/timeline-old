@@ -32,8 +32,6 @@ class TwitterArchive(CompressedArchive):
     """
     A Twitter data dump import
     """
-    source_name = 'twitter'
-
     def get_account_info(self):
         js_file = self.files_path / 'data/account.js'
         json_file = self.files_path / 'data/account.json'

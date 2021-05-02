@@ -41,7 +41,6 @@ class RsyncConnectionMixin(models.Model):
     host = models.CharField(max_length=255, blank=False)
     port = models.PositiveIntegerField(default=22, validators=[MaxValueValidator(65535)])
     path = models.TextField(blank=False)
-    key = models.CharField(max_length=80, blank=False, unique=True)
     key_exchange_method = models.CharField(
         max_length=20,
         choices=[(method, method) for method in KEY_EXCHANGE_METHODS],
@@ -136,12 +135,6 @@ class RsyncBackup:
 
 class RsyncSource(RsyncConnectionMixin, BaseSource):
     max_backups = models.PositiveSmallIntegerField(null=True, validators=[MinValueValidator(1)])
-
-    source_name = 'rsync'
-
-    @property
-    def source_id(self) -> str:
-        return str(self.key)
 
     @property
     def backups_root(self) -> Path:

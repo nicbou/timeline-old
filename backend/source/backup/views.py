@@ -21,7 +21,7 @@ class RsyncSourceViewSet(viewsets.ModelViewSet):
     """
     List and manage backup Sources. A Source is a remote server from which files are backed up.
     """
-    queryset = RsyncSource.objects.all().order_by('key')
+    queryset = RsyncSource.objects.all()
     serializer_class = RsyncSourceSerializer
     permission_classes = [permissions.AllowAny]
 

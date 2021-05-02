@@ -17,8 +17,6 @@ class N26CsvArchive(BaseArchive):
     """
     Reads CSV transaction lists exported by N26
     """
-    source_name = 'n26'
-
     def extract_entries(self) -> Generator[Entry, None, None]:
         default_currency = 'EUR'
         default_timezone = 'Europe/Berlin'  # TODO: If this thing gets a million users, that assumption could be wrong

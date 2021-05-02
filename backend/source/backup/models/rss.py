@@ -13,8 +13,6 @@ from timeline.models import Entry
 class RssSource(BaseSource):
     feed_url = models.URLField(blank=False)
 
-    source_name = 'rss'
-
     def process(self, force=False) -> Tuple[int, int]:
         rss_feed = feedparser.parse(self.feed_url)
 
@@ -46,5 +44,3 @@ class RssSource(BaseSource):
 
         return len(created_entries), len(updated_entries)
 
-    def __str__(self):
-        return f"{self.source_name}/{self.feed_url}"

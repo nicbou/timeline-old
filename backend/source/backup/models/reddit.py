@@ -15,8 +15,6 @@ class RedditSource(BaseSource):
     user_agent = models.CharField(max_length=100, blank=True)
     reddit_username = models.CharField(max_length=20, blank=False)
 
-    source_name = 'reddit'
-
     def process(self, force=False) -> Tuple[int, int]:
         created_posts, updated_posts = self.process_posts()
         created_comments, updated_comments = self.process_comments()
@@ -93,6 +91,3 @@ class RedditSource(BaseSource):
                     updated_entries.append(entry)
 
         return created_entries, updated_entries
-
-    def __str__(self):
-        return f"{self.source_name}/{self.reddit_username}"
