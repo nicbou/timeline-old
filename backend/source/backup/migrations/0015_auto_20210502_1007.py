@@ -11,74 +11,74 @@ from timeline.models import Entry
 
 @atomic
 def set_key(app, schema_editor):
-    for s in RsyncSource.objects.all():
-        for e in Entry.objects.filter(source=f"rsync/{s.id}"):
-            e.source = s.entry_source
+    for rsync_source in RsyncSource.objects.all():
+        for e in Entry.objects.filter(source=f"rsync/{rsync_source.id}"):
+            e.source = rsync_source.entry_source
             e.save()
 
-    for s in FileSystemSource.objects.all():
-        if not s.key:
-            s.key = slugify(s.path)[-80]
-            s.save()
-        for e in Entry.objects.filter(source=f"filesystem/{s.id}"):
-            e.source = s.entry_source
+    for filesystem_source in FileSystemSource.objects.all():
+        if not filesystem_source.key:
+            filesystem_source.key = slugify(filesystem_source.path)[-80]
+            filesystem_source.save()
+        for e in Entry.objects.filter(source=f"filesystem/{filesystem_source.id}"):
+            e.source = filesystem_source.entry_source
             e.save()
 
-    for s in RssSource.objects.all():
-        if not s.key:
-            s.key = slugify(s.feed_url)[:80]
-            s.save()
-        for e in Entry.objects.filter(source=f"rss/{s.id}"):
-            e.source = s.entry_source
+    for rss_source in RssSource.objects.all():
+        if not rss_source.key:
+            rss_source.key = slugify(rss_source.feed_url)[:80]
+            rss_source.save()
+        for e in Entry.objects.filter(source=f"rss/{rss_source.id}"):
+            e.source = rss_source.entry_source
             e.save()
 
-    for s in RedditSource.objects.all():
-        if not s.key:
-            s.key = s.reddit_username
-            s.save()
-        for e in Entry.objects.filter(source=f"reddit/{s.id}"):
-            e.source = s.entry_source
+    for reddit_source in RedditSource.objects.all():
+        if not reddit_source.key:
+            reddit_source.key = reddit_source.reddit_username
+            reddit_source.save()
+        for e in Entry.objects.filter(source=f"reddit/{reddit_source.id}"):
+            e.source = reddit_source.entry_source
             e.save()
 
-    for s in TwitterSource.objects.all():
-        if not s.key:
-            s.key = s.twitter_username
-            s.save()
-        for e in Entry.objects.filter(source=f"twitter/{s.id}"):
-            e.source = s.entry_source
+    for twitter_source in TwitterSource.objects.all():
+        if not twitter_source.key:
+            twitter_source.key = twitter_source.twitter_username
+            twitter_source.save()
+        for e in Entry.objects.filter(source=f"twitter/{twitter_source.id}"):
+            e.source = twitter_source.entry_source
             e.save()
 
-    for s in HackerNewsSource.objects.all():
-        if not s.key:
-            s.key = s.hackernews_username
-            s.save()
-        for e in Entry.objects.filter(source=f"hackernews/{s.id}"):
-            e.source = s.entry_source
+    for hackernews_source in HackerNewsSource.objects.all():
+        if not hackernews_source.key:
+            hackernews_source.key = hackernews_source.hackernews_username
+            hackernews_source.save()
+        for e in Entry.objects.filter(source=f"hackernews/{hackernews_source.id}"):
+            e.source = hackernews_source.entry_source
             e.save()
 
-    for a in GpxArchive.objects.all():
-        for e in Entry.objects.filter(source=f"archive/gpx/{a.key}"):
-            e.source = s.entry_source
+    for gpx_archive in GpxArchive.objects.all():
+        for e in Entry.objects.filter(source=f"archive/gpx/{gpx_archive.key}"):
+            e.source = gpx_archive.entry_source
             e.save()
 
-    for a in JsonArchive.objects.all():
-        for e in Entry.objects.filter(source=f"archive/json/{a.key}"):
-            e.source = s.entry_source
+    for json_archive in JsonArchive.objects.all():
+        for e in Entry.objects.filter(source=f"archive/json/{json_archive.key}"):
+            e.source = json_archive.entry_source
             e.save()
 
-    for a in N26CsvArchive.objects.all():
-        for e in Entry.objects.filter(source=f"archive/n26/{a.key}"):
-            e.source = s.entry_source
+    for n26_archive in N26CsvArchive.objects.all():
+        for e in Entry.objects.filter(source=f"archive/n26/{n26_archive.key}"):
+            e.source = n26_archive.entry_source
             e.save()
 
-    for a in TwitterArchive.objects.all():
-        for e in Entry.objects.filter(source=f"archive/twitter/{a.key}"):
-            e.source = s.entry_source
+    for twitter_archive in TwitterArchive.objects.all():
+        for e in Entry.objects.filter(source=f"archive/twitter/{twitter_archive.key}"):
+            e.source = twitter_archive.entry_source
             e.save()
 
-    for a in GoogleTakeoutArchive.objects.all():
-        for e in Entry.objects.filter(source=f"archive/google/{a.key}"):
-            e.source = s.entry_source
+    for googletakeout_archive in GoogleTakeoutArchive.objects.all():
+        for e in Entry.objects.filter(source=f"archive/google/{googletakeout_archive.key}"):
+            e.source = googletakeout_archive.entry_source
             e.save()
 
 
