@@ -32,7 +32,7 @@ class BaseArchive(BaseSource):
         """
         The root under which all files for this archive are stored.
         """
-        return ARCHIVES_ROOT / self.key
+        return ARCHIVES_ROOT / self.source_name / self.key
 
     @property
     def files_path(self) -> Path:

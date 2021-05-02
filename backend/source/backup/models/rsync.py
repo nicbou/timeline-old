@@ -138,7 +138,7 @@ class RsyncSource(RsyncConnectionMixin, BaseSource):
 
     @property
     def backups_root(self) -> Path:
-        return settings.BACKUPS_ROOT / self.key
+        return settings.BACKUPS_ROOT / self.source_name / self.key
 
     @property
     def backups(self) -> Generator[RsyncBackup, None, None]:
