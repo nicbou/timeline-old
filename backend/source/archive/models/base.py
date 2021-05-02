@@ -41,14 +41,6 @@ class BaseArchive(BaseSource):
         """
         return self.root_path / 'files'
 
-    @property
-    def source_id(self) -> str:
-        return self.key
-
-    @property
-    def entry_source(self) -> str:
-        return f"archive/{super().entry_source}"
-
     def extract_entries(self) -> Generator[Entry, None, None]:
         raise NotImplementedError
 
