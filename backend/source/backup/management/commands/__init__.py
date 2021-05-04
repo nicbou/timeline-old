@@ -34,11 +34,7 @@ class ModelProcessingCommand(BaseCommand):
         for instance in instances_to_process:
             try:
                 logger.info(f"Processing {self.class_name} {instance}{force_message}")
-                created_entries, updated_entries = instance.process(force=options['force'])
-                logger.info(
-                    f"Retrieved {created_entries + updated_entries} entries for {self.class_name} {instance}. "
-                    f"{created_entries} created, {updated_entries} updated."
-                )
+                self.process_instance(instance, force=options['force'])
             except:
                 logger.exception(f"Failed to process {self.class_name} {str(instance)}")
                 failure_count += 1
@@ -51,6 +47,9 @@ class ModelProcessingCommand(BaseCommand):
             task(force=options['force'])
 
         logger.info(f"All {self.class_name} types processed")
+
+    def process_instance(self, instance, force):
+        return instance.process(instance, force)
 
     def add_arguments(self, parser):
         parser.add_argument(
