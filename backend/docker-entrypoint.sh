@@ -15,6 +15,7 @@ tail -n 0 -f /var/log/backend/*.log &
 # Activate cron with all Django environment variables
 > /etc/timeline-cronenv
 printf "export BACKEND_SECRET_KEY=%q\n" "${BACKEND_SECRET_KEY}" >> /etc/timeline-cronenv
+printf "export BACKEND_DEBUG=%q\n" "${BACKEND_DEBUG}" >> /etc/timeline-cronenv
 
 mkfifo /tmp/stdout /tmp/stderr
 chmod 0666 /tmp/stdout /tmp/stderr
