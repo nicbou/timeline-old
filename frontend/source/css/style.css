@@ -125,7 +125,7 @@ input, button, textarea, select{font:var(--font-m);border:var(--border);padding:
             .post main ul ul, .post main ul ol, .post main ol ul, .post main ol ol{margin:0 0 0 var(--spacing-l)}
             .post main ul:first-child, .post main ol:first-child{margin-top:0;}
         .post main li{list-style-position:inside;padding-left:0;margin-left:0;}
-        .post main blockquote{padding-left:var(--spacing-s);font-style:italic;border-left:5px solid var(--color-text);}
+        .post main blockquote{padding-left:var(--spacing-s);font-style:italic;border-left:5px solid var(--color-background-02);}
         .post main pre{margin:var(--spacing-m) 0;max-width:100%;overflow:auto}
         .post main table{width:100%;}
             .post main table tr{border-top:var(--border);}
