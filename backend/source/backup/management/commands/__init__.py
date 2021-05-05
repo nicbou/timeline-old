@@ -49,7 +49,7 @@ class ModelProcessingCommand(BaseCommand):
         logger.info(f"All {self.class_name} types processed")
 
     def process_instance(self, instance, force):
-        return instance.process(instance, force)
+        return instance.process(force)
 
     def add_arguments(self, parser):
         parser.add_argument(
