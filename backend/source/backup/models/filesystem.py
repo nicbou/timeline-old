@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime
+from functools import partial
 from pathlib import Path
 from typing import Tuple
 
@@ -28,5 +29,5 @@ class FileSystemSource(BaseSource):
 
     def get_postprocessing_tasks(self):
         return [
-            generate_previews,
+            partial(generate_previews, source=self),
         ]

@@ -2,6 +2,7 @@ import logging
 import shutil
 import subprocess
 from datetime import datetime
+from functools import partial
 from pathlib import Path
 from typing import Generator, Tuple, Optional
 
@@ -274,7 +275,7 @@ class RsyncSource(RsyncConnectionMixin, BaseSource):
 
     def get_postprocessing_tasks(self):
         return [
-            generate_previews,
+            partial(generate_previews, source=self),
         ]
 
 

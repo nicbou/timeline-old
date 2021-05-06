@@ -5,6 +5,7 @@ from typing import List, Callable
 from django.conf import settings
 from django.db import transaction
 
+from backup.models.source import BaseSource
 from timeline.models import Entry
 from timeline.utils.files import generate_pdf_preview, generate_video_preview, generate_image_preview
 
@@ -116,15 +117,24 @@ def _get_processing_tasks(entry: Entry) -> List[Callable[[Entry], None]]:
     return tasks
 
 
-def generate_previews(force=False):
+def generate_previews(source: BaseSource=None, force=False):
     """
     Generates previews on the timeline
     """
-    entries = Entry.objects.filter(schema__startswith='file.')
+    entry_filters = {'schema__startswith': 'file.'}
+    if source:
+        entry_filters['source'] = source.entry_source
+
+    entries = Entry.objects.filter(**entry_filters)
 
     entry_count = len(entries)
-    force_message = 'and overwriting existing previews' if force else ''
-    logger.info(f"Generating previews for {entry_count} file entries {force_message}")
+    log_message = f"Generating previews for {entry_count} entries"
+    if source:
+        log_message += f' from {source}'
+    if force:
+        log_message += ', and overwriting existing previews'
+
+    logger.info(log_message)
     missing_entry_count = 0
 
     with transaction.atomic():
