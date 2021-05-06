@@ -154,6 +154,8 @@ def generate_previews(source: BaseSource=None, force=False):
                 for task in processing_tasks:
                     try:
                         task(entry, overwrite=force)
+                    except KeyboardInterrupt:
+                        raise
                     except:
                         logger.exception(f"Could not process entry #{entry.pk} "
                                          f"({ str(Path(entry.extra_attributes['file']['path'])) }).")

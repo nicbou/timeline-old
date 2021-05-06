@@ -35,6 +35,8 @@ class ModelProcessingCommand(BaseCommand):
             try:
                 logger.info(f"Processing {self.class_name} {instance}{force_message}")
                 self.process_instance(instance, force=options['force'])
+            except KeyboardInterrupt:
+                raise
             except:
                 logger.exception(f"Failed to process {self.class_name} {str(instance)}")
                 failure_count += 1

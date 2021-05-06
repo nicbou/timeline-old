@@ -156,6 +156,8 @@ def create_entries_from_files(path: Path, source: BaseSource, backup_date: datet
             if schema == 'file.text' or schema.startswith('file.text'):
                 try:
                     _set_entry_plaintext_description(entry)
+                except KeyboardInterrupt:
+                    raise
                 except:
                     logger.exception(
                         f"Could not set plain text description for file {entry.extra_attributes['file']['path']}")
@@ -163,6 +165,8 @@ def create_entries_from_files(path: Path, source: BaseSource, backup_date: datet
             if schema.startswith('file.image') or schema.startswith('file.video'):
                 try:
                     _set_media_metadata(entry)
+                except KeyboardInterrupt:
+                    raise
                 except:
                     logger.exception(f"Could not set media metadata for file {entry.extra_attributes['file']['path']}")
 
@@ -177,6 +181,8 @@ def create_entries_from_files(path: Path, source: BaseSource, backup_date: datet
                             entry.extra_attributes['media']['width'] = height
                             entry.extra_attributes['media']['height'] = width
                         del entry.extra_attributes['media']['orientation']
+                except KeyboardInterrupt:
+                    raise
                 except:
                     logger.exception(f"Could not set exif metadata for file {entry.extra_attributes['file']['path']}")
 
@@ -214,6 +220,8 @@ def _set_media_metadata(entry: Entry):
             # JPEG images are treated as MJPEG videos and have a duration of 1 frame
             entry.extra_attributes['media'].pop('duration', None)
             entry.extra_attributes['media'].pop('codec', None)
+    except KeyboardInterrupt:
+        raise
     except:
         logger.exception(f"Could not read metadata from file {original_path}")
         raise
@@ -237,6 +245,8 @@ def _set_entry_exif_metadata(entry: Entry):
 
         if 'description' in metadata:
             entry.description = metadata.pop('description')
+    except KeyboardInterrupt:
+        raise
     except:
         logger.exception(f"Could not read exif from file {original_path}")
         raise
@@ -321,6 +331,8 @@ def get_metadata_from_exif(input_path: Path) -> dict:
     metadata = {}
     try:
         exif = get_exif_from_image(input_path)
+    except KeyboardInterrupt:
+        raise
     except:
         logging.exception(f"Could not parse exif for {input_path}")
         return metadata

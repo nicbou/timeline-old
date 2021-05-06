@@ -197,6 +197,8 @@ class GoogleTakeoutArchive(CompressedArchive):
                             date_on_timeline=time,
                             extra_attributes=extra_attributes
                         )
+                    except KeyboardInterrupt:
+                        raise
                     except:
                         logging.exception(f"Could not parse entry: {entry}")
                         raise

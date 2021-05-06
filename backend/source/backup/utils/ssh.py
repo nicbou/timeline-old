@@ -61,5 +61,7 @@ def copy_ssh_keys(host, port, user, password, key_exchange_method=KEY_EXCHANGE_S
         raise SSHTimeoutError(f"Failed to copy keys to {host}. Request timed out.")
     except subprocess.CalledProcessError as exc:
         raise SSHCredentialsError(f"Failed to copy keys to {host}. Command returned exit code {exc.returncode}")
+    except KeyboardInterrupt:
+        raise
     except:
         raise Exception(f"Failed to copy keys to {host}")

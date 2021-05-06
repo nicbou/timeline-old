@@ -70,6 +70,8 @@ class CompressedArchive(BaseArchive):
             self.delete_extracted_files()
             self.extract_compressed_files()
             created_entries, updated_entries = super().process(force=force)
+        except KeyboardInterrupt:
+            raise
         except:
             logger.exception(f'Failed to process archive "{self.entry_source}"')
             raise
