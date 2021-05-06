@@ -105,7 +105,8 @@ documents/invoices
 
 **Required fields:**
 
-* `host`: hostname of the remote machine (e.g. "home.nicolasbouliane.com")
+* `key`: a unique name for this source (e.g. "macbook-photos")
+* `host`: hostname of the remote machine (e.g. "home.nicolasbouliane.com" or "192.168.0.123")
 * `port`: SSH port on the remote machine (e.g. "22")
 * `user`: SSH user on the remote machine (e.g. "backups")
 * `password`: SSH password on the remote machine. This will be used to copy SSH keys. The password is never stored.
@@ -130,6 +131,7 @@ A FileSystemSource requires more initial configuration than an RsyncSource, but 
 
 **Required fields:**
 
+* `key`: a unique identifier for this source (e.g. "macbook-photos")
 * `path`: path of the source directory, relative to `/data/mounts`
 
 ### TwitterSource
@@ -140,11 +142,12 @@ Describes a source of tweets. Requires Twitter API credentials. If you can't get
 
 **Required fields:**
 
+* `key`: a unique identifier for this source (e.g. "katyperry")
 * `consumer_key`: Twitter API credentials
 * `consumer_secret`: Twitter API credentials
 * `access_token`: Twitter API credentials
 * `access_token_secret`: Twitter API credentials
-* `twitter_username`: The name of the Twitter user to back up, without the "@" (e.g. "nicolasbouliane")
+* `twitter_username`: The name of the Twitter user to back up, without the "@" (e.g. "katyperry")
 
 ### RedditSource
 
@@ -154,9 +157,10 @@ Describes a source of reddit posts and comments.
 
 **Required fields:**
 
-* `client_id`: Twitter API credentials
-* `client_secret`: Twitter API credentials
-* `user_agent`: Twitter API credentials
+* `key`: a unique identifier for this source (e.g. "spez")
+* `client_id`: Reddit API credentials
+* `client_secret`: Reddit API credentials
+* `user_agent`: Reddit API credentials
 * `reddit_username`: The name of the Reddit user to back up (e.g. "spez")
 
 ### HackerNewsSource
@@ -167,6 +171,7 @@ Describes a source of Hacker News posts and comments.
 
 **Required fields:**
 
+* `key`: a unique identifier for this source (e.g. "dang")
 * `hackernews_username`: The name of the Hacker News user to back up (e.g. "dang")
 
 ### RssSource
@@ -177,6 +182,7 @@ Describes a RSS feed.
 
 **Required fields:**
 
+* `key`: a unique identifier for this source (e.g. "personal-blog")
 * `feed_url`: The URL of the RSS feed.
 
 ## Archives
@@ -188,6 +194,12 @@ An archive is a source of data. Archives are for irregular, manual data imports.
 Unlike Sources, Archives are only processed once. After processing, original archive is preserved. 
 
 New archives can be added directly through the API. You can browse the API at `/api/backup`.
+
+**Required fields:**
+
+* `key`: a unique identifier for this archive (e.g. "google-takeout-2020-01-20")
+* `description`: A plain text description of this archive
+* `archive_file`: The archive file to process
 
 ### JsonArchive
 
@@ -235,7 +247,7 @@ If you don't use these export settings, the import will not fail, but some data 
 
 Imports tweets from a Twitter data export.
 
-Generally, you should import data with a `TwitterSource`, because it will keep looking for new tweets. A `TwitterArchive` is better for private accounts, or archives of deleted accounts. Unlike a `TwitterSource`, it does not require access to the Twitter API.
+Generally, you should import data with a `TwitterSource`, because it will keep looking for new tweets. A `TwitterArchive` is better for private accounts, or archives of deleted accounts. Unlike a `TwitterSource`, it does not require Twitter API credentials.
 
 ### N26CsvArchive
 
@@ -261,6 +273,7 @@ It uses rsync to back up timeline entries and files to a remote filesystem. The 
 
 **Required fields:**
 
+* `key`: a unique identifier for this destination (e.g. "rsync-cloud-backup")
 * `host`: hostname of the remote machine (e.g. "home.nicolasbouliane.com")
 * `port`: SSH port on the remote machine (e.g. "22")
 * `user`: SSH user on the remote machine (e.g. "backups")
