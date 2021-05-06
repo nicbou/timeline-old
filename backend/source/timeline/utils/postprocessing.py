@@ -7,7 +7,8 @@ from django.db import transaction
 
 from backup.models.source import BaseSource
 from timeline.models import Entry
-from timeline.utils.files import generate_pdf_preview, generate_video_preview, generate_image_preview
+from timeline.utils.files import generate_pdf_preview, generate_video_preview, generate_image_preview, \
+    VideoDurationError
 
 logger = logging.getLogger(__name__)
 
@@ -93,8 +94,9 @@ def _generate_video_previews(entry: Entry, overwrite=False):
         except FileExistsError:
             logger.debug(f'"{preview_name}" preview for #{entry.pk} already exists.')
             entry.extra_attributes['previews'][preview_name] = str(preview_path)
-        except ValueError as e:
-            logger.exception(f'Could not generate video preview for entry #{entry.pk} ({str(original_path)}). {str(e)}')
+        except VideoDurationError as e:
+            logger.debug(f'Could not generate video preview for entry #{entry.pk} ({str(original_path)}). {str(e)}')
+            break  # Same error will happen for other preview sizes
         except KeyboardInterrupt:
             raise
         except:

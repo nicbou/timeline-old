@@ -28,13 +28,17 @@ def generate_pdf_preview(input_path: Path, output_path: Path, max_dimensions: (i
         )
 
 
+class VideoDurationError(ValueError):
+    pass
+
+
 def generate_video_preview(input_path: Path, output_path: Path, video_duration: int, max_dimensions: (int, int),
                            overwrite=False):
     if output_path.exists() and not overwrite:
         raise FileExistsError
 
     if video_duration is None or video_duration == 0:
-        raise ValueError(
+        raise VideoDurationError(
             f'Could not generate video preview. Video duration is {video_duration}.'
         )
 
