@@ -7,13 +7,12 @@ logger = logging.getLogger(__name__)
 
 
 class Command(ModelProcessingCommand):
-    class_name = 'source and archive'
     default_class = BaseSource
 
     def process_instance(self, instance, force):
         created_entries, updated_entries = super().process_instance(instance, force)
         logger.info(
-            f"Retrieved {created_entries + updated_entries} entries for {self.class_name} {instance}. "
+            f"Retrieved {created_entries + updated_entries} entries for {instance}. "
             f"{created_entries} created, {updated_entries} updated."
         )
         return created_entries, updated_entries

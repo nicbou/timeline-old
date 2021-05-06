@@ -7,5 +7,4 @@ logger = logging.getLogger(__name__)
 
 
 class Command(ModelProcessingCommand):
-    class_name = 'destination'
     default_class = BaseDestination

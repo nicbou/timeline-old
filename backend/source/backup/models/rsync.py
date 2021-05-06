@@ -131,7 +131,7 @@ class RsyncBackup:
         return self.root_path == other.root_path
 
     def __str__(self):
-        return f"{self.source.key} ({self.date or 'latest'})"
+        return f"{self.source} ({self.date or 'latest'} backup)"
 
 
 class RsyncSource(RsyncConnectionMixin, BaseSource):
@@ -225,13 +225,11 @@ class RsyncSource(RsyncConnectionMixin, BaseSource):
             raise Exception("Rsync backup failed")
 
         changed_files_count = len(list(current_backup.get_changed_files()))
-        logger.info(f"{self.entry_source} backup successful. "
-                    f"{changed_files_count} files changed. "
-                    f"Rsync log is at {str(current_backup.rsync_log_path)}")
+        logger.info(f"{self.entry_source} backup successful. {changed_files_count} files changed.")
 
         if changed_files_count == 0:
             # Don't keep multiple identical backups. If `max_backups` is set, it pushes older backups out.
-            logger.info("Deleting backup because no files have changed.")
+            logger.info(f"Deleting {self.entry_source} backup because no files have changed.")
             current_backup.delete()
             return None
 

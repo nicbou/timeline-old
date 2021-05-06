@@ -45,7 +45,7 @@ class BaseArchive(BaseSource):
 
     def process(self, force=False) -> Tuple[int, int]:
         if self.date_processed and not force:
-            logger.info(f"Archive {self.entry_source} was already processed. Skipping.")
+            logger.debug(f"{self.entry_source} was already processed. Skipping.")
             return 0, 0
 
         with transaction.atomic():
@@ -63,7 +63,7 @@ class CompressedArchive(BaseArchive):
 
     def process(self, force=False) -> Tuple[int, int]:
         if self.date_processed and not force:
-            logger.info(f"Archive {self.entry_source} was already processed. Skipping.")
+            logger.debug(f"{self.entry_source} was already processed. Skipping.")
             return 0, 0
 
         try:

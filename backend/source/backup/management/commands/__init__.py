@@ -9,11 +9,14 @@ logger = logging.getLogger(__name__)
 
 
 class ModelProcessingCommand(BaseCommand):
-    class_name = 'models'
     default_class = None
 
     def handle(self, *args, **options):
-        classes_to_process = get_models_by_name(options.get('classes_to_process') or [self.default_class.__name__])
+        class_names = options.get('classes_to_process') or [self.default_class.__name__]
+        classes_to_process = get_models_by_name(class_names)
+        if not classes_to_process:
+            raise ValueError(f"No classes of types {class_names} found")
+
         logger.info(f"Processing {self.class_name} types: {[model.__name__ for model in classes_to_process]}")
         force_message = ' (with --force)' if options['force'] else ''
 
@@ -26,14 +29,15 @@ class ModelProcessingCommand(BaseCommand):
             preprocessing_tasks.update(instance.get_preprocessing_tasks())
             postprocessing_tasks.update(instance.get_postprocessing_tasks())
 
-        logger.info(f"Running {len(preprocessing_tasks)} preprocessing tasks{force_message}")
+        if len(preprocessing_tasks):
+            logger.info(f"Running {len(preprocessing_tasks)} preprocessing tasks{force_message}")
         for task in preprocessing_tasks:
             task(force=options['force'])
 
         failure_count = 0
         for instance in instances_to_process:
             try:
-                logger.info(f"Processing {self.class_name} {instance}{force_message}")
+                logger.info(f"Processing {instance}{force_message}")
                 self.process_instance(instance, force=options['force'])
             except KeyboardInterrupt:
                 raise
@@ -44,7 +48,8 @@ class ModelProcessingCommand(BaseCommand):
         logger.info(f"{len(instances_to_process)} {self.class_name} instances processed. "
                     f"{len(instances_to_process) - failure_count} successful, {failure_count} failed.")
 
-        logger.info(f"Running {len(postprocessing_tasks)} postprocessing tasks{force_message}")
+        if len(postprocessing_tasks):
+            logger.info(f"Running {len(postprocessing_tasks)} postprocessing tasks{force_message}")
         for task in postprocessing_tasks:
             task(force=options['force'])
 
