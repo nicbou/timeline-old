@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This software collects personal data (files, articles, comments, geolocation...) from different sources, and shows it on a timeline. It backs up the data it collects to remote locations.
+This software collects personal data (files, articles, comments, geolocation...) from different sources, and shows it on a timeline. It backs up the data it collects to remote locations. It runs on a server, and it's accessible as a website.
 
 It's a mix of a few things:
 
@@ -23,7 +23,7 @@ You can also add timeline entries through the REST API. This lets you write exte
 
 The frontend lets you browse your timeline day by day. It also lets you keep a daily diary.
 
-![](https://nicolasbouliane.com/images/_ultrawide2x/timeline-1.png)
+![](https://nicolasbouliane.com/images/_ultrawide2x/Screen-Shot-2021-05-07-at-22.59.42.png)
 
 ## Setup
 
