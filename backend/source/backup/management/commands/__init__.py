@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 class ModelProcessingCommand(BaseCommand):
+    class_name = 'models'
     default_class = None
 
     def handle(self, *args, **options):
@@ -42,7 +43,7 @@ class ModelProcessingCommand(BaseCommand):
             except KeyboardInterrupt:
                 raise
             except:
-                logger.exception(f"Failed to process {self.class_name} {str(instance)}")
+                logger.exception(f"Failed to process {str(instance)}")
                 failure_count += 1
 
         logger.info(f"{len(instances_to_process)} {self.class_name} instances processed. "
@@ -53,7 +54,7 @@ class ModelProcessingCommand(BaseCommand):
         for task in postprocessing_tasks:
             task(force=options['force'])
 
-        logger.info(f"All {self.class_name} types processed")
+        logger.info(f"Finished processing all {self.class_name} instances")
 
     def process_instance(self, instance, force):
         return instance.process(force)
@@ -69,5 +70,5 @@ class ModelProcessingCommand(BaseCommand):
         parser.add_argument(
             '--force',
             action='store_true',
-            help=f'Reprocess {self.class_name} that do not need to be processed.',
+            help=f'Reprocess {self.class_name} instances that do not need to be processed.',
         )

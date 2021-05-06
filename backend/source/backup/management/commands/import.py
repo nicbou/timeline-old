@@ -7,6 +7,7 @@ logger = logging.getLogger(__name__)
 
 
 class Command(ModelProcessingCommand):
+    class_name = 'source/archive'
     default_class = BaseSource
 
     def process_instance(self, instance, force):
