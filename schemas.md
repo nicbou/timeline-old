@@ -17,6 +17,7 @@ The activity of watching a video
 
 - `title`: Video title
 - `description`: Video description
+- `mixin:file`
 - `mixin:previews`
 - `url`: The URL of the video
 
@@ -40,6 +41,7 @@ A geolocation entry
 Describes a file on a filesystem.
 
 - `mixin:file`
+- `mixin:preview`
 - `mixin:media`
 - `backup_date`: The date on which a backup created this entry
 
@@ -90,6 +92,14 @@ A message sent by a sender to a recipient.
 
 ### message.telegram
 
+### message.telegram.audio
+
+### message.telegram.video
+
+### message.telegram.image
+
+### message.telegram.gif
+
 - `description`: The message body
 - `sender_name`: The name of the sender
 - `sender_id`: The phone number of the sender
@@ -103,8 +113,10 @@ A message sent by a sender to a recipient.
 An audio or video call
 
 - `duration`: Call duration, in seconds
-- `caller_name`: Name of the person making the call
-- `caller_id`: ID of the person making the call. In the case of a telephone call, the phone number.
+- `caller1_name`: Name of the person making the call
+- `caller1_id`: ID of the person making the call. In the case of a telephone call, the phone number.
+- `caller2_name`: Name of the person or group receiving the call
+- `caller2_id`: ID of the person or group receiving the call. In the case of a telephone call, the phone number.
 
 ### call.telegram
 
