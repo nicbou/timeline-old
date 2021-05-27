@@ -39,10 +39,8 @@ A geolocation entry
 
 Describes a file on a filesystem.
 
-- `file`
-    - `mimetype`: The file's mimetype. For example "text/markdown"
-    - `checksum`: The file's blake2b checksum
-    - `path`: The file's absolute path on the filesystem
+- `mixin:file`
+- `mixin:media`
 - `backup_date`: The date on which a backup created this entry
 
 ### file.text
@@ -90,6 +88,25 @@ A message sent by a sender to a recipient.
 - `recipient_name`: The name of the recipient
 - `recipient_id`: The phone number of the recipient
 
+### message.telegram
+
+- `description`: The message body
+- `sender_name`: The name of the sender
+- `sender_id`: The phone number of the sender
+- `recipient_name`: The name of the recipient (or the name of the group chat)
+- `recipient_id`: The ID of the recipient (or the ID of the group chat)
+- `mixin:file`: If the message has an attached file, like an image, a video or an audio message
+- `mixin:media`: If the message has an attached file, like an image, a video or an audio message
+
+## call
+
+An audio or video call
+
+- `duration`: Call duration, in seconds
+- `caller_name`: Name of the person making the call
+- `caller_id`: ID of the person making the call. In the case of a telephone call, the phone number.
+
+### call.telegram
 
 ## social
 
@@ -113,7 +130,7 @@ Social media posts and comments
 
 Mixins are common sets of attributes shared by different schemas.
 
-## coordinates
+## location
 
 - `location`
     - `latitude`
@@ -124,7 +141,7 @@ Mixins are common sets of attributes shared by different schemas.
     - `accuracy`: The accuracy, in meters
     - `name`: The name of this location, if available
 
-## preview
+## previews
 
 - `previews`: A dictionary of different preview sizes. The key is the name of the preview size (for example, "thumbnail"), and the value is the URL of the preview.
 
@@ -139,3 +156,19 @@ Mixins are common sets of attributes shared by different schemas.
 - `post_score`: The number of likes or upvotes
 - `post_url`: The URL of the post. Blank if a permalink can be generated from other entry attributes.
 - `post_community`: The sub-community (subreddit, subforum) in which the post was made
+
+## file
+
+- `file`
+    - `mimetype`: The file's mimetype. For example "text/markdown"
+    - `checksum`: The file's blake2b checksum
+    - `path`: The file's absolute path on the filesystem
+
+## media
+
+- `media`
+    - `width`: Width in pixels
+    - `height`: Height in pixels
+    - `orientation`: Orientation in degrees
+    - `duration`: Duration in seconds
+    - `codec`: Codec used to encode the media

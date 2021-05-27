@@ -75,7 +75,7 @@ class GoogleTakeoutArchive(CompressedArchive):
         yield from self.extract_youtube_history()
 
     def extract_browser_history(self) -> Generator[Entry, None, None]:
-        json_files = list(self.files_path.glob('**/Chrome/BrowserHistory.json'))
+        json_files = list(self.extracted_files_path.glob('**/Chrome/BrowserHistory.json'))
         logger.info(f'Processing browser history in "{self.entry_source}". '
                     f'{len(json_files)} files found.')
 
@@ -96,7 +96,7 @@ class GoogleTakeoutArchive(CompressedArchive):
                 )
 
     def extract_location_history(self) -> Generator[Entry, None, None]:
-        json_files = list(self.files_path.glob('**/Semantic Location History/**/*.json'))
+        json_files = list(self.extracted_files_path.glob('**/Semantic Location History/**/*.json'))
         logger.info(f'Processing location history in "{self.entry_source}". '
                     f'{len(json_files)} files found.')
 
@@ -156,11 +156,11 @@ class GoogleTakeoutArchive(CompressedArchive):
     def extract_search_history(self) -> Generator[Entry, None, None]:
         yield from self.extract_history_entries(
             json_files=(
-                self.files_path / 'Takeout/My Activity/Search/My Activity.json',
-                self.files_path / 'Takeout/My Activity/Image Search/My Activity.json',
-                self.files_path / 'Takeout/My Activity/Gmail/My Activity.json',
-                self.files_path / 'Takeout/My Activity/Finance/My Activity.json',
-                self.files_path / 'Takeout/My Activity/Drive/My Activity.json',
+                self.extracted_files_path / 'Takeout/My Activity/Search/My Activity.json',
+                self.extracted_files_path / 'Takeout/My Activity/Image Search/My Activity.json',
+                self.extracted_files_path / 'Takeout/My Activity/Gmail/My Activity.json',
+                self.extracted_files_path / 'Takeout/My Activity/Finance/My Activity.json',
+                self.extracted_files_path / 'Takeout/My Activity/Drive/My Activity.json',
             ),
             schema='activity.browsing.search',
             prefix='Searched for ',
@@ -168,7 +168,7 @@ class GoogleTakeoutArchive(CompressedArchive):
 
     def extract_youtube_history(self) -> Generator[Entry, None, None]:
         yield from self.extract_history_entries(
-            json_files=(self.files_path / 'Takeout/My Activity/YouTube/My Activity.json', ),
+            json_files=(self.extracted_files_path / 'Takeout/My Activity/YouTube/My Activity.json',),
             schema='activity.browsing.watch',
             prefix='Watched ',
         )

@@ -34,7 +34,7 @@ class BaseArchive(BaseSource):
         return ARCHIVES_ROOT / self.source_name / self.key
 
     @property
-    def files_path(self) -> Path:
+    def extracted_files_path(self) -> Path:
         """
         Extracted files are put here for further processing. These files will be deleted after processing.
         """
@@ -58,6 +58,8 @@ class BaseArchive(BaseSource):
 
 
 class CompressedArchive(BaseArchive):
+    keep_extracted_files = False
+
     class Meta:
         abstract = True
 
@@ -76,15 +78,16 @@ class CompressedArchive(BaseArchive):
             logger.exception(f'Failed to process archive "{self.entry_source}"')
             raise
         finally:
-            self.delete_extracted_files()
+            if not self.keep_extracted_files:
+                self.delete_extracted_files()
         return created_entries, updated_entries
 
     def extract_compressed_files(self):
-        self.files_path.mkdir(parents=True, exist_ok=True)
+        self.extracted_files_path.mkdir(parents=True, exist_ok=True)
         logger.info(f'Extracting archive "{self.entry_source}"')
-        shutil.unpack_archive(self.archive_file.path, self.files_path)
+        shutil.unpack_archive(self.archive_file.path, self.extracted_files_path)
 
     def delete_extracted_files(self):
         logger.info(f'Deleting extracted files for "{self.entry_source}"')
-        if self.files_path.exists():
-            shutil.rmtree(self.files_path)
+        if self.extracted_files_path.exists():
+            shutil.rmtree(self.extracted_files_path)

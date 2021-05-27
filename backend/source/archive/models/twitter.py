@@ -33,8 +33,8 @@ class TwitterArchive(CompressedArchive):
     A Twitter data dump import
     """
     def get_account_info(self):
-        js_file = self.files_path / 'data/account.js'
-        json_file = self.files_path / 'data/account.json'
+        js_file = self.extracted_files_path / 'data/account.js'
+        json_file = self.extracted_files_path / 'data/account.json'
         remove_twitter_js(js_file, json_file)
 
         with json_file.open(encoding='utf-8') as json_file_handle:
@@ -43,8 +43,8 @@ class TwitterArchive(CompressedArchive):
     def extract_entries(self) -> Generator[Entry, None, None]:
         account_info = self.get_account_info()
 
-        js_file_path = self.files_path / 'data/tweet.js'
-        json_file_path = self.files_path / 'data/tweet.json'
+        js_file_path = self.extracted_files_path / 'data/tweet.js'
+        json_file_path = self.extracted_files_path / 'data/tweet.json'
         remove_twitter_js(js_file_path, json_file_path)
 
         with json_file_path.open('r', encoding='utf-8') as json_file:

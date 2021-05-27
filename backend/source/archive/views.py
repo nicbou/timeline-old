@@ -1,10 +1,10 @@
 from rest_framework import viewsets, permissions
 
-from archive.models import JsonArchive, GpxArchive, N26CsvArchive
+from archive.models import JsonArchive, GpxArchive, N26CsvArchive, TelegramArchive
 from archive.models.google_takeout import GoogleTakeoutArchive
 from archive.models.twitter import TwitterArchive
 from archive.serializers import GoogleTakeoutArchiveSerializer, TwitterArchiveSerializer, JsonArchiveSerializer, \
-    GpxArchiveSerializer, N26CsvArchiveSerializer
+    GpxArchiveSerializer, N26CsvArchiveSerializer, TelegramArchiveSerializer
 
 
 class GoogleTakeoutArchiveViewSet(viewsets.ModelViewSet):
@@ -34,4 +34,10 @@ class GpxArchiveViewSet(viewsets.ModelViewSet):
 class N26CsvArchiveViewSet(viewsets.ModelViewSet):
     queryset = N26CsvArchive.objects.all()
     serializer_class = N26CsvArchiveSerializer
+    permission_classes = [permissions.AllowAny]
+
+
+class TelegramArchiveViewSet(viewsets.ModelViewSet):
+    queryset = TelegramArchive.objects.all()
+    serializer_class = TelegramArchiveSerializer
     permission_classes = [permissions.AllowAny]

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from archive.models import JsonArchive, GpxArchive, N26CsvArchive
+from archive.models import JsonArchive, GpxArchive, N26CsvArchive, TelegramArchive
 from archive.models.google_takeout import GoogleTakeoutArchive
 from archive.models.twitter import TwitterArchive
 
@@ -42,4 +42,12 @@ class N26CsvArchiveSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = N26CsvArchive
+        fields = '__all__'
+
+
+class TelegramArchiveSerializer(serializers.HyperlinkedModelSerializer):
+    key = serializers.CharField()
+
+    class Meta:
+        model = TelegramArchive
         fields = '__all__'

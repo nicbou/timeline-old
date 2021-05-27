@@ -10,3 +10,4 @@ Pillow==8.0.1
 requests==2.25.0
 feedparser==6.0.2
 gpxpy==1.4.2
+phonenumbers==8.12.23

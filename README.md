@@ -255,6 +255,19 @@ Generally, you should import data with a `TwitterSource`, because it will keep l
 
 Imports transactions from an N26 CSV export.
 
+### TelegramArchive
+
+`/api/telegramarchive`
+
+Imports data from the exports created by [Telegram Desktop](https://desktop.telegram.org/). Messages from channels are not imported. Messages from groups you have left are not imported.
+
+Telegram Desktop exports its data to a folder. You must compress it into a zip file yourself. Make sure that the `result.json` file is at the root of the zip file.
+
+**Required fields:**
+
+* `include_group_chats`: If true, messages from group conversations will be imported. Default is true.
+* `include_supergroup_chats`: If true, messages from supergroups will be imported. Default is false.
+
 ## Destinations
 
 `/api/backup`
