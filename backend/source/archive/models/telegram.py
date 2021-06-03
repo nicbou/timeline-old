@@ -2,6 +2,7 @@ import json
 import logging
 from collections import Generator
 from datetime import datetime
+from functools import partial
 from pathlib import Path
 from typing import Optional
 
@@ -9,8 +10,9 @@ import pytz
 from django.db import models
 
 from archive.models.base import CompressedArchive
-from backup.utils.files import get_mimetype, get_checksum
+from backup.utils.files import get_mimetype, get_checksum, _set_entry_media_metadata, _set_entry_exif_metadata
 from timeline.models import Entry
+from timeline.utils.postprocessing import generate_previews
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +45,11 @@ class TelegramArchive(CompressedArchive):
                         yield self.entry_from_call(account, chat, message)
                     elif message.get('type') == 'message':
                         yield self.entry_from_message(account, chat, message)
+
+    def get_postprocessing_tasks(self):
+        return [
+            partial(generate_previews, source=self),
+        ]
 
     @staticmethod
     def account_name(account_info: dict) -> str:
@@ -99,6 +106,8 @@ class TelegramArchive(CompressedArchive):
         return text
 
     def entry_from_message(self, account: dict, chat: dict, message: dict) -> Entry:
+        schema = 'message.telegram'
+
         # For personal chats, messages are from one user to another user
         # For group chats, messages are from one user to the group
         if chat['type'] == 'personal_chat':
@@ -108,12 +117,12 @@ class TelegramArchive(CompressedArchive):
                     'sender_name': self.account_name(account),
                     'sender_id': message['from_id'],
                     'recipient_name': chat['name'],
-                    'recipient_id': f"user{message['from_id']}",
+                    'recipient_id': message['from_id'],
                 }
             else:
                 extra_attributes = {
                     'sender_name': message['from'],
-                    'sender_id': f"user{message['from_id']}",
+                    'sender_id': message['from_id'],
                     'recipient_name': self.account_name(account),
                     'recipient_id': self.account_id(account),
                 }
@@ -139,15 +148,43 @@ class TelegramArchive(CompressedArchive):
                 extra_attributes.setdefault('media', {})['width'] = message['width']
             if 'height' in message:
                 extra_attributes.setdefault('media', {})['height'] = message['height']
+        try:
+            if extra_attributes.get('file'):
+                if extra_attributes['file']['mimetype'] is None:
+                    pass
+                elif extra_attributes['file']['mimetype'].startswith('audio'):
+                    schema = 'message.telegram.audio'
+                elif extra_attributes['file']['mimetype'].startswith('video'):
+                    schema = 'message.telegram.video'
+                elif extra_attributes['file']['mimetype'].startswith('image'):
+                    schema = 'message.telegram.image'
+            elif message.get('media_type') == 'sticker':
+                schema = 'message.telegram.sticker'
+            elif message.get('media_type') == 'animation':
+                schema = 'message.telegram.gif'
+        except:
+            raise Exception([extra_attributes, message])
 
-        return Entry(
+        entry = Entry(
             source=self.entry_source,
-            schema='message.telegram',
+            schema=schema,
             title='',
             description=self.message_text(message),
             extra_attributes=extra_attributes,
             date_on_timeline=self.message_date(message),
         )
+
+        try:
+            if entry.schema == 'message.telegram.image' or entry.schema == 'message.telegram.video':
+                _set_entry_media_metadata(entry)
+            if entry.schema == 'message.telegram.image':
+                _set_entry_exif_metadata(entry)
+        except KeyboardInterrupt:
+            raise
+        except:
+            logger.exception("Could not read entry metadata.")
+
+        return entry
 
     def entry_from_call(self, account: dict, chat: dict, message: dict) -> Entry:
         if message['actor_id'] == self.account_id(account):  # Outgoing call

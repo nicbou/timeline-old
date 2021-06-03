@@ -110,12 +110,15 @@ def _original_file_exists(entry: Entry) -> bool:
 
 def _get_processing_tasks(entry: Entry) -> List[Callable[[Entry], None]]:
     tasks = []
-    if entry.schema.startswith('file.image'):
+    mimetype = entry.extra_attributes['file'].get('mimetype') or ''
+    if mimetype.startswith('image/'):
         tasks.append(_generate_image_previews)
-    elif entry.schema.startswith('file.video'):
+    elif mimetype.startswith('video/'):
         tasks.append(_generate_video_previews)
-    elif entry.schema.startswith('file.document.pdf'):
+    elif mimetype == 'application/pdf':
         tasks.append(_generate_pdf_previews)
+    else:
+        logger.warning(f'Unrecognised mimetype for entry #{entry.pk}: {mimetype}')
     return tasks
 
 
@@ -123,7 +126,7 @@ def generate_previews(source: BaseSource=None, force=False):
     """
     Generates previews on the timeline
     """
-    entry_filters = {'schema__startswith': 'file.'}
+    entry_filters = {'extra_attributes__has_key': 'file'}
     if source:
         entry_filters['source'] = source.entry_source
 
@@ -164,6 +167,6 @@ def generate_previews(source: BaseSource=None, force=False):
                 entry.save()
 
         if missing_entry_count == 0:
-            logger.info(f"{len(entries)} file entries processed.")
+            logger.info(f"{len(entries)} entries processed.")
         else:
-            logger.warning(f"{len(entries)} file entries processed, {missing_entry_count} orphaned entries removed")
+            logger.warning(f"{len(entries)} entries processed, {missing_entry_count} orphaned entries removed")

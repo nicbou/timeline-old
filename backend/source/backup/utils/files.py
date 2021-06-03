@@ -29,7 +29,7 @@ def get_modification_date(file_path: Path) -> datetime:
 
 def get_filename_date(file_path: Path) -> Optional[datetime]:
     default_timezone = 'Europe/Berlin'  # TODO: If this thing gets a million users, that assumption could be wrong
-    date_regex = "(\d{4})-([0][1-9]|1[0-2])-([0-2][1-9]|[1-3]0|3[01])"
+    date_regex = "(\\d{4})-([0][1-9]|1[0-2])-([0-2][1-9]|[1-3]0|3[01])"
     if matches := re.search(f'.*({date_regex})$', file_path.stem):
         try:
             return pytz.timezone(default_timezone) \
@@ -153,7 +153,7 @@ def create_entries_from_files(path: Path, source: BaseSource, backup_date: datet
             if 'location' in metadata_cache[checksum]:
                 entry.extra_attributes['location'] = metadata_cache[checksum]['location']
         else:
-            if schema == 'file.text' or schema.startswith('file.text'):
+            if mimetype and mimetype.startswith('text/'):
                 try:
                     _set_entry_plaintext_description(entry)
                 except KeyboardInterrupt:
@@ -162,15 +162,15 @@ def create_entries_from_files(path: Path, source: BaseSource, backup_date: datet
                     logger.exception(
                         f"Could not set plain text description for file {entry.extra_attributes['file']['path']}")
 
-            if schema.startswith('file.image') or schema.startswith('file.video'):
+            if mimetype and (mimetype.startswith('image/') or mimetype.startswith('video/')):
                 try:
-                    _set_media_metadata(entry)
+                    _set_entry_media_metadata(entry)
                 except KeyboardInterrupt:
                     raise
                 except:
                     logger.exception(f"Could not set media metadata for file {entry.extra_attributes['file']['path']}")
 
-            if schema == 'file.image' or schema.startswith('file.image'):
+            if mimetype and mimetype.startswith('image/'):
                 try:
                     _set_entry_exif_metadata(entry)
                     if orientation := entry.extra_attributes.get('media', {}).get('orientation'):
@@ -200,7 +200,7 @@ def create_entries_from_files(path: Path, source: BaseSource, backup_date: datet
     return Entry.objects.bulk_create(entries_to_create)
 
 
-def _set_media_metadata(entry: Entry):
+def _set_entry_media_metadata(entry: Entry):
     """
     Sets width, height, duration and codec attributes for media files
     """
