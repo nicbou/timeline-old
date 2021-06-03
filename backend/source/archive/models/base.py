@@ -26,6 +26,10 @@ class BaseArchive(BaseSource):
     class Meta:
         abstract = True
 
+    def post_delete(self):
+        super().post_delete()
+        shutil.rmtree(self.root_path)
+
     @property
     def root_path(self) -> Path:
         """

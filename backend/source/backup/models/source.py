@@ -2,6 +2,8 @@ import logging
 from typing import Tuple, Iterable
 
 from django.db import models
+from django.db.models import QuerySet
+from django.db.models.signals import post_delete
 
 from timeline.models import Entry
 
@@ -10,6 +12,21 @@ logger = logging.getLogger(__name__)
 
 class BaseSource(models.Model):
     key = models.SlugField(max_length=80, primary_key=True)
+
+    @classmethod
+    def __init_subclass__(cls, **kwargs):
+        """
+        Workaround because child classes don't inherit their parent's signals
+        """
+        super().__init_subclass__(**kwargs)
+        post_delete.connect(cls.on_post_delete_signal, cls)
+
+    @staticmethod
+    def on_post_delete_signal(sender, instance: 'BaseSource', **kwargs):
+        instance.post_delete()
+
+    def post_delete(self):
+        self.get_entries().delete()
 
     class Meta:
         abstract = True
@@ -30,7 +47,7 @@ class BaseSource(models.Model):
     def __str__(self) -> str:
         return self.entry_source
 
-    def get_entries(self):
+    def get_entries(self) -> QuerySet:
         return Entry.objects.filter(source=self.entry_source)
 
     def delete_entries(self):
