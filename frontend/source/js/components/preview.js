@@ -14,11 +14,10 @@ export default Vue.component('preview', {
         return `${this.entry.extra_attributes.previews.preview} 1x, ${this.entry.extra_attributes.previews.preview2x} 2x`;
     },
     previewType: function() {
-      const s = this.entry.schema;
-      if (s.startsWith('file.image') || s.startsWith('file.document.pdf')) {
+      if (this.mimetype.startsWith('image/') || this.mimetype === 'application/pdf') {
         return 'image-preview';
       }
-      else if(s.startsWith('file.video')) {
+      else if(this.mimetype.startsWith('video/')) {
         return 'video-preview';
       }
     },

@@ -42,7 +42,7 @@ export default Vue.component('activity-tile', {
     },
   },
   template: `
-    <div class="activity">
+    <div class="activity compact">
       <i class="icon" :class="iconClass"></i>
       <time>{{ time }}</time>
       <span v-html="text"></span>

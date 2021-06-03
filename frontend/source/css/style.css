@@ -101,11 +101,24 @@ input, button, textarea, select{font:var(--font-m);border:var(--border);padding:
     .image img, .video video{cursor:pointer;display:block;height:var(--height-tile);}
     .image + :not(.image, .video), .video + :not(.image, .video){border-top: var(--border);padding-top:var(--spacing-m);}
 
-.activity{flex:0 1 var(--tile-max-width);max-width:calc(100% - 2 * var(--spacing-m));box-sizing:border-box;break-after:always;break-before:always;border-bottom:var(--border);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+.compact{font:var(--font-s);padding:var(--spacing-xs) 0;overflow:hidden;}
+    .compact + :not(.compact) {margin-top:var(--spacing-m)}
+    :not(.compact) + .compact{margin-top:calc(-1 * var(--spacing-m));}
+
+.activity{flex:0 1 var(--tile-max-width);max-width:calc(100% - 2 * var(--spacing-m));box-sizing:border-box;break-after:always;break-before:always;border-bottom:var(--border);text-overflow:ellipsis;white-space:nowrap;}
     .activity .icon{width:25px;color:var(--color-text-faded);}
     .activity time{width:45px;display:inline-block;}
-    .activity + :not(.activity) {margin-top:var(--spacing-m);}
-    :not(.activity) + .activity{margin-top:calc(-1 * var(--spacing-m));}
+
+.message{flex:0 1 var(--tile-max-width);max-width:calc(100% - 2 * var(--spacing-m));box-sizing:border-box;break-after:always;break-before:always;border-bottom:var(--border);display:flex;}
+    .message header{flex:0 0 230px;margin-right:var(--spacing-m)}
+        .message .icon{width:25px;}
+            .message.telegram .icon{color:#0088cc;}
+        .message time{width:45px;display:inline-block;}
+        .message header{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+            .message .sender{font-weight:bold}
+    .message main{flex:1 1 auto}
+    .message .image, .message .video{display:inline-block;margin:0}
 
 .post{flex:0 1 var(--tile-max-width);max-width:calc(100% - 2 * var(--spacing-m));box-sizing:border-box;break-after:always;break-before:always;display:flex;flex-direction:column;border-bottom:var(--border);margin-bottom:var(--spacing-m);}
     .post > header{display:flex;align-items:center;}
@@ -144,18 +157,6 @@ input, button, textarea, select{font:var(--font-m);border:var(--border);padding:
             .post.journal main div *:last-child{margin-bottom:0}
             .post.journal main div:hover{background:var(--color-background-02)}
         .post.journal main textarea{background:var(--color-background-02);width:100%;height:400px;box-sizing:border-box;padding:0;border:0;margin:0;outline:none;display:block;font:var(--font-m);color:var(--color-text);}
-
-    .post.thread{max-height:var(--tile-max-height);flex:0 1 400px;break-after:auto;break-before:auto;overflow-y:auto;}
-        .thread .message{margin-bottom:var(--spacing-m);list-style-type:none;position:relative;}
-            .thread .message .name{display:block;font-weight:bold;}
-            .thread .message time{position:absolute;bottom:-20px;left:0;color:var(--color-text-faded);display:none;font:var(--font-s)}
-                .thread .message:hover time{display:inline;}
-            .thread .message main{display:inline-block;background:var(--tile-background-color-header);border-radius:var(--border-radius);padding:var(--spacing-s);}
-        .thread .message.right{text-align:right;}
-            .thread .message.right time{left:auto;right:0;}
-            .thread .message.right main{margin-left:30px;border-top-right-radius:0px;text-align:left;}
-        .thread .message.left main{}
-            .thread .message.left main{margin-right:30px;background:#8af;color:#fff;border-top-left-radius:0px;}
 
     .post.browsing-history li{list-style:none;border-bottom:var(--border);padding:var(--spacing-xs);}
         .post.browsing-history .icon{margin-right;width:20px;}

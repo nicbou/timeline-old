@@ -7,7 +7,7 @@ import TimelineImageTile from './tiles/image.js';
 import TimelineNav from './timeline-nav.js';
 import TimelinePostTile from './tiles/post.js'
 import TimelineTextTile from './tiles/text.js'
-import TimelineThreadTile from './tiles/thread.js';
+import TimelineMessageTile from './tiles/message.js';
 import TimelineVideoTile from './tiles/video.js';
 import TransactionsTile from './tiles/transactions.js';
 import { RequestStatus } from './../models/requests.js';
@@ -162,14 +162,6 @@ export default Vue.component('timeline', {
         return groups;
       }, emptyGroups);
     },
-    messageThreads: function() {
-      return this.entryGroups.messages.entries.reduce((threads, entry) => {
-        const key = [entry.extra_attributes.sender_id, entry.extra_attributes.recipient_id].sort().join('<>');
-        threads[key] = threads[key] || [];
-        threads[key].push(entry);
-        return threads;
-      }, {});
-    },
   },
   methods: {
     openPreview: function(entry) {
@@ -195,6 +187,9 @@ export default Vue.component('timeline', {
       else if(s.startsWith('activity.browsing')) {
         return 'activity-tile';
       }
+      else if(s.startsWith('message.')) {
+        return 'message-tile';
+      }
     },
   },
   template: `
@@ -215,7 +210,6 @@ export default Vue.component('timeline', {
         <spinner v-if="isLoading"></spinner>
         <div class="tiles">
           <journal-editor v-if="!isLoading"></journal-editor>
-          <thread-tile v-if="!isLoading" :thread="thread" v-for="thread in messageThreads"></thread-tile>
           <component
             :entry="entry"
             :is="tileType(entry)"
