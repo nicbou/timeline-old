@@ -96,7 +96,7 @@ input, button, textarea, select{font:var(--font-m);border:var(--border);padding:
 
 .tiles{background:var(--color-background-03);flex:0 1 100%;display:flex;flex-wrap:wrap;align-content:baseline;box-sizing:border-box;padding:var(--spacing-l);}
 
-.image, .video{border:none;height:200px;margin:0 var(--spacing-m) var(--spacing-m) 0;background:var(--color-background-02);color:var(--color-text-faded);overflow:hidden;}
+.image, .video{position:relative;border:none;height:200px;margin:0 var(--spacing-m) var(--spacing-m) 0;background:var(--color-background-02);color:var(--color-text-faded);overflow:hidden;}
     .media-icons{position:absolute;bottom:0;right:0;padding:var(--spacing-m);font-size:var(--font-size-icons);}
     .image img, .video video{cursor:pointer;display:block;height:var(--height-tile);}
     .image + :not(.image, .video), .video + :not(.image, .video){border-top: var(--border);padding-top:var(--spacing-m);}
