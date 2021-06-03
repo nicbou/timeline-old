@@ -11,7 +11,7 @@ from .serializers import EntrySerializer
 
 
 class EntryViewSet(viewsets.ModelViewSet):
-    queryset = Entry.objects.all().order_by('-date_on_timeline')
+    queryset = Entry.objects.all().order_by('date_on_timeline')
     serializer_class = EntrySerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter]
     permission_classes = [permissions.AllowAny]

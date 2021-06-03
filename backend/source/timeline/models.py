@@ -15,5 +15,5 @@ class Entry(models.Model):
         indexes = [
             models.Index(fields=['schema']),
             models.Index(fields=['source']),
-            models.Index(fields=['-date_on_timeline']),
+            models.Index(fields=['date_on_timeline']),
         ]
