@@ -70,7 +70,7 @@ An Entry represents one thing that appears on the timeline. It could be a photo,
 
 Entries have a `schema` attribute, like `file.document.pdf`. The schemas are read from left (general) to right (specific). The schemas determine what attributes you can expect in the `extra_attributes` field. For example, all `file.image` entries have `width` and `height` attributes.
 
-* [List of schemas](https://github.com/nicbou/timeline/blob/master/README.md)
+* [List of schemas](https://github.com/nicbou/timeline/blob/master/schemas.md)
 
 Entries also have a `source` attribute. This allows you to query entries that are related to a source. 
 
@@ -83,6 +83,61 @@ A Source is a source of data. Sources are suited for frequent, automatic data im
 For example, you can use them to automatically import photos from your phone, import your new tweets, or watch a website for new posts.
 
 New sources can be added directly through the API. You can browse the API at `/api/backup`.
+
+### FileSystemSource
+
+`/api/backup/filesystemsource`
+
+Describes a directory on the local filesystem. Entries are created from the files in that directory.
+
+A FileSystemSource requires more initial configuration than an RsyncSource, but it saves storage space because it does not copy any files. You can use it to import large file collections, like photo albums, without using more disk space. You can use it to add a Google Drive or Dropbox directory to your timeline.
+
+**Usage:**
+
+1. Mount a volume under `/data/mounts` on the `timeline-backend` image. You can find an example in `docker-compose.homeserver.yml`.
+2. Create a `.timelineinclude` file in the mounted volume. It lists which files will appear on the timeline. If you want all files to appear on the timeline, add two line to that file: `*` and `**/*`.
+3. Create a FileSystemSource through the API.
+
+**Required fields:**
+
+* `key`: a unique identifier for this source (e.g. "macbook-photos")
+* `path`: path of the source directory, relative to `/data/mounts`
+
+### HackerNewsSource
+
+`/api/backup/hackernewssource`
+
+Describes a source of Hacker News posts and comments.
+
+**Required fields:**
+
+* `key`: a unique identifier for this source (e.g. "dang")
+* `hackernews_username`: The name of the Hacker News user to back up (e.g. "dang")
+
+### RedditSource
+
+`/api/backup/redditsource`
+
+Describes a source of reddit posts and comments.
+
+**Required fields:**
+
+* `key`: a unique identifier for this source (e.g. "spez")
+* `client_id`: Reddit API credentials
+* `client_secret`: Reddit API credentials
+* `user_agent`: Reddit API credentials
+* `reddit_username`: The name of the Reddit user to back up (e.g. "spez")
+
+### RssSource
+
+`/api/backup/rsssource`
+
+Describes a RSS feed.
+
+**Required fields:**
+
+* `key`: a unique identifier for this source (e.g. "personal-blog")
+* `feed_url`: The URL of the RSS feed.
 
 ### RsyncSource
 
@@ -115,25 +170,6 @@ documents/invoices
 * `key_exchange_method`: The method used to copy SSH keys to the remote host. The default (`ssh-copy-id`) works in most cases.
 * `max_backups`: how many backup versions to keep. If null, old backups are never deleted. If "1", only the latest backup is kept.
 
-### FileSystemSource
-
-`/api/backup/filesystemsource`
-
-Describes a directory on the local filesystem. Entries are created from the files in that directory.
-
-A FileSystemSource requires more initial configuration than an RsyncSource, but it saves storage space because it does not copy any files. You can use it to import large file collections, like photo albums, without using more disk space. You can use it to add a Google Drive or Dropbox directory to your timeline.
-
-**Usage:**
-
-1. Mount a volume under `/data/mounts` on the `timeline-backend` image. You can find an example in `docker-compose.homeserver.yml`.
-2. Create a `.timelineinclude` file in the mounted volume. It lists which files will appear on the timeline. If you want all files to appear on the timeline, add two line to that file: `*` and `**/*`.
-3. Create a FileSystemSource through the API.
-
-**Required fields:**
-
-* `key`: a unique identifier for this source (e.g. "macbook-photos")
-* `path`: path of the source directory, relative to `/data/mounts`
-
 ### TwitterSource
 
 `/api/backup/twittersource`
@@ -148,42 +184,6 @@ Describes a source of tweets. Requires Twitter API credentials. If you can't get
 * `access_token`: Twitter API credentials
 * `access_token_secret`: Twitter API credentials
 * `twitter_username`: The name of the Twitter user to back up, without the "@" (e.g. "katyperry")
-
-### RedditSource
-
-`/api/backup/redditsource`
-
-Describes a source of reddit posts and comments.
-
-**Required fields:**
-
-* `key`: a unique identifier for this source (e.g. "spez")
-* `client_id`: Reddit API credentials
-* `client_secret`: Reddit API credentials
-* `user_agent`: Reddit API credentials
-* `reddit_username`: The name of the Reddit user to back up (e.g. "spez")
-
-### HackerNewsSource
-
-`/api/backup/hackernewssource`
-
-Describes a source of Hacker News posts and comments.
-
-**Required fields:**
-
-* `key`: a unique identifier for this source (e.g. "dang")
-* `hackernews_username`: The name of the Hacker News user to back up (e.g. "dang")
-
-### RssSource
-
-`/api/backup/rsssource`
-
-Describes a RSS feed.
-
-**Required fields:**
-
-* `key`: a unique identifier for this source (e.g. "personal-blog")
-* `feed_url`: The URL of the RSS feed.
 
 ## Archives
 
@@ -200,20 +200,6 @@ New archives can be added directly through the API. You can browse the API at `/
 * `key`: a unique identifier for this archive (e.g. "google-takeout-2020-01-20")
 * `description`: A plain text description of this archive
 * `archive_file`: The archive file to process
-
-### JsonArchive
-
-`/api/archive/jsonarchive`
-
-Imports a list of Entry objects from a JSON file. It expects the same format as the API. The entries in the JSON file are imported as-is, but the `source` attribute is overridden, and the `id` attribute is ignored.
-
-This is useful for one-off data imports. For example, I use it to process an SMS dump I found on an old hard drive.
-
-### GpxArchive
-
-`/api/archive/gpxarchive`
-
-Imports a list of `activity.location` Entries from a GPX file. All points from tracks and routes are imported, and all waypoints.
 
 ### GoogleTakeoutArchive
 
@@ -241,13 +227,19 @@ When you create a Google Takeout archive, you must select certain export setting
 
 If you don't use these export settings, the import will not fail, but some data might not be imported.
 
-### TwitterArchive
+### GpxArchive
 
-`/api/archive/twitterarchive`
+`/api/archive/gpxarchive`
 
-Imports tweets from a Twitter data export.
+Imports a list of `activity.location` Entries from a GPX file. All points from tracks and routes are imported, and all waypoints.
 
-Generally, you should import data with a `TwitterSource`, because it will keep looking for new tweets. A `TwitterArchive` is better for private accounts, or archives of deleted accounts. Unlike a `TwitterSource`, it does not require Twitter API credentials.
+### JsonArchive
+
+`/api/archive/jsonarchive`
+
+Imports a list of Entry objects from a JSON file. It expects the same format as the API. The entries in the JSON file are imported as-is, but the `source` attribute is overridden, and the `id` attribute is ignored.
+
+This is useful for one-off data imports. For example, I use it to process an SMS dump I found on an old hard drive.
 
 ### N26CsvArchive
 
@@ -267,6 +259,14 @@ Telegram Desktop exports its data to a folder. You must compress it into a zip f
 
 * `include_group_chats`: If true, messages from group conversations will be imported. Default is true.
 * `include_supergroup_chats`: If true, messages from supergroups will be imported. Default is false.
+
+### TwitterArchive
+
+`/api/archive/twitterarchive`
+
+Imports tweets from a Twitter data export.
+
+Generally, you should import data with a `TwitterSource`, because it will keep looking for new tweets. A `TwitterArchive` is better for private accounts, or archives of deleted accounts. Unlike a `TwitterSource`, it does not require Twitter API credentials.
 
 ## Destinations
 
