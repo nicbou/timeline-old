@@ -23,7 +23,30 @@ from timeline.models import Entry
 logger = logging.getLogger(__name__)
 
 
-def get_modification_date(file_path: Path) -> datetime:
+class FileFormatError(Exception):
+    """
+    This exception is raised when a file can't be read properly. For example, an unreadable image or an invalid JSON
+    file.
+    """
+    pass
+
+
+def get_file_entry_date(entry: Entry) -> datetime:
+    """
+    Returns the most appropriate timeline date for a file, picking the earliest date of many candidates
+    """
+    file_path = Path(entry.extra_attributes['file']['path'])
+    filename_date = get_filename_date(file_path)
+    modification_date = get_file_modification_date(file_path)
+    try:
+        exif_date = json_to_datetime(entry.extra_attributes['media']['creation_date'])
+    except KeyError:
+        exif_date = None
+
+    return min(filter(None, (filename_date, modification_date, exif_date)))
+
+
+def get_file_modification_date(file_path: Path) -> datetime:
     return datetime.fromtimestamp(file_path.stat().st_mtime, pytz.UTC)
 
 
@@ -77,6 +100,7 @@ def get_schema_from_mimetype(mimetype) -> str:
     if mimetype.startswith('image/'):
         schema += '.image'
     elif mimetype.startswith('video/'):
+        # TODO: Some MP4 files are audio only, but recognised as videos
         schema += '.video'
     elif mimetype.startswith('audio/'):
         schema += '.audio'
@@ -89,30 +113,38 @@ def get_schema_from_mimetype(mimetype) -> str:
     return schema
 
 
-def create_entries_from_files(path: Path, source: BaseSource, backup_date: datetime, use_cache=True) -> List[Entry]:
+def create_entries_from_directory(path: Path, source: BaseSource, backup_date: datetime, use_cache=True) -> List[Entry]:
+    """
+    Delete and recreate the Entries for the files in a directory.
+    """
     timelineinclude_rules = list(get_include_rules_for_dir(path, settings.TIMELINE_INCLUDE_FILE))
     files = list(get_files_matching_rules(get_files_in_dir(path), timelineinclude_rules))
 
-    metadata_cache = {}
-    inode_checksum_cache = {}
+    inode_checksum_cache = {}  # translates file inodes to checksums
+    metadata_cache = {}  # translates checksums to entry metadata
+    cached_extra_attributes = ('location', 'media', 'previews')
     if use_cache:
-        # Most of the files in the new backup are not new. They are hard links to the same files as in the old backup.
-        # If two files have the same inode, they are identical.
+        # Most files in a directory already have a matching Entry. Recalculating the metadata for each file Entry is
+        # wasteful and time-consuming.
+        # Instead, we build a cache of all files that have an Entry. If we process a file that already has an Entry (if
+        # they have the same inode), we can reuse the cached Entry metadata.
         for entry in source.get_entries():
             try:
-                inode = Path(entry.extra_attributes['file']['path']).stat().st_ino
-                inode_checksum_cache[inode] = entry.extra_attributes['file']['checksum']
+                # We also avoid calculating checksums if we don't have to. Instead, we compare the file inodes. If the
+                # inodes are the same, THEN we calculate and compare the checksums. If the file in the Entry and the
+                # file in the directory have the same checksum, then they're identical, and we can reuse the metadata.
+                entry_file_inode = Path(entry.extra_attributes['file']['path']).stat().st_ino
+                inode_checksum_cache[entry_file_inode] = entry.extra_attributes['file']['checksum']
             except FileNotFoundError:
-                # This can happen if the backup files were deleted.
+                # This can happen if the file in the Entry was deleted or moved.
                 pass
 
-            # Avoid expensive recalculation of metadata. If the checksum is the same, that metadata is also the same
             metadata = {}
 
-            if 'media' in entry.extra_attributes:
-                metadata['media'] = entry.extra_attributes['media']
-            if 'location' in entry.extra_attributes:
-                metadata['location'] = entry.extra_attributes['location']
+            for attribute in cached_extra_attributes:
+                if attribute in entry.extra_attributes:
+                    metadata[attribute] = entry.extra_attributes[attribute]
+
             if entry.description:
                 metadata['description'] = entry.description
 
@@ -120,147 +152,226 @@ def create_entries_from_files(path: Path, source: BaseSource, backup_date: datet
 
     entries_to_create = []
     for file in files:
+        file.resolve()
+
         try:
             checksum = inode_checksum_cache.get(file.stat().st_ino) or get_checksum(file)
         except OSError:
             logger.exception(f"Could not generate checksum for {str(file)}")
-            continue
-
-        mimetype = get_mimetype(file)
-        schema = get_schema_from_mimetype(mimetype)
-        entry = Entry(
-            schema=schema,
-            source=source.entry_source,
-            title=file.name,
-            description='',
-            date_on_timeline=get_modification_date(file),
-            extra_attributes={
-                'file': {
-                    'path': str(file.resolve()),
-                    'checksum': checksum,
-                },
-                'backup_date': datetime_to_json(backup_date),
-            }
-        )
-
-        if mimetype:
-            entry.extra_attributes['file']['mimetype'] = mimetype
+            raise
 
         if checksum in metadata_cache:
-            entry.description = metadata_cache[checksum].get('description', '')
-            if 'media' in metadata_cache[checksum]:
-                entry.extra_attributes['media'] = metadata_cache[checksum]['media']
-            if 'location' in metadata_cache[checksum]:
-                entry.extra_attributes['location'] = metadata_cache[checksum]['location']
-        else:
-            if mimetype and mimetype.startswith('text/'):
-                try:
-                    _set_entry_plaintext_description(entry)
-                except KeyboardInterrupt:
-                    raise
-                except:
-                    logger.exception(
-                        f"Could not set plain text description for file {entry.extra_attributes['file']['path']}")
-
-            if mimetype and (mimetype.startswith('image/') or mimetype.startswith('video/')):
-                try:
-                    _set_entry_media_metadata(entry)
-                except KeyboardInterrupt:
-                    raise
-                except:
-                    logger.exception(f"Could not set media metadata for file {entry.extra_attributes['file']['path']}")
-
-            if mimetype and mimetype.startswith('image/'):
-                try:
-                    _set_entry_exif_metadata(entry)
-                    if orientation := entry.extra_attributes.get('media', {}).get('orientation'):
-                        # Set the correct width/height according to EXIF orientation
-                        if orientation == 90 or orientation == 270:
-                            width = entry.extra_attributes['media']['width']
-                            height = entry.extra_attributes['media']['height']
-                            entry.extra_attributes['media']['width'] = height
-                            entry.extra_attributes['media']['height'] = width
-                        del entry.extra_attributes['media']['orientation']
-                except KeyboardInterrupt:
-                    raise
-                except:
-                    logger.exception(f"Could not set exif metadata for file {entry.extra_attributes['file']['path']}")
-
-        if filename_date := get_filename_date(file):
-            entry.date_on_timeline = filename_date
-        elif exif_date := entry.extra_attributes.get('media', {}).get('creation_date'):
-            entry.date_on_timeline = min(
-                entry.date_on_timeline,
-                json_to_datetime(exif_date)
+            mimetype = get_mimetype(file)
+            entry = Entry(
+                title=file.name,
+                source=source.entry_source,
+                schema=get_schema_from_mimetype(mimetype),
+                description=metadata_cache[checksum].get('description', ''),
+                extra_attributes={
+                    'file': {
+                        'path': str(file),
+                        'checksum': checksum,
+                        'mimetype': mimetype,
+                    },
+                }
             )
 
+            for attribute in cached_extra_attributes:
+                if attribute in metadata_cache:
+                    entry.extra_attributes[attribute] = metadata_cache[attribute]
+        else:
+            entry = entry_from_file_path(file, source)
+
+        entry.extra_attributes['backup_date'] = datetime_to_json(backup_date)
+
+        entry.date_on_timeline = get_file_entry_date(entry)  # This could change, so it's not cached
         entries_to_create.append(entry)
 
-    source.get_entries().delete()
+    source.get_entries().delete()  # TODO: Only delete the entries in the specified directory?
     return Entry.objects.bulk_create(entries_to_create)
 
 
-def _set_entry_media_metadata(entry: Entry):
+def entry_from_file_path(file_path: Path, source: BaseSource) -> Entry:
     """
-    Sets width, height, duration and codec attributes for media files
+    Creates an Entry template from a file path, filling the fields with file metadata.
     """
-    if 'media' in entry.extra_attributes:
-        # Information is already set
-        return
+    mimetype = get_mimetype(file_path)
+    entry = Entry(
+        title=file_path.name,
+        source=source.entry_source,
+        schema=get_schema_from_mimetype(mimetype),
+        extra_attributes={
+            'file': {
+                'checksum': get_checksum(file_path),
+                'path': str(file_path.resolve()),
+                'mimetype': mimetype,
+            },
+        },
+    )
+    entry.date_on_timeline = get_file_entry_date(entry)
 
-    entry.extra_attributes['media'] = {}
-    original_path = Path(entry.extra_attributes['file']['path'])
+    if mimetype:
+        if mimetype.startswith('image/'):
+            entry.schema = 'file.image'
+            entry.extra_attributes.update(get_image_extra_attributes(file_path))
+        if mimetype.startswith('video/'):
+            entry.schema = 'file.video'
+            try:
+                entry.extra_attributes.update(get_video_extra_attributes(file_path))
+            except FileFormatError:
+                logger.exception(f"Could not read metadata for video {str(file_path)}")
+        if mimetype.startswith('audio/'):
+            entry.schema = 'file.audio'
+            entry.extra_attributes.update(get_audio_extra_attributes(file_path))
+        if mimetype.startswith('text/'):
+            entry.schema = 'file.text'
+            with file_path.open('r') as text_file:
+                entry.description = text_file.read(settings.MAX_PLAINTEXT_PREVIEW_SIZE)
+
+    return entry
+
+
+def get_image_extra_attributes(file_path: Path) -> dict:
+    with Image.open(file_path) as image:
+        width, height = image.size
+
+    metadata = {
+        'media': {
+            'width': width,
+            'height': height,
+        },
+    }
+
+    exif = get_image_exif(file_path)
+
+    # Camera info
+    if 'Make' in exif or 'Model' in exif:
+        metadata['media']['camera'] = f"{exif.get('Make', '')} {exif.get('Model', '')}".replace('\x00', '').strip()
+
+    # Geolocation
+    if 'GPSInfo' in exif:
+        metadata['location'] = {}
+        if 'GPSLatitude' in exif['GPSInfo'] and 'GPSLongitude' in exif['GPSInfo']:
+            metadata['location']['latitude'] = dms_to_decimal(
+                exif['GPSInfo']['GPSLatitude'], exif['GPSInfo'].get('GPSLatitudeRef')
+            )
+            metadata['location']['longitude'] = dms_to_decimal(
+                exif['GPSInfo']['GPSLongitude'], exif['GPSInfo'].get('GPSLongitudeRef')
+            )
+        if 'GPSAltitude' in exif['GPSInfo']:
+            altitude = exif['GPSInfo']['GPSAltitude']
+            if not exif['GPSInfo'].get('GPSAltitudeRef', b'\x00') == b'\x00':
+                altitude *= -1
+            metadata['location']['altitude'] = float(altitude)
+        if 'GPSImgDirection' in exif['GPSInfo']:
+            metadata['location']['direction'] = float(exif['GPSInfo']['GPSImgDirection'])
+        if 'GPSDestBearing' in exif['GPSInfo']:
+            metadata['location']['bearing'] = float(exif['GPSInfo']['GPSDestBearing'])
+
+    # Camera orientation
+    if 'Orientation' in exif:
+        orientation_map = {1: 0, 3: 180, 6: 270, 8: 90}
+        try:
+            metadata['media']['orientation'] = orientation_map[exif['Orientation']]
+        except KeyError:
+            logger.warning(f"{file_path} had unexpected EXIF orientation: {exif['Orientation']}")
+
+        # Set the correct width/height according to EXIF orientation
+        if metadata['media']['orientation'] == 90 or metadata['media']['orientation'] == 270:
+            width = metadata['media']['width']
+            height = metadata['media']['height']
+            metadata['media']['width'] = height
+            metadata['media']['height'] = width
+            del metadata['media']['orientation']
+
+    # Date
+    if 'GPSDateStamp' in exif.get('GPSInfo', {}) and 'GPSTimeStamp' in exif.get('GPSInfo', {}):
+        gps_datetime = ''  # GPS dates are UTC
+        try:
+            gps_date = exif['GPSInfo']['GPSDateStamp']
+            gps_time = ":".join(f"{int(timefragment):02}" for timefragment in exif['GPSInfo']['GPSTimeStamp'])
+            gps_datetime = f"{gps_date} {gps_time}"
+            metadata['media'] = metadata.get('media', {})
+            metadata['media']['creation_date'] = datetime_to_json(parse_exif_date(gps_datetime))
+        except ValueError:
+            logging.exception(f"Could not parse EXIF GPS date '{gps_datetime} ({file_path})'")
+        except KeyError:
+            pass
+    elif exif_date := (exif.get('DateTimeOriginal') or exif.get('DateTime')):
+        # There is no timezone information on exif dates
+        try:
+            metadata['media'] = metadata.get('media', {})
+            metadata['media']['creation_date'] = datetime_to_json(parse_exif_date(exif_date))
+        except ValueError:
+            logging.exception(f"Could not parse EXIF date '{exif_date}' ({file_path})")
+
+    return metadata
+
+
+def get_audio_extra_attributes(file_path: Path) -> dict:
+    ffprobe_cmd = subprocess.run(
+        [
+            'ffprobe',
+            '-v', 'error',
+            '-select_streams', 'a',
+            '-show_entries', 'stream=duration,codec_name',
+            '-of', 'json',
+            str(file_path)
+        ],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
+
+    if audio_streams := json.loads(ffprobe_cmd.stdout.decode('utf-8'))['streams']:
+        return {
+            'media': {
+                'duration': int(float(audio_streams[0]['duration'])),
+                'codec': audio_streams[0]['codec_name'],
+            }
+        }
+    else:
+        return {}
+
+
+def get_video_extra_attributes(file_path: Path) -> dict:
+    # TODO: Extract video geolocation
+
+    ffprobe_cmd = subprocess.run(
+        [
+            'ffprobe',
+            '-v', 'error',
+            '-select_streams', 'v',
+            '-show_format', '-show_streams',
+            '-of', 'json',
+            str(file_path)
+        ],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE
+    )
+
     try:
-        original_media_attrs = get_media_metadata(original_path)
-        entry.extra_attributes['media'].update(original_media_attrs)
-        if (
-            entry.extra_attributes['file'].get('mimetype').startswith('image')
-            and 'codec' in entry.extra_attributes['media']
-        ):
-            # JPEG images are treated as MJPEG videos and have a duration of 1 frame
-            entry.extra_attributes['media'].pop('duration', None)
-            entry.extra_attributes['media'].pop('codec', None)
-    except KeyboardInterrupt:
-        raise
-    except:
-        logger.exception(f"Could not read metadata from file {original_path}")
-        raise
+        video_streams = json.loads(ffprobe_cmd.stdout.decode('utf-8'))['streams']
+    except KeyError:
+        raise FileFormatError(f"Could not read streams of video file {str(file_path)}.")
 
+    if video_streams:
+        metadata = {
+            'media': {
+                'width': int(video_streams[0]['width']),
+                'height': int(video_streams[0]['height'])
+            }
+        }
+        if 'duration' in video_streams[0]:
+            metadata['media']['duration'] = int(float(video_streams[0]['duration']))
+        if 'codec_name' in video_streams[0]:
+            metadata['media']['codec'] = video_streams[0].get('codec_name')
+        if 'rotate' in video_streams[0].get('tags', {}):
+            metadata['media']['orientation'] = int(video_streams[0]['tags']['rotate'])
+        if 'creation_time' in video_streams[0].get('tags', {}):
+            creation_time = json_to_datetime(video_streams[0]['tags']['creation_time'])
+            metadata['media']['creation_date'] = datetime_to_json(creation_time)
 
-def _set_entry_exif_metadata(entry: Entry):
-    if 'camera' in entry.extra_attributes.get('media', {}) or 'location' in entry.extra_attributes:
-        # TODO: Photos with missing exif data will be reprocessed
-        return
-
-    original_path = Path(entry.extra_attributes['file']['path'])
-    try:
-        metadata = get_metadata_from_exif(original_path)
-        if 'media' in metadata:
-            entry.extra_attributes['media'].update(metadata['media'])
-        if 'location' in metadata:
-            entry.extra_attributes['location'] = metadata['location']
-
-        if 'title' in metadata:
-            entry.title = metadata.pop('title')
-
-        if 'description' in metadata:
-            entry.description = metadata.pop('description')
-    except KeyboardInterrupt:
-        raise
-    except:
-        logger.exception(f"Could not read exif from file {original_path}")
-        raise
-
-
-def _set_entry_plaintext_description(entry: Entry):
-    """
-    Sets the description attribute for plain text files
-    """
-    if len(entry.description):
-        return
-    original_path = Path(entry.extra_attributes['file']['path'])
-    with original_path.open('r') as text_file:
-        entry.description = text_file.read(settings.MAX_PLAINTEXT_PREVIEW_SIZE)
+        return metadata
+    else:
+        return {}
 
 
 def get_checksum(file_path: Path) -> str:
@@ -271,39 +382,8 @@ def get_checksum(file_path: Path) -> str:
     return file_hash.hexdigest()
 
 
-def get_media_metadata(input_path: Path) -> dict:
-    """
-    Extracts metadata (resolution, duration, codec...) from images and videos
-    """
-    ffprobe_cmd = subprocess.run(
-        [
-            'ffprobe',
-            '-v', 'error',
-            '-select_streams', 'v',
-            '-show_entries', 'stream=width,height,duration,codec_name',
-            '-of', 'json',
-            str(input_path)
-        ],
-        stdout=subprocess.PIPE, stderr=subprocess.PIPE
-    )
-    raw_metadata = json.loads(ffprobe_cmd.stdout.decode('utf-8'))['streams'][0]
-
-    metadata = {
-        'width': int(raw_metadata['width']),
-        'height': int(raw_metadata['height']),
-    }
-
-    if 'duration' in raw_metadata:
-        metadata['duration'] = int(float(raw_metadata['duration']))  # Note: images can also have a duration
-    if 'codec_name' in raw_metadata:
-        metadata['codec'] = raw_metadata['codec_name']
-
-    return metadata
-
-
-def get_exif_from_image(input_path: Path) -> dict:
-    # https://github.com/python-pillow/Pillow/issues/4007
-    with Image.open(input_path) as image:
+def get_image_exif(input_path: Path) -> dict:
+    with Image.open(input_path) as image:  # https://github.com/python-pillow/Pillow/issues/4007
         image.verify()
 
     with Image.open(input_path) as image:
@@ -325,88 +405,3 @@ def get_exif_from_image(input_path: Path) -> dict:
         exif['GPSInfo'] = gpsinfo_tags
 
     return exif
-
-
-def get_metadata_from_exif(input_path: Path) -> dict:
-    metadata = {}
-    try:
-        exif = get_exif_from_image(input_path)
-    except KeyboardInterrupt:
-        raise
-    except:
-        logging.exception(f"Could not parse exif for {input_path}")
-        return metadata
-
-    # Geolocation
-    if 'GPSInfo' in exif:
-        metadata['location'] = {}
-        if 'GPSLatitude' in exif['GPSInfo'] and 'GPSLongitude' in exif['GPSInfo']:
-            metadata['location'].update({
-                'latitude': dms_to_decimal(exif['GPSInfo']['GPSLatitude'], exif['GPSInfo'].get('GPSLatitudeRef')),
-                'longitude': dms_to_decimal(exif['GPSInfo']['GPSLongitude'], exif['GPSInfo'].get('GPSLongitudeRef')),
-            })
-
-        if 'GPSAltitude' in exif['GPSInfo']:
-            altitude = exif['GPSInfo']['GPSAltitude']
-            if not exif['GPSInfo'].get('GPSAltitudeRef', b'\x00') == b'\x00':
-                altitude *= -1
-            metadata['location']['altitude'] = float(altitude)
-
-        if 'GPSImgDirection' in exif['GPSInfo']:
-            metadata['location']['direction'] = float(exif['GPSInfo']['GPSImgDirection'])
-
-        if 'GPSDestBearing' in exif['GPSInfo']:
-            metadata['location']['bearing'] = float(exif['GPSInfo']['GPSDestBearing'])
-
-    # Camera info
-    if 'Make' in exif or 'Model' in exif:
-        metadata['media'] = metadata.get('media', {})
-        metadata['media']['camera'] = f"{exif.get('Make', '')} {exif.get('Model', '')}".replace('\x00', '').strip()
-
-    if 'Orientation' in exif:
-        orientation_map = {
-            1: 0,
-            3: 180,
-            6: 270,
-            8: 90,
-        }
-        try:
-            metadata['media'] = metadata.get('media', {})
-            metadata['media']['orientation'] = orientation_map[exif['Orientation']]
-        except KeyError:
-            logger.warning(f"{input_path} had unexpected EXIF orientation: {exif['Orientation']}")
-
-    # Date
-    if 'GPSDateStamp' in exif.get('GPSInfo', {}) and 'GPSTimeStamp' in exif.get('GPSInfo', {}):
-        # GPS dates are UTC
-        gps_datetime = ''
-        try:
-            gps_date = exif['GPSInfo']['GPSDateStamp']
-            gps_time = ":".join(f"{int(timefragment):02}" for timefragment in exif['GPSInfo']['GPSTimeStamp'])
-            gps_datetime = f"{gps_date} {gps_time}"
-            metadata['media'] = metadata.get('media', {})
-            metadata['media']['creation_date'] = datetime_to_json(parse_exif_date(gps_datetime))
-        except ValueError:
-            logging.exception(f"Could not parse EXIF GPS date '{gps_datetime} ({input_path})'")
-        except KeyError:
-            pass
-    elif exif_date := (exif.get('DateTimeOriginal') or exif.get('DateTime')):
-        # There is no timezone information on this date
-        try:
-            metadata['media'] = metadata.get('media', {})
-            metadata['media']['creation_date'] = datetime_to_json(parse_exif_date(exif_date))
-        except ValueError:
-            logging.exception(f"Could not parse EXIF date '{exif_date}' ({input_path})")
-
-    # Title and description
-    def _get_longest_exif_value(fields):
-        values = [str(exif[field]).strip().replace('\x00', '') for field in fields if field in exif]
-        return sorted(values, key=len, reverse=True)[0] if values else None
-
-    if title := _get_longest_exif_value(('DocumentName', 'XPTitle', 'XPSubject')):
-        metadata['title'] = title
-
-    if description := _get_longest_exif_value(('ImageDescription', 'XPComment', 'Description')):
-        metadata['description'] = description
-
-    return metadata

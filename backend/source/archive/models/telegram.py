@@ -10,7 +10,7 @@ import pytz
 from django.db import models
 
 from archive.models.base import CompressedArchive
-from backup.utils.files import get_mimetype, get_checksum, _set_entry_media_metadata, _set_entry_exif_metadata
+from backup.utils.files import get_mimetype, get_checksum, entry_from_file_path
 from timeline.models import Entry
 from timeline.utils.postprocessing import generate_previews
 
@@ -21,7 +21,7 @@ class TelegramArchive(CompressedArchive):
     """
     Reads Telegram Desktop exports
     """
-    keep_extracted_files = True
+    keep_extracted_files = True  # The archive contains message attachments
 
     include_supergroup_chats = models.BooleanField("Include supergroup chats", default=False)
     include_group_chats = models.BooleanField("Include group chats", default=True)
@@ -59,14 +59,14 @@ class TelegramArchive(CompressedArchive):
     def account_id(account_info: dict) -> str:
         return f"user{account_info['user_id']}"
 
-    def message_file(self, message: dict) -> Optional[Path]:
+    def get_message_file_path(self, message: dict) -> Optional[Path]:
         relative_path = message.get('photo') or message.get('file')
         if not relative_path:
             return None
 
         absolute_path = self.extracted_files_path / relative_path
         if not absolute_path.exists():
-            # If the archive was created with MacOS, the file names are Unicode, but Puthon reads them as CP437. This
+            # If the archive was created with MacOS, the file names are Unicode, but Python reads them as CP437. This
             # breaks file names with unicode characters in them. Blame OSX, which does not set bit 11 to mark ZIPs as
             # unicode.
             absolute_path = self.extracted_files_path / str(relative_path).encode().decode('cp437')
@@ -81,11 +81,11 @@ class TelegramArchive(CompressedArchive):
         return absolute_path
 
     @staticmethod
-    def message_date(message: dict) -> datetime:
+    def get_message_date(message: dict) -> datetime:
         return pytz.utc.localize(datetime.strptime(message['date'], "%Y-%m-%dT%H:%M:%S"))
 
     @staticmethod
-    def message_text(message: dict) -> str:
+    def get_message_text(message: dict) -> str:
         if type(message.get('text')) is str:
             if message.get('media_type') == 'sticker':
                 text = message.get('sticker_emoji', '[sticker]')
@@ -106,83 +106,53 @@ class TelegramArchive(CompressedArchive):
         return text
 
     def entry_from_message(self, account: dict, chat: dict, message: dict) -> Entry:
-        schema = 'message.telegram'
+        if file := self.get_message_file_path(message):
+            entry = entry_from_file_path(file, self)
+            mimetype = entry.extra_attributes['file']['mimetype']
+            if mimetype and mimetype.startswith('audio'):
+                entry.schema = 'message.telegram.audio'
+            elif mimetype and mimetype.startswith('video'):
+                entry.schema = 'message.telegram.video'
+            elif mimetype and mimetype.startswith('image'):
+                entry.schema = 'message.telegram.image'
+        else:
+            entry = Entry()
+            if message.get('media_type') == 'sticker':
+                entry.schema = 'message.telegram.sticker'
+            elif message.get('media_type') == 'animation':
+                entry.schema = 'message.telegram.gif'
+            else:
+                entry.schema = 'message.telegram'
 
-        # For personal chats, messages are from one user to another user
-        # For group chats, messages are from one user to the group
+        entry.description = self.get_message_text(message)
+        entry.date_on_timeline = self.get_message_date(message)
+
+        # Set message metadata
         if chat['type'] == 'personal_chat':
-            # For personal chats, the chat ID is the same as the other user's ID.
+            # For personal chats, messages are from one user to another user.
+            # In the telegram data, the chat ID is the same as the other user's ID.
             if message['from_id'] == self.account_id(account):  # Outgoing private msg
-                extra_attributes = {
+                entry.extra_attributes.update({
                     'sender_name': self.account_name(account),
                     'sender_id': message['from_id'],
                     'recipient_name': chat['name'],
                     'recipient_id': message['from_id'],
-                }
-            else:
-                extra_attributes = {
+                })
+            else:  # Incoming private msg
+                entry.extra_attributes.update({
                     'sender_name': message['from'],
                     'sender_id': message['from_id'],
                     'recipient_name': self.account_name(account),
                     'recipient_id': self.account_id(account),
-                }
+                })
         else:
-            extra_attributes = {
+            # For group chats, messages are from one user to the rest of the group
+            entry.extra_attributes.update({
                 'sender_name': message['from'],
                 'sender_id': message['from_id'],
                 'recipient_name': chat['name'],
                 'recipient_id': chat['id'],
-            }
-
-        # Add file attributes
-        if file := self.message_file(message):
-            extra_attributes['file'] = {
-                'checksum': get_checksum(file),
-                'mimetype': get_mimetype(file),
-                'path': str(file),
-            }
-
-            if 'duration_seconds' in message:
-                extra_attributes.setdefault('media', {})['duration'] = message['duration_seconds']
-            if 'width' in message:
-                extra_attributes.setdefault('media', {})['width'] = message['width']
-            if 'height' in message:
-                extra_attributes.setdefault('media', {})['height'] = message['height']
-        try:
-            if extra_attributes.get('file'):
-                if extra_attributes['file']['mimetype'] is None:
-                    pass
-                elif extra_attributes['file']['mimetype'].startswith('audio'):
-                    schema = 'message.telegram.audio'
-                elif extra_attributes['file']['mimetype'].startswith('video'):
-                    schema = 'message.telegram.video'
-                elif extra_attributes['file']['mimetype'].startswith('image'):
-                    schema = 'message.telegram.image'
-            elif message.get('media_type') == 'sticker':
-                schema = 'message.telegram.sticker'
-            elif message.get('media_type') == 'animation':
-                schema = 'message.telegram.gif'
-        except:
-            raise Exception([extra_attributes, message])
-
-        entry = Entry(
-            source=self.entry_source,
-            schema=schema,
-            title='',
-            description=self.message_text(message),
-            extra_attributes=extra_attributes,
-            date_on_timeline=self.message_date(message),
-        )
-
-        try:
-            if entry.schema == 'message.telegram.image' or entry.schema == 'message.telegram.video':
-                _set_entry_media_metadata(entry)
-            if entry.schema == 'message.telegram.image':
-                _set_entry_exif_metadata(entry)
-        except KeyboardInterrupt:
-            raise
-        except:
-            logger.exception("Could not read entry metadata.")
+            })
 
         return entry
 
@@ -206,5 +176,5 @@ class TelegramArchive(CompressedArchive):
                 'caller2_name': caller2['name'],
                 'caller2_id': caller2['id'],
             },
-            date_on_timeline=self.message_date(message),
+            date_on_timeline=self.get_message_date(message),
         )

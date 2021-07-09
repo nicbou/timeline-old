@@ -14,7 +14,7 @@ from django.db import models, transaction
 from backup.models.destination import BaseDestination
 from backup.models.source import BaseSource
 from backup.utils.datetime import datetime_to_json
-from backup.utils.files import get_files_in_dir, create_entries_from_files
+from backup.utils.files import get_files_in_dir, create_entries_from_directory
 from backup.utils.preprocessing import dump_entries
 from backup.utils.ssh import KEY_EXCHANGE_SSH_COPY_ID, KEY_EXCHANGE_METHODS
 from timeline.utils.postprocessing import generate_previews
@@ -264,7 +264,7 @@ class RsyncSource(RsyncConnectionMixin, BaseSource):
             return 0
 
         logger.info(f"Creating entries for {str(latest_backup)}")
-        return len(create_entries_from_files(
+        return len(create_entries_from_directory(
             latest_backup.files_path,
             source=self,
             backup_date=latest_backup.date,
