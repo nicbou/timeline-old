@@ -2,6 +2,14 @@
 
 This is a list of the schemas that are currently in use
 
+## *
+
+- `title`
+- `description`
+- `source`
+- `schema`
+- `date_on_timeline`
+
 ## activity
 
 ### activity.browsing.search
@@ -30,11 +38,10 @@ The activity of visiting a page on a website
 
 ### activity.location
 
-A geolocation entry
+The user's geolocation at that time.
 
+- `description`: Text description, such as messages sent by a GPS beacon.
 - `mixin:coordinates`
-- `source`: The source of the geolocation info (device, archive, etc)
-
 
 ## file
 
@@ -43,74 +50,70 @@ Describes a file on a filesystem.
 - `mixin:file`
 - `mixin:preview`
 - `mixin:media`
+- `mixin:coordinates`: The file's geolocation, if available
 - `backup_date`: The date on which a backup created this entry
 
 ### file.text
 
+- `decription`: An excerpt from the text file's content
+
 ### file.document
-
-### file.document.pdf
-
-- `mixin:previews`: A PNG of the document's first page
 
 ### file.image
 
-- `mixin:coordinates`
-- `mixin:previews`
-- `camera`: The camera's make and model.
-- `creation_date`: The date on which the photo was taken. Might differ from the file's modification date.
-
 ### file.video
 
-- `mixin:coordinates`
-- `mixin:previews`
-- `duration`: The duration of the video, in seconds
-- `codec`
-- `width`: The width of the video, in pixels
-- `height`: The height of the video, in pixels
-
+### file.audio
 
 ## journal
 
-A journal entry
+A journal/diary entry
 
 - `title`: Optional entry title
 - `description`: The journal entry, as Markdown.
 
-
 ## message
 
-A message sent by a sender to a recipient.
-
-### message.text.sms
+A message sent by a sender to a recipient. The recipient can be another person or a group.
 
 - `description`: The message body
 - `sender_name`: The name of the sender
 - `sender_id`: The phone number of the sender
 - `recipient_name`: The name of the recipient
 - `recipient_id`: The phone number of the recipient
+- `mixin:file`: Message attachments
+- `mixin:preview`: Preview for the message attachments
+- `mixin:media`: Media information about the message attachments
+
+### message.text.sms
+
+### message.facebook
+
+#### message.facebook.audio
+
+#### message.facebook.gif
+
+#### message.facebook.image
+
+#### message.facebook.sticker
+
+#### message.facebook.video
 
 ### message.telegram
 
-### message.telegram.audio
+#### message.telegram.audio
 
-### message.telegram.video
+#### message.telegram.gif
 
-### message.telegram.image
+#### message.telegram.image
 
-### message.telegram.gif
+#### message.facebook.file
 
-- `description`: The message body
-- `sender_name`: The name of the sender
-- `sender_id`: The phone number of the sender
-- `recipient_name`: The name of the recipient (or the name of the group chat)
-- `recipient_id`: The ID of the recipient (or the ID of the group chat)
-- `mixin:file`: If the message has an attached file, like an image, a video or an audio message
-- `mixin:media`: If the message has an attached file, like an image, a video or an audio message
+#### message.telegram.video
 
 ## call
 
-An audio or video call
+An audio or video call.
 
 - `duration`: Call duration, in seconds
 - `caller1_name`: Name of the person making the call
@@ -119,6 +122,8 @@ An audio or video call
 - `caller2_id`: ID of the person or group receiving the call. In the case of a telephone call, the phone number.
 
 ### call.telegram
+
+### call.facebook
 
 ## social
 
@@ -184,3 +189,5 @@ Mixins are common sets of attributes shared by different schemas.
     - `orientation`: Orientation in degrees
     - `duration`: Duration in seconds
     - `codec`: Codec used to encode the media
+    - `camera`: The camera's make and model.
+    - `creation_date`: The date on which the photo was taken. Might differ from the file's modification date.
