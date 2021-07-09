@@ -124,6 +124,7 @@ class TelegramArchive(CompressedArchive):
             else:
                 entry.schema = 'message.telegram'
 
+        entry.source = self.entry_source
         entry.description = self.get_message_text(message)
         entry.date_on_timeline = self.get_message_date(message)
 
