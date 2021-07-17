@@ -1,5 +1,4 @@
 from rest_framework import serializers
-from django.apps import apps
 
 from .models import Entry
 
@@ -7,15 +6,7 @@ from .models import Entry
 class EntrySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Entry
-        fields = [
-            'id',
-            'schema',
-            'source',
-            'title',
-            'description',
-            'extra_attributes',
-            'date_on_timeline',
-        ]
+        fields = '__all__'
 
 
 _entry_fields_cache = None
