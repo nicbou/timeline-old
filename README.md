@@ -201,11 +201,17 @@ New archives can be added directly through the API. You can browse the API at `/
 * `description`: A plain text description of this archive
 * `archive_file`: The archive file to process
 
+### FacebookArchive
+
+Imports various data from a [Facebook export](https://www.facebook.com/help/212802592074644):
+
+* Facebook Messenger messages, including images, videos and gifs
+
 ### GoogleTakeoutArchive
 
 `/api/archive/googletakeoutarchive`
 
-Imports various data from a Google Takeout export:
+Imports various data from a [Google Takeout export](https://takeout.google.com/).
 
 When you create a Google Takeout archive, you must select certain export settings:
 

@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django_filters',
     'rest_framework',
+    'generic_relations',
     'timeline.apps.TimelineConfig',
     'archive.apps.ArchiveConfig',
     'backup.apps.BackupConfig',

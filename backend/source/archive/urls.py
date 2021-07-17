@@ -2,9 +2,10 @@ from django.urls import include, path
 from rest_framework import routers
 
 from .views import GoogleTakeoutArchiveViewSet, TwitterArchiveViewSet, JsonArchiveViewSet, GpxArchiveViewSet, \
-    N26CsvArchiveViewSet, TelegramArchiveViewSet
+    N26CsvArchiveViewSet, TelegramArchiveViewSet, FacebookArchiveViewSet
 
 router = routers.DefaultRouter()
+router.register(r'facebookarchive', FacebookArchiveViewSet)
 router.register(r'googletakeoutarchive', GoogleTakeoutArchiveViewSet)
 router.register(r'gpxarchive', GpxArchiveViewSet)
 router.register(r'jsonarchive', JsonArchiveViewSet)

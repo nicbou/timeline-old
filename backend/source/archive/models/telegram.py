@@ -9,15 +9,15 @@ from typing import Optional
 import pytz
 from django.db import models
 
-from archive.models.base import CompressedArchive
-from backup.utils.files import get_mimetype, get_checksum, entry_from_file_path
+from archive.models.base import CompressedFileArchive
+from backup.utils.files import entry_from_file_path
 from timeline.models import Entry
 from timeline.utils.postprocessing import generate_previews
 
 logger = logging.getLogger(__name__)
 
 
-class TelegramArchive(CompressedArchive):
+class TelegramArchive(CompressedFileArchive):
     """
     Reads Telegram Desktop exports
     """

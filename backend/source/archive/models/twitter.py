@@ -7,7 +7,7 @@ from typing import Generator
 
 import pytz
 
-from archive.models.base import CompressedArchive
+from archive.models.base import CompressedFileArchive
 from timeline.models import Entry
 
 logger = logging.getLogger(__name__)
@@ -28,7 +28,7 @@ def twitter_date_to_datetime(twitter_date: str) -> datetime:
     return pytz.utc.localize(datetime.strptime(twitter_date, '%a %b %d %H:%M:%S +0000 %Y'))
 
 
-class TwitterArchive(CompressedArchive):
+class TwitterArchive(CompressedFileArchive):
     """
     A Twitter data dump import
     """

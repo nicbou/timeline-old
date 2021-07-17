@@ -11,3 +11,5 @@ requests==2.25.0
 feedparser==6.0.2
 gpxpy==1.4.2
 phonenumbers==8.12.23
+rest-framework-generic-relations==2.0.0
+FormEncode==2.0.0

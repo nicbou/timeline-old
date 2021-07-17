@@ -1,4 +1,5 @@
-from archive.models.base import archive_path
+from archive.models.base import archive_path, ArchiveFile
+from archive.models.facebook import FacebookArchive
 from archive.models.google_takeout import GoogleTakeoutArchive
 from archive.models.gpx import GpxArchive
 from archive.models.json import JsonArchive
@@ -9,6 +10,8 @@ from archive.models.twitter import TwitterArchive
 
 __all__ = [
     'archive_path',
+    'ArchiveFile',
+    'FacebookArchive',
     'GoogleTakeoutArchive',
     'GpxArchive',
     'JsonArchive',

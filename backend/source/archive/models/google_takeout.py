@@ -7,7 +7,7 @@ from typing import Iterable
 
 import pytz
 
-from archive.models.base import BaseArchive, CompressedArchive
+from archive.models.base import BaseArchive, CompressedFileArchive
 from backup.utils.datetime import json_to_datetime
 from timeline.models import Entry
 
@@ -64,7 +64,7 @@ def browsing_history_entry(date_on_timeline: datetime, archive: 'BaseArchive', u
     )
 
 
-class GoogleTakeoutArchive(CompressedArchive):
+class GoogleTakeoutArchive(CompressedFileArchive):
     """
     A Google Takeout data export. Can contain all data, or only data from some services
     """

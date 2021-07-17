@@ -3,14 +3,14 @@ from collections import Generator
 
 import gpxpy as gpxpy
 
-from archive.models.base import BaseArchive
+from archive.models.base import FileArchive
 from backup.utils.datetime import datetime_to_json
 from timeline.models import Entry
 
 logger = logging.getLogger(__name__)
 
 
-class GpxArchive(BaseArchive):
+class GpxArchive(FileArchive):
     """
     A single GPX file
     """
@@ -31,15 +31,16 @@ class GpxArchive(BaseArchive):
         )
 
     def extract_entries(self) -> Generator[Entry, None, None]:
-        gpx = gpxpy.parse(self.archive_file.file)
-        for track in gpx.tracks:
-            for segment in track.segments:
-                for point in segment.points:
+        for gpx_file in self.get_archive_files():
+            gpx = gpxpy.parse(gpx_file)
+            for track in gpx.tracks:
+                for segment in track.segments:
+                    for point in segment.points:
+                        yield self.entry_from_point(point)
+
+            for route in gpx.routes:
+                for point in route.points:
                     yield self.entry_from_point(point)
 
-        for route in gpx.routes:
-            for point in route.points:
+            for point in gpx.waypoints:
                 yield self.entry_from_point(point)
-
-        for point in gpx.waypoints:
-            yield self.entry_from_point(point)
