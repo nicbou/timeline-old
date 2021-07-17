@@ -1,8 +1,8 @@
-from django.contrib import admin
 from django.urls import path, include
 
 urlpatterns = [
-    path('', include('archive.urls')),
-    path('', include('timeline.urls')),
-    path('', include('backup.urls')),
+    path('archive/', include('archive.urls')),
+    path('timeline/', include('timeline.urls')),
+    path('source/', include('backup.urls.source')),
+    path('destination/', include('backup.urls.destination')),
 ]

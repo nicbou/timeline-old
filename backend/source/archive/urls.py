@@ -5,13 +5,13 @@ from .views import GoogleTakeoutArchiveViewSet, TwitterArchiveViewSet, JsonArchi
     N26CsvArchiveViewSet, TelegramArchiveViewSet, FacebookArchiveViewSet
 
 router = routers.DefaultRouter()
-router.register(r'archive/facebook', FacebookArchiveViewSet)
-router.register(r'archive/googletakeout', GoogleTakeoutArchiveViewSet)
-router.register(r'archive/gpx', GpxArchiveViewSet)
-router.register(r'archive/json', JsonArchiveViewSet)
-router.register(r'archive/n26csv', N26CsvArchiveViewSet)
-router.register(r'archive/telegram', TelegramArchiveViewSet)
-router.register(r'archive/twitter', TwitterArchiveViewSet)
+router.register(r'facebook', FacebookArchiveViewSet)
+router.register(r'googletakeout', GoogleTakeoutArchiveViewSet)
+router.register(r'gpx', GpxArchiveViewSet)
+router.register(r'json', JsonArchiveViewSet)
+router.register(r'n26csv', N26CsvArchiveViewSet)
+router.register(r'telegram', TelegramArchiveViewSet)
+router.register(r'twitter', TwitterArchiveViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
