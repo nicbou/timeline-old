@@ -199,7 +199,7 @@ New archives can be added directly through the API. You can browse the API at `/
 
 * `key`: a unique identifier for this archive (e.g. "google-takeout-2020-01-20")
 * `description`: A plain text description of this archive
-* `archive_file`: The archive file to process
+* `archive_files`: The archive files to process
 
 ### FacebookArchive
 
