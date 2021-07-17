@@ -86,7 +86,7 @@ New sources can be added directly through the API. You can browse the API at `/a
 
 ### FileSystemSource
 
-`/api/backup/filesystemsource`
+`/api/source/filesystem`
 
 Describes a directory on the local filesystem. Entries are created from the files in that directory.
 
@@ -105,7 +105,7 @@ A FileSystemSource requires more initial configuration than an RsyncSource, but 
 
 ### HackerNewsSource
 
-`/api/backup/hackernewssource`
+`/api/source/hackernews`
 
 Describes a source of Hacker News posts and comments.
 
@@ -116,7 +116,7 @@ Describes a source of Hacker News posts and comments.
 
 ### RedditSource
 
-`/api/backup/redditsource`
+`/api/source/reddit`
 
 Describes a source of reddit posts and comments.
 
@@ -130,7 +130,7 @@ Describes a source of reddit posts and comments.
 
 ### RssSource
 
-`/api/backup/rsssource`
+`/api/source/rss`
 
 Describes a RSS feed.
 
@@ -141,7 +141,7 @@ Describes a RSS feed.
 
 ### RsyncSource
 
-`/api/backup/rsyncsource`
+`/api/source/rsync`
 
 It uses rsync to synchronise files from a local or remote filesystem. RsyncSource creates incremental backups. The files in the latest backup are then turned into Entries. Files in older backups are ignored.
 
@@ -172,7 +172,7 @@ documents/invoices
 
 ### TwitterSource
 
-`/api/backup/twittersource`
+`/api/source/twitter`
 
 Describes a source of tweets. Requires Twitter API credentials. If you can't get API credentials, upload a Twitter dump with `TwitterArchive`.
 
@@ -209,7 +209,7 @@ Imports various data from a [Facebook export](https://www.facebook.com/help/2128
 
 ### GoogleTakeoutArchive
 
-`/api/archive/googletakeoutarchive`
+`/api/archive/googletakeout`
 
 Imports various data from a [Google Takeout export](https://takeout.google.com/).
 
@@ -235,13 +235,13 @@ If you don't use these export settings, the import will not fail, but some data 
 
 ### GpxArchive
 
-`/api/archive/gpxarchive`
+`/api/archive/gpx`
 
 Imports a list of `activity.location` Entries from a GPX file. All points from tracks and routes are imported, and all waypoints.
 
 ### JsonArchive
 
-`/api/archive/jsonarchive`
+`/api/archive/json`
 
 Imports a list of Entry objects from a JSON file. It expects the same format as the API. The entries in the JSON file are imported as-is, but the `source` attribute is overridden, and the `id` attribute is ignored.
 
@@ -268,7 +268,7 @@ Telegram Desktop exports its data to a folder. You must compress it into a zip f
 
 ### TwitterArchive
 
-`/api/archive/twitterarchive`
+`/api/archive/twitter`
 
 Imports tweets from a Twitter data export.
 
@@ -286,7 +286,7 @@ The backups do not include generated assets like thumbnails. All data that can b
 
 ### RsyncDestination
 
-`/api/backup/rsyncdestination`
+`/api/destination/rsync`
 
 It uses rsync to back up timeline entries and files to a remote filesystem. The backups are not incremental.
 

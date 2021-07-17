@@ -5,13 +5,13 @@ from .views import RsyncSourceViewSet, RsyncDestinationViewSet, TwitterSourceVie
     HackerNewsSourceViewSet, RssSourceViewSet, FileSystemSourceViewSet
 
 router = routers.DefaultRouter()
-router.register(r'rsyncsource', RsyncSourceViewSet)
-router.register(r'rsyncdestination', RsyncDestinationViewSet)
-router.register(r'twittersource', TwitterSourceViewSet)
-router.register(r'redditsource', RedditSourceViewSet)
-router.register(r'hackernewssource', HackerNewsSourceViewSet)
-router.register(r'rsssource', RssSourceViewSet)
-router.register(r'filesystemsource', FileSystemSourceViewSet)
+router.register(r'destination/rsync', RsyncDestinationViewSet)
+router.register(r'source/filesystem', FileSystemSourceViewSet)
+router.register(r'source/hackernews', HackerNewsSourceViewSet)
+router.register(r'source/reddit', RedditSourceViewSet)
+router.register(r'source/rss', RssSourceViewSet)
+router.register(r'source/rsync', RsyncSourceViewSet)
+router.register(r'source/twitter', TwitterSourceViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),

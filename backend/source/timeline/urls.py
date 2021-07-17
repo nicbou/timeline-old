@@ -7,5 +7,5 @@ router = routers.DefaultRouter()
 router.register(r'entries', EntryViewSet)
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path('timeline/', include(router.urls)),
 ]
