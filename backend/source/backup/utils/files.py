@@ -304,14 +304,17 @@ def get_image_extra_attributes(file_path: Path) -> dict:
         gps_datetime = ''  # GPS dates are UTC
         try:
             gps_date = exif['GPSInfo']['GPSDateStamp']
-            gps_time = ":".join(f"{int(timefragment):02}" for timefragment in exif['GPSInfo']['GPSTimeStamp'])
+            gps_time_fragments = exif['GPSInfo']['GPSTimeStamp']
+        except KeyError:
+            pass
+
+        try:
+            gps_time = ":".join(f"{int(timefragment):02}" for timefragment in gps_time_fragments)
             gps_datetime = f"{gps_date} {gps_time}"
             metadata['media'] = metadata.get('media', {})
             metadata['media']['creation_date'] = datetime_to_json(parse_exif_date(gps_datetime))
         except ValueError:
-            logging.exception(f"Could not parse EXIF GPS date '{gps_datetime} ({file_path})'")
-        except KeyError:
-            pass
+            logging.warning(f"Could not parse EXIF GPS date '{gps_datetime}' - {file_path}")
     elif exif_date := (exif.get('DateTimeOriginal') or exif.get('DateTime')):
         # There is no timezone information on exif dates
         try:
