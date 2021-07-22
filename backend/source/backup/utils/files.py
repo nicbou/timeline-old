@@ -266,11 +266,17 @@ def get_image_extra_attributes(file_path: Path) -> dict:
             try:
                 metadata['location']['altitude'] = float(altitude)
             except ZeroDivisionError:
-                pass  # Rational 0/0 is for unknown exif values
+                logger.warning(f"Division by zero for altitude {altitude} - {file_path}")
         if 'GPSImgDirection' in exif['GPSInfo']:
-            metadata['location']['direction'] = float(exif['GPSInfo']['GPSImgDirection'])
+            try:
+                metadata['location']['direction'] = float(exif['GPSInfo']['GPSImgDirection'])
+            except ZeroDivisionError:
+                logger.warning(f"Division by zero for direction {exif['GPSInfo']['GPSImgDirection']} - {file_path}")
         if 'GPSDestBearing' in exif['GPSInfo']:
-            metadata['location']['bearing'] = float(exif['GPSInfo']['GPSDestBearing'])
+            try:
+                metadata['location']['bearing'] = float(exif['GPSInfo']['GPSDestBearing'])
+            except ZeroDivisionError:
+                logger.warning(f"Division by zero for bearing {exif['GPSInfo']['GPSDestBearing']} - {file_path}")
 
     # Camera orientation
     if 'Orientation' in exif:
