@@ -270,7 +270,7 @@ def get_image_extra_attributes(file_path: Path) -> dict:
                 if not exif['GPSInfo'].get('GPSAltitudeRef', b'\x00') == b'\x00':
                     altitude *= -1
             except ZeroDivisionError:
-                logger.warning(f"Division by zero for altitude {altitude} - {str(file_path)}")
+                logger.warning(f"Division by zero for altitude {exif['GPSInfo']['GPSAltitude']} - {str(file_path)}")
         if 'GPSImgDirection' in exif['GPSInfo']:
             try:
                 metadata['location']['direction'] = float(exif['GPSInfo']['GPSImgDirection'])
