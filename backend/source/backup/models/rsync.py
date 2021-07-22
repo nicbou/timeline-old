@@ -258,7 +258,7 @@ class RsyncSource(RsyncConnectionMixin, BaseSource):
         the files that changed only (with get_changed_files), but it's safer to just reprocess everything.
         """
         try:
-            latest_backup = list(self.backups)[-1]  # self.latest_backup does not have a .date
+            latest_backup = list(self.backups)[-1]  # self.latest_backup does not have a .date. It's called "latest".
         except IndexError:
             logger.info(f'{str(self)} has no backups to process.')
             return 0
