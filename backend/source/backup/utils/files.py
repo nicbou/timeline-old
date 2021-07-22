@@ -263,7 +263,10 @@ def get_image_extra_attributes(file_path: Path) -> dict:
             altitude = exif['GPSInfo']['GPSAltitude']
             if not exif['GPSInfo'].get('GPSAltitudeRef', b'\x00') == b'\x00':
                 altitude *= -1
-            metadata['location']['altitude'] = float(altitude)
+            try:
+                metadata['location']['altitude'] = float(altitude)
+            except ZeroDivisionError:
+                pass  # Rational 0/0 is for unknown exif values
         if 'GPSImgDirection' in exif['GPSInfo']:
             metadata['location']['direction'] = float(exif['GPSInfo']['GPSImgDirection'])
         if 'GPSDestBearing' in exif['GPSInfo']:
