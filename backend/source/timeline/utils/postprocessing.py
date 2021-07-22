@@ -47,8 +47,8 @@ def _generate_pdf_previews(entry: Entry, overwrite=False):
 def _generate_image_previews(entry: Entry, overwrite=False):
     original_path = Path(entry.extra_attributes['file']['path'])
 
-    if 'width' not in entry.extra_attributes['media']:
-        # Not a valid image
+    if 'width' not in entry.extra_attributes.get('media', {}):
+        logger.warning(f"Image entry #{entry.id} ({entry.extra_attributes['file']['path']}) does not have a width")
         return
 
     entry.extra_attributes['previews'] = {}
@@ -75,8 +75,8 @@ def _generate_image_previews(entry: Entry, overwrite=False):
 def _generate_video_previews(entry: Entry, overwrite=False):
     original_path = Path(entry.extra_attributes['file']['path'])
 
-    if 'duration' not in entry.extra_attributes['media']:
-        # Not a valid video
+    if 'duration' not in entry.extra_attributes.get('media', {}):
+        logger.warning(f"Video entry #{entry.id} ({entry.extra_attributes['file']['path']}) does not have a duration")
         return
 
     entry.extra_attributes['previews'] = {}

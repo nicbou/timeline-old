@@ -270,7 +270,7 @@ def get_image_extra_attributes(file_path: Path) -> dict:
 
     # Camera orientation
     if 'Orientation' in exif:
-        orientation_map = {1: 0, 3: 180, 6: 270, 8: 90}
+        orientation_map = {0: 0, 1: 0, 3: 180, 6: 270, 8: 90}  # 0 is not an official value, but it happens
         try:
             metadata['media']['orientation'] = orientation_map[exif['Orientation']]
         except KeyError:

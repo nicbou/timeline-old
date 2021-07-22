@@ -263,7 +263,11 @@ class RsyncSource(RsyncConnectionMixin, BaseSource):
             logger.info(f'{str(self)} has no backups to process.')
             return 0
 
-        logger.info(f"Creating entries for {str(latest_backup)}")
+        if use_cache:
+            logger.info(f"Creating entries for {str(latest_backup)}")
+        else:
+            logger.info(f"Creating entries for {str(latest_backup)} - ignoring cache")
+
         return len(create_entries_from_directory(
             latest_backup.files_path,
             source=self,
