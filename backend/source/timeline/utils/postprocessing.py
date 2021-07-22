@@ -160,11 +160,12 @@ def generate_previews(source: BaseSource=None, force=False):
                     except KeyboardInterrupt:
                         raise
                     except:
-                        logger.exception(f"Could not process entry #{entry.pk} "
+                        logger.exception(f"Could not generate preview for entry #{entry.pk} "
                                          f"({ str(Path(entry.extra_attributes['file']['path'])) }).")
                 entry.save()
 
         if missing_entry_count == 0:
-            logger.info(f"{len(entries)} entries processed.")
+            logger.info(f"Generated previews for {len(entries)} entries.")
         else:
-            logger.warning(f"{len(entries)} entries processed, {missing_entry_count} orphaned entries removed")
+            logger.warning(f"Generated previews for {len(entries)} entries, "
+                           f"{missing_entry_count} orphaned entries removed")

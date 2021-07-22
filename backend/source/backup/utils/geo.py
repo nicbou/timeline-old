@@ -1,3 +1,6 @@
+import math
+
+
 def dms_to_decimal(dms, ref):
     degrees = dms[0]
     minutes = dms[1] / 60.0
@@ -6,4 +9,8 @@ def dms_to_decimal(dms, ref):
         degrees = -degrees
         minutes = -minutes
         seconds = -seconds
-    return round(degrees + minutes + seconds, 5)
+
+    decimal = round(degrees + minutes + seconds, 5)
+    if math.isnan(decimal):
+        raise ValueError
+    return decimal

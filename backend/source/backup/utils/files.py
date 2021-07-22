@@ -253,30 +253,35 @@ def get_image_extra_attributes(file_path: Path) -> dict:
     if 'GPSInfo' in exif:
         metadata['location'] = {}
         if 'GPSLatitude' in exif['GPSInfo'] and 'GPSLongitude' in exif['GPSInfo']:
-            metadata['location']['latitude'] = dms_to_decimal(
-                exif['GPSInfo']['GPSLatitude'], exif['GPSInfo'].get('GPSLatitudeRef')
-            )
-            metadata['location']['longitude'] = dms_to_decimal(
-                exif['GPSInfo']['GPSLongitude'], exif['GPSInfo'].get('GPSLongitudeRef')
-            )
-        if 'GPSAltitude' in exif['GPSInfo']:
-            altitude = exif['GPSInfo']['GPSAltitude']
-            if not exif['GPSInfo'].get('GPSAltitudeRef', b'\x00') == b'\x00':
-                altitude *= -1
             try:
-                metadata['location']['altitude'] = float(altitude)
+                metadata['location']['latitude'] = dms_to_decimal(
+                    exif['GPSInfo']['GPSLatitude'], exif['GPSInfo'].get('GPSLatitudeRef')
+                )
+                metadata['location']['longitude'] = dms_to_decimal(
+                    exif['GPSInfo']['GPSLongitude'], exif['GPSInfo'].get('GPSLongitudeRef')
+                )
+            except ValueError:
+                logger.warning(f"Invalid GPS coordinates: "
+                               f"{exif['GPSInfo']['GPSLatitude']}, { exif['GPSInfo']['GPSLongitude']}"
+                               f" - {str(file_path)}")
+        if 'GPSAltitude' in exif['GPSInfo']:
+            try:
+                altitude = float(exif['GPSInfo']['GPSAltitude'])
+                if not exif['GPSInfo'].get('GPSAltitudeRef', b'\x00') == b'\x00':
+                    altitude *= -1
             except ZeroDivisionError:
-                logger.warning(f"Division by zero for altitude {altitude} - {file_path}")
+                logger.warning(f"Division by zero for altitude {altitude} - {str(file_path)}")
         if 'GPSImgDirection' in exif['GPSInfo']:
             try:
                 metadata['location']['direction'] = float(exif['GPSInfo']['GPSImgDirection'])
             except ZeroDivisionError:
-                logger.warning(f"Division by zero for direction {exif['GPSInfo']['GPSImgDirection']} - {file_path}")
+                logger.warning(f"Division by zero for direction {exif['GPSInfo']['GPSImgDirection']}"
+                               f" - {str(file_path)}")
         if 'GPSDestBearing' in exif['GPSInfo']:
             try:
                 metadata['location']['bearing'] = float(exif['GPSInfo']['GPSDestBearing'])
             except ZeroDivisionError:
-                logger.warning(f"Division by zero for bearing {exif['GPSInfo']['GPSDestBearing']} - {file_path}")
+                logger.warning(f"Division by zero for bearing {exif['GPSInfo']['GPSDestBearing']} - {str(file_path)}")
 
     # Camera orientation
     if 'Orientation' in exif:
