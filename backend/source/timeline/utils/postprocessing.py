@@ -104,11 +104,7 @@ def _generate_video_previews(entry: Entry, overwrite=False):
             raise
 
 
-def _original_file_exists(entry: Entry) -> bool:
-    return Path(entry.extra_attributes['file']['path']).exists()
-
-
-def _get_processing_tasks(entry: Entry) -> List[Callable[[Entry], None]]:
+def _get_preview_processing_tasks(entry: Entry) -> List[Callable[[Entry], None]]:
     tasks = []
     mimetype = entry.extra_attributes['file'].get('mimetype') or ''
     if mimetype.startswith('image/'):
@@ -117,6 +113,8 @@ def _get_processing_tasks(entry: Entry) -> List[Callable[[Entry], None]]:
         tasks.append(_generate_video_previews)
     elif mimetype == 'application/pdf':
         tasks.append(_generate_pdf_previews)
+    elif mimetype.startswith('text/') or mimetype.startswith('audio/'):
+        pass
     else:
         logger.warning(f'Unrecognised mimetype for entry #{entry.pk}: {mimetype}')
     return tasks
@@ -145,7 +143,7 @@ def generate_previews(source: BaseSource=None, force=False):
     with transaction.atomic():
         for index, entry in enumerate(entries):
             # Delete orphaned entries (for example if the backup gets deleted)
-            if not _original_file_exists(entry):
+            if not Path(entry.extra_attributes['file']['path']).exists():
                 logger.error(f"Entry #{entry.id} does not exist at {entry.extra_attributes['file']['path']}")
                 missing_entry_count += 1
                 entry.delete()
@@ -154,7 +152,7 @@ def generate_previews(source: BaseSource=None, force=False):
             logger.debug(f"Processing entry {index + 1}/{entry_count}"
                          f" (#{entry.id} - {entry.extra_attributes['file']['path']})")
 
-            if processing_tasks := _get_processing_tasks(entry):
+            if processing_tasks := _get_preview_processing_tasks(entry):
                 logger.debug(f"Generating preview for {str(entry)} at {entry.extra_attributes['file']['path']}")
                 for task in processing_tasks:
                     try:
