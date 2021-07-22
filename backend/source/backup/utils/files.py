@@ -234,6 +234,7 @@ def entry_from_file_path(file_path: Path, source: BaseSource) -> Entry:
 def get_image_extra_attributes(file_path: Path) -> dict:
     with Image.open(file_path) as image:
         width, height = image.size
+        assert width > 0 and height > 0, "Invalid image dimensions"
 
     metadata = {
         'media': {

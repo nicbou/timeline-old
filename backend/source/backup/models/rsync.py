@@ -229,7 +229,7 @@ class RsyncSource(RsyncConnectionMixin, BaseSource):
 
         if changed_files_count == 0:
             # Don't keep multiple identical backups. If `max_backups` is set, it pushes older backups out.
-            logger.info(f"Deleting {self.entry_source} backup because no files have changed.")
+            logger.info(f"Deleting latest {self.entry_source} backup because no files have changed.")
             current_backup.delete()
             return None
 
