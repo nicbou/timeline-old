@@ -177,8 +177,8 @@ def create_entries_from_directory(path: Path, source: BaseSource, backup_date: d
             )
 
             for attribute in cached_extra_attributes:
-                if attribute in metadata_cache:
-                    entry.extra_attributes[attribute] = metadata_cache[attribute]
+                if attribute in metadata_cache[checksum]:
+                    entry.extra_attributes[attribute] = metadata_cache[checksum][attribute]
         else:
             entry = entry_from_file_path(file, source)
 
