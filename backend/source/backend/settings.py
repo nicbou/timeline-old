@@ -23,6 +23,11 @@ SSH_DIR = Path('/root/.ssh')
 TIMELINE_INCLUDE_FILE = '.timelineinclude'
 
 
+# Ensure that the absolute URLs in API responses are correct, even behind the reverse proxy
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('BACKEND_SECRET_KEY', False)
 
