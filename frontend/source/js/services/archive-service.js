@@ -1,7 +1,7 @@
 const apiBase = `https://${window.location.hostname}/api/archive/`;
 
 export default class {
-  async static getArchives() {
+  static async getArchives() {
     // Fetch archives from multiple endpoints. Return a list of archives of all types.
     const archiveEndpointsByType = await fetch(new URL('', apiBase)).then(response => response.json());
 

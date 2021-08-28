@@ -193,7 +193,7 @@ export default Vue.component('timeline', {
     },
   },
   template: `
-    <div id="timeline">
+    <main id="timeline">
       <timeline-nav id="timeline-nav"></timeline-nav>
       <div class="content-with-sidebar">
         <div class="sidebar">
@@ -222,6 +222,6 @@ export default Vue.component('timeline', {
         </div>
       </div>
       <preview :entry="selectedEntry" v-if="selectedEntry" @close="closePreview"></preview>
-    </div>
+    </main>
   `
 });
