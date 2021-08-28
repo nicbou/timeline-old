@@ -193,9 +193,11 @@ export default Vue.component('timeline', {
     },
   },
   template: `
-    <main id="timeline">
-      <timeline-nav id="timeline-nav"></timeline-nav>
-      <div class="content-with-sidebar">
+    <div id="timeline">
+      <header>
+        <timeline-nav id="timeline-nav"></timeline-nav>
+      </header>
+      <main class="content-with-sidebar">
         <div class="sidebar">
           <h1 class="current-date">{{ timelineDate.format('LL') }}</h1>
           <span class="subtitle">{{ timelineDate.format('dddd') }}, {{ relativeTimelineDate }}</span>
@@ -208,7 +210,7 @@ export default Vue.component('timeline', {
           <entry-map v-if="!isLoading" :entries="entries" width="300" height="200"></entry-map>
         </div>
         <spinner v-if="isLoading"></spinner>
-        <div class="tiles">
+        <div class="tiles content">
           <journal-editor v-if="!isLoading"></journal-editor>
           <component
             :entry="entry"
@@ -220,8 +222,8 @@ export default Vue.component('timeline', {
             v-if="tileType(entry) && !isLoading"></component>
           <transactions-tile v-if="!isLoading" :entries="entryGroups.transactions.entries"></transactions-tile>
         </div>
-      </div>
+      </main>
       <preview :entry="selectedEntry" v-if="selectedEntry" @close="closePreview"></preview>
-    </main>
+    </div>
   `
 });

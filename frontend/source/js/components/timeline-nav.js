@@ -47,7 +47,7 @@ export default Vue.component('timeline-nav', {
     },
   },
   template: `
-    <div class="input-group timeline-nav">
+    <nav class="input-group timeline-nav">
       <button class="minus-1-year year button" @click="moveTimelineDate('years', -1)">-1Y</button>
       <button class="minus-1-month month button" @click="moveTimelineDate('months', -1)">-1M</button>
       <button class="minus-1-week week button" @click="moveTimelineDate('weeks', -1)">-1W</button>
@@ -58,6 +58,6 @@ export default Vue.component('timeline-nav', {
       <button class="plus-1-week week button" :disabled="!showNextWeek" @click="moveTimelineDate('weeks', 1)">+1W</button>
       <button class="plus-1-month month button" :disabled="!showNextMonth" @click="moveTimelineDate('months', 1)">+1M</button>
       <button class="plus-1-year year button" :disabled="!showNextYear" @click="moveTimelineDate('years', 1)">+1Y</button>
-    </div>
+    </nav>
   `
 });

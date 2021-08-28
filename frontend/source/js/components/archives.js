@@ -13,18 +13,18 @@ export default Vue.component('archives', {
   },
   template: `
     <div id="archives">
-      <nav>
+      <header>
         Archives
-      </nav>
+      </header>
       <div class="content-with-sidebar">
-        <div class="sidebar">
+        <nav class="sidebar">
           <ul>
             <li v-for="archive in archives">
               {{ archive.key }}
             </li>
           </ul>
-        </div>
-        <main class="archive-editor">
+        </nav>
+        <main class="archive-editor content">
           Hello
         </main>
       </div>
