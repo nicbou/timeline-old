@@ -5,6 +5,7 @@ export default new VueRouter({
   routes: [
     { path: '/timeline', name: 'timeline', component: TimelineComponent },
     { path: '/archives', name: 'archives', component: ArchivesComponent },
+    { path: '/archives/:type/:key', name: 'archive', component: ArchivesComponent },
     { path: '/', redirect: { name: 'timeline' }},
   ]
 });
