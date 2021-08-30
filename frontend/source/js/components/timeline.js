@@ -210,7 +210,7 @@ export default Vue.component('timeline', {
           <entry-map v-if="!isLoading" :entries="entries" width="300" height="200"></entry-map>
         </div>
         <spinner v-if="isLoading"></spinner>
-        <div class="tiles content">
+        <div class="content tiles">
           <journal-editor v-if="!isLoading"></journal-editor>
           <component
             :entry="entry"
