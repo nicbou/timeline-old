@@ -12,7 +12,7 @@ export default Vue.component('entry-map', {
       imageUrl.searchParams.append("style", "feature:poi|element:labels|visibility:off");
       imageUrl.searchParams.append("key", "AIzaSyBdUNg8QHEUgkxxmT94OIW5t3tCYmHmng4");
       if (this.geolocationEntries.length) {
-        const latestEntryLocation = this.geolocationEntries[0].extra_attributes.location;
+        const latestEntryLocation = this.geolocationEntries[this.geolocationEntries.length - 1].extra_attributes.location;
         const latestEntryLocationString = `${latestEntryLocation.latitude},${latestEntryLocation.longitude}`;
         imageUrl.searchParams.append("markers", latestEntryLocationString);
         const path = this.geolocationEntries
