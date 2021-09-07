@@ -41,7 +41,7 @@ The activity of visiting a page on a website
 The user's geolocation at that time.
 
 - `description`: Text description, such as messages sent by a GPS beacon.
-- `mixin:coordinates`
+- `mixin:location`
 
 ## file
 
@@ -50,7 +50,7 @@ Describes a file on a filesystem.
 - `mixin:file`
 - `mixin:preview`
 - `mixin:media`
-- `mixin:coordinates`: The file's geolocation, if available
+- `mixin:location`: The file's geolocation, if available
 - `backup_date`: The date on which a backup created this entry
 
 ### file.text
