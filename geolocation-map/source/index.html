@@ -24,11 +24,20 @@
               lat: entries[0].extra_attributes.location.latitude,
               lng: entries[0].extra_attributes.location.longitude,
             };
+            const lastEntryDate = (new Date(entries[0].date_on_timeline)).toString();
 
-            new google.maps.Marker({
+            const lastEntryMarker = new google.maps.Marker({
               position: lastEntryCoords,
               map: map,
+              title: lastEntryDate,
             });
+            new google.maps.InfoWindow({
+              content: lastEntryDate,
+              anchor: lastEntryMarker,
+              map: map,
+            });
+
+
             map.setCenter(lastEntryCoords)
 
             new google.maps.Polyline({
