@@ -29,7 +29,9 @@ RUN apt-get update \
 
 # https://stackoverflow.com/questions/52998331/imagemagick-security-policy-pdf-blocking-conversion
 # https://askubuntu.com/questions/1181762/imagemagickconvert-im6-q16-no-images-defined
-RUN sed -i_bak 's/rights="none" pattern="PDF"/rights="read | write" pattern="PDF"/' /etc/ImageMagick-6/policy.xml
+# These solutions do not work. Removing the file entirely does.
+# RUN sed -i_bak 's/rights="none" pattern="PDF"/rights="read | write" pattern="PDF"/' /etc/ImageMagick-6/policy.xml
+RUN rm /etc/ImageMagick-6/policy.xml
 
 COPY requirements.txt ./
 RUN pip install -r requirements.txt
