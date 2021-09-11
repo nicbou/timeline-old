@@ -1,8 +1,10 @@
 import { RequestStatus } from './../models/requests.js';
+import ArchiveService from './../services/archive-service.js';
 
 export default Vue.component('archives', {
   data: function() {
     return {
+      isSaving: false,
       uploadedFiles: [],
     }
   },
@@ -19,7 +21,37 @@ export default Vue.component('archives', {
   },
   methods: {
     onFileInputChange: function(event) {
-      this.uploadedFiles = event.target.files;
+      this.uploadedFiles = this.$refs.fileInput.files;
+    },
+    relativeDate: function(date) {
+      const duration = moment(date).diff(moment());
+      return moment.duration(duration).humanize(true);
+    },
+    fileName: function(url){
+      const segments = url.split('/');
+      return segments.pop() || segments.pop();
+    },
+    updateArchive: function(archiveToSave) {
+      this.$store.dispatch('archives/updateArchive', {archive: archiveToSave, newFiles: this.uploadedFiles}).then(() => {
+        this.isSaving = false;
+        if(archiveToSave === this.selectedArchive){
+          this.$refs.fileInput.value = "";
+          this.uploadedFiles = [];
+        }
+      });
+    },
+    deleteArchive: function(archiveToDelete) {
+      this.$store.dispatch('archives/deleteArchive', archiveToDelete).then(() => {
+        if(this.selectedArchive === archiveToDelete){
+          this.$router.push({ name: 'archives' });
+        }
+      });
+    },
+    deleteArchiveFile: function(fileId) {
+      const archive = this.selectedArchive;
+      ArchiveService.deleteArchiveFile(fileId).then(response => {
+        archive.archive_files = archive.archive_files.filter(f => f.id !== fileId);
+      });
     },
   },
   template: `
@@ -32,7 +64,11 @@ export default Vue.component('archives', {
         <nav class="sidebar">
           <ul class="archive-list">
             <li v-for="archive in archives">
-              <router-link :to="{ name: 'archive', params: { type: archive.type, key: archive.key }}">{{ archive.key }}</router-link>
+              <router-link :to="{ name: 'archive', params: { type: archive.type, key: archive.key }}">
+                <span class="name">{{ archive.key }}</span>
+                <time v-if="archive.date_processed">Processed {{ relativeDate(archive.date_processed) }}</time>
+                <span v-if="!archive.date_processed">Never processed</span>
+              </router-link>
             </li>
           </ul>
         </nav>
@@ -40,7 +76,7 @@ export default Vue.component('archives', {
           <div v-if="selectedArchive">
             <div class="input-group">
               <label for="archive-key">Key</label>
-              <input type="text" id="archive-key" v-model="selectedArchive.key"/>
+              <input type="text" id="archive-key" v-model="selectedArchive.key" disabled/>
             </div>
             <div class="input-group">
               <label for="archive-description">Description</label>
@@ -51,24 +87,24 @@ export default Vue.component('archives', {
               <div class="files-input">
                 <ul>
                   <li v-for="archiveFile in selectedArchive.archive_files">
-                    <i class="fas fa-check-circle"></i><span class="file-name">{{ archiveFile }}</span>
+                    <i class="fas fa-check-circle"></i><span class="file-name">{{ fileName(archiveFile.url) }}</span>
                     <div class="actions">
-                      <a href="" title="Download file"><i class="fas fa-download"></i></a>
-                      <a href="" title="Delete file"><i class="fas fa-trash"></i></a>
+                      <a :href="archiveFile.url" title="Download file"><i class="fas fa-download"></i></a>
+                      <a href="#" @click.prevent="deleteArchiveFile(archiveFile.id)" title="Delete file"><i class="fas fa-trash"></i></a>
                     </div>
                   </li>
                   <li v-for="file in uploadedFiles">
                     <i class="fas fa-arrow-circle-up"></i><span class="file-name">{{ file.name }}</span>
                   </li>
                   <li>
-                    <input type="file" id="archive-files" multiple @change="onFileInputChange">
+                    <input type="file" ref="fileInput" id="archive-files" multiple @change="onFileInputChange">
                   </li>
                 </ul>
               </div>
             </div>
             <div class="input-group">
-              <button class="button">Save changes</button>
-              <button class="button">Delete archive</button>
+              <button :disabled="isSaving" class="button" @click="updateArchive(selectedArchive)">Save changes</button>
+              <button :disabled="isSaving" class="button" @click="deleteArchive(selectedArchive)">Delete archive</button>
             </div>
           </div>
         </main>

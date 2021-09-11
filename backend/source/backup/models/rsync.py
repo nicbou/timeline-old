@@ -125,7 +125,7 @@ class RsyncBackup:
     def delete(self):
         """Deletes a backup's entries and files"""
         self.get_entries().delete()
-        shutil.rmtree(self.root_path)
+        shutil.rmtree(self.root_path, ignore_errors=True)
 
     def __eq__(self, other: 'RsyncBackup'):
         return self.root_path == other.root_path

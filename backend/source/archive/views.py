@@ -1,11 +1,11 @@
 from rest_framework import viewsets, permissions
 
-from archive.models import JsonArchive, GpxArchive, N26CsvArchive, TelegramArchive, FacebookArchive
+from archive.models import JsonArchive, GpxArchive, N26CsvArchive, TelegramArchive, FacebookArchive, ArchiveFile
 from archive.models.google_takeout import GoogleTakeoutArchive
 from archive.models.twitter import TwitterArchive
 from archive.serializers import GoogleTakeoutArchiveSerializer, TwitterArchiveSerializer, JsonArchiveSerializer, \
-    GpxArchiveSerializer, N26CsvArchiveSerializer, TelegramArchiveSerializer, FacebookArchiveSerializer
-from backup.parsers import MultipartFormencodeParser
+    GpxArchiveSerializer, N26CsvArchiveSerializer, TelegramArchiveSerializer, FacebookArchiveSerializer, \
+    ArchiveFileSerializer
 
 
 class GoogleTakeoutArchiveViewSet(viewsets.ModelViewSet):
@@ -48,4 +48,10 @@ class FacebookArchiveViewSet(viewsets.ModelViewSet):
     queryset = FacebookArchive.objects.all()
     serializer_class = FacebookArchiveSerializer
     permission_classes = [permissions.AllowAny]
-    parsers = (MultipartFormencodeParser,)
+
+
+class ArchiveFileViewSet(viewsets.ModelViewSet):
+    queryset = ArchiveFile.objects.all()
+    serializer_class = ArchiveFileSerializer
+    permission_classes = [permissions.AllowAny]
+    http_method_names = ['get', 'list', 'delete']

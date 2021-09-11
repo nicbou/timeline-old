@@ -97,7 +97,7 @@ class FileArchive(BaseArchive):
 
     def post_delete(self):
         super().post_delete()
-        shutil.rmtree(self.root_path)
+        shutil.rmtree(self.root_path, ignore_errors=True)
 
 
 class CompressedFileArchive(FileArchive):
@@ -144,4 +144,4 @@ class CompressedFileArchive(FileArchive):
     def delete_extracted_files(self):
         logger.info(f'Deleting extracted files for "{self.entry_source}"')
         if self.extracted_files_path.exists():
-            shutil.rmtree(self.extracted_files_path)
+            shutil.rmtree(self.extracted_files_path, ignore_errors=True)

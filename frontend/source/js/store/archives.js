@@ -15,8 +15,11 @@ export default {
     ADD_ARCHIVE(state, archive) {
       state.archives.push(archive);
     },
+    DELETE_ARCHIVE(state, archive) {
+      state.archives = state.archives.filter(a => a !== archive);
+    },
     UPDATE_ARCHIVE(state, archive) {
-      Object.assign(state.archives.find(e => e.key === archive.key), archive);
+      Object.assign(state.archives.find(a => a.key === archive.key), archive);
     },
     SET_ARCHIVES_REQUEST_PROMISE(state, promise) {
       state.archivesRequestPromise = promise;
@@ -50,6 +53,26 @@ export default {
         return archivesRequestPromise;
       }
       return context.state.archivesRequestPromise;
+    },
+    async updateArchive(context, {archive, newFiles}) {
+      return ArchiveService.updateArchive(archive, newFiles)
+        .then((updatedArchive) => {
+          context.commit('UPDATE_ARCHIVE', updatedArchive);
+          return context.state.archives;
+        })
+        .catch(err => {
+          return context.state.archives;
+        });
+    },
+    async deleteArchive(context, archive) {
+      return ArchiveService.deleteArchive(archive)
+        .then(() => {
+          context.commit('DELETE_ARCHIVE', archive);
+          return context.state.archives;
+        })
+        .catch(err => {
+          return context.state.archives;
+        });
     }
   }
 };

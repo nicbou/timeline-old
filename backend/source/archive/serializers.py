@@ -8,14 +8,22 @@ from archive.models.twitter import TwitterArchive
 
 
 class ArchiveFileSerializer(serializers.ModelSerializer):
+    url = serializers.SerializerMethodField('get_file_url')
+
+    def get_file_url(self, archive_file):
+        return archive_file.archive_file.url
+
     class Meta:
         model = ArchiveFile
-        fields = '__all__'
+        fields = ('id', 'url')
 
 
 class ArchiveFileRelatedField(serializers.RelatedField):
     def to_representation(self, archive_file: ArchiveFile):
-        return archive_file.archive_file.path
+        return {
+            'url': archive_file.archive_file.url,
+            'id': archive_file.id,
+        }
 
     def to_internal_value(self, data) -> ArchiveFile:
         return ArchiveFile(archive_file=data)
@@ -33,6 +41,14 @@ class BaseArchiveSerializer(serializers.HyperlinkedModelSerializer):
                 archive_file.archive = archive
                 archive_file.save()
         return archive
+
+    def update(self, instance, validated_data):
+        with transaction.atomic():
+            archive_files_uploads = validated_data.pop('archive_files')
+            for archive_file in archive_files_uploads:
+                archive_file.archive = instance
+                archive_file.save()
+        return super().update(instance, validated_data)
 
 
 class GoogleTakeoutArchiveSerializer(BaseArchiveSerializer):
