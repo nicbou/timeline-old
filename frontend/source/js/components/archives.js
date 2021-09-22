@@ -57,8 +57,8 @@ export default Vue.component('archives', {
   template: `
     <div id="archives">
       <header>
-        <router-link :to="{ name: 'timeline'}" title="Back to timeline" class="button back"><i class="fas fa-arrow-left"></i></router-link>
         <h1>Archives</h1>
+        <router-link :to="{ name: 'timeline'}" title="Back to timeline" class="button back"><i class="fas fa-times"></i></router-link>
       </header>
       <div class="content-with-sidebar">
         <nav class="sidebar">

@@ -196,6 +196,7 @@ export default Vue.component('timeline', {
     <div id="timeline">
       <header>
         <timeline-nav id="timeline-nav"></timeline-nav>
+        <router-link :to="{ name: 'archives'}" class="button"><i class="fas fa-cogs"></i></router-link>
       </header>
       <main class="content-with-sidebar">
         <div class="sidebar">
