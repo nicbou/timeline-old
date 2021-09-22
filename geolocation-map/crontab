@@ -1,5 +1,0 @@
-# Leave a newline before the end of this file, or crontab will quietly stop working
-# Output to /tmp/stdout to show output in the docker logs
-SHELL=/bin/bash
-
-* * * * * /usr/local/bin/python /usr/src/app/refresh-map.py > /tmp/stdout 2>&1;

@@ -62,18 +62,11 @@ services:
         max-size: "200k"
         max-file: "10"
     restart: unless-stopped
-  geolocation-map:
-    build: geolocation-map
-    volumes:
-      - ./geolocation-map/source/index.html:/var/www/map/index.html
-      - ./geolocation-map/source/refresh-map.py:/usr/src/app/refresh-map.py
-    restart: unless-stopped
   proxy:
     build: proxy
     depends_on:
       - timeline-frontend
       - timeline-backend
-      - geolocation-map
     volumes:
       - archives:/data/archives
       - backups:/data/backups
