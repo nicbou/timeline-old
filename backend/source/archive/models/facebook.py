@@ -1,5 +1,6 @@
 import json
 import logging
+import re
 from collections import Generator
 from datetime import datetime
 from functools import partial
@@ -15,6 +16,22 @@ from timeline.models import Entry
 from timeline.utils.postprocessing import generate_previews
 
 logger = logging.getLogger(__name__)
+
+
+def parse_facebook_json(json_file_path):
+    # Facebook engineers don't understand unicode, so we have to undo their mess
+    # https://krvtz.net/posts/how-facebook-got-unicode-wrong.html
+    # https://stackoverflow.com/questions/50008296/facebook-json-badly-encoded
+    def parse_obj(obj):
+        for key in obj:
+            if isinstance(obj[key], str):
+                obj[key] = obj[key].encode('latin_1').decode('utf-8')
+            elif isinstance(obj[key], list):
+                obj[key] = list(map(lambda x: x if type(x) != str else x.encode('latin_1').decode('utf-8'), obj[key]))
+            pass
+        return obj
+    with json_file_path.open('rb') as json_file:
+        return json.load(json_file, object_hook=parse_obj)
 
 
 class FacebookArchive(CompressedFileArchive):
@@ -41,10 +58,9 @@ class FacebookArchive(CompressedFileArchive):
                 yield from self.extract_messages_from_file(file)
 
     def extract_messages_from_file(self, json_file_path: Path) -> Entry:
-        with json_file_path.open() as json_file:
-            json_data = json.load(json_file)
+        json_data = parse_facebook_json(json_file_path)
 
-        chat_participants = json_data['participants']
+        chat_participants = [p['name'] for p in json_data['participants']]
         if len(chat_participants) == 1:
             # If someone blocks you, you are the only participant in the chat
             # We add a new participant named after the directory, so just a hash like "cjd8jaswzw"
