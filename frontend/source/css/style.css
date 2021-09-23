@@ -112,7 +112,7 @@ input, button, textarea, select, .button, .files-input{font:var(--font-m);border
     .button:active{border-bottom-width:1px;}
     .button[disabled]{background:var(--color-button-background-disabled);color:var(--color-button-text-disabled);cursor:not-allowed;border-bottom-width:1px;}
 
-.input-group{display:flex;margin:var(--spacing-m) 0;width:100%;max-width:var(--content-max-width)}
+.input-group{display:flex;margin:var(--spacing-m) 0;width:100%;max-width:var(--content-max-width);justify-content:flex-end}
     .input-group label{padding:var(--spacing-s) 0;flex:0 1 200px}
         .input-group > input, .input-group > textarea, .input-group .files-input{flex:1}
     .input-group > *{border-radius:0;margin-left:-1px;}

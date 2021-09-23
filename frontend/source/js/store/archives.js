@@ -54,6 +54,16 @@ export default {
       }
       return context.state.archivesRequestPromise;
     },
+    async createArchive(context, {archive, files}) {
+      return ArchiveService.createArchive(archive, files)
+        .then((updatedArchive) => {
+          context.commit('ADD_ARCHIVE', updatedArchive);
+          return context.state.archives;
+        })
+        .catch(err => {
+          return context.state.archives;
+        });
+    },
     async updateArchive(context, {archive, newFiles}) {
       return ArchiveService.updateArchive(archive, newFiles)
         .then((updatedArchive) => {
