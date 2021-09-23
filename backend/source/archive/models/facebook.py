@@ -111,6 +111,9 @@ class FacebookArchive(CompressedFileArchive):
 
             # Each photo/video/audio/gif in a message is a distinct Entry
             for video in message.get('videos', []):
+                if video['uri'].startswith('https://'):
+                    logger.warning(f"Ignoring video attachment {video['uri']}")
+                    continue
                 yield self.entry_from_attachment(
                     schema='message.facebook.video',
                     file_path=video['uri'],
@@ -119,6 +122,9 @@ class FacebookArchive(CompressedFileArchive):
                 )
 
             for photo in message.get('photos', []):
+                if photo['uri'].startswith('https://'):
+                    logger.warning(f"Ignoring photo attachment {photo['uri']}")
+                    continue
                 yield self.entry_from_attachment(
                     schema='message.facebook.image',
                     file_path=photo['uri'],
@@ -127,6 +133,9 @@ class FacebookArchive(CompressedFileArchive):
                 )
 
             for file in message.get('files', []):
+                if file['uri'].startswith('https://'):
+                    logger.warning(f"Ignoring file attachment {file['uri']}")
+                    continue
                 yield self.entry_from_attachment(
                     schema='message.facebook.file',
                     file_path=file['uri'],
@@ -135,6 +144,9 @@ class FacebookArchive(CompressedFileArchive):
                 )
 
             for gif in message.get('gifs', []):
+                if gif['uri'].startswith('https://'):
+                    logger.warning(f"Ignoring gif attachment {gif['uri']}")
+                    continue
                 yield self.entry_from_attachment(
                     schema='message.facebook.gif',
                     file_path=gif['uri'],
@@ -143,6 +155,9 @@ class FacebookArchive(CompressedFileArchive):
                 )
 
             for audio in message.get('audio_files', []):
+                if audio['uri'].startswith('https://'):
+                    logger.warning(f"Ignoring audio attachment {audio['uri']}")
+                    continue
                 yield self.entry_from_attachment(
                     schema='message.facebook.audio',
                     file_path=audio['uri'],
@@ -151,12 +166,15 @@ class FacebookArchive(CompressedFileArchive):
                 )
 
             if "sticker" in message:
-                yield self.entry_from_attachment(
-                    schema='message.facebook.sticker',
-                    file_path=message['sticker']['uri'],
-                    date_on_timeline=message_date,
-                    extra_attributes=message_metadata
-                )
+                if message['sticker']['uri'].startswith('https://'):
+                    logger.warning(f"Ignoring sticker attachment {message['sticker']['uri']}")
+                else:
+                    yield self.entry_from_attachment(
+                        schema='message.facebook.sticker',
+                        file_path=message['sticker']['uri'],
+                        date_on_timeline=message_date,
+                        extra_attributes=message_metadata
+                    )
 
             if message.get('content'):
                 yield Entry(
