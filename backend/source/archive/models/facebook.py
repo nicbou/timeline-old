@@ -41,6 +41,38 @@ class FacebookArchive(CompressedFileArchive):
     keep_extracted_files = True
 
     def extract_entries(self) -> Generator[Entry, None, None]:
+        yield from self.extract_messages()
+        yield from self.extract_albums()
+        yield from self.extract_videos()
+
+    def extract_albums(self) -> Generator[Entry, None, None]:
+        albums_root = self.extracted_files_path / 'photos_and_videos/album'
+        album_files = list(albums_root.glob('*.json'))
+        for index, album_file in enumerate(album_files):
+            logger.info(f"Processing {index + 1}/{len(album_files)} album files: {album_file.name}")
+            album_json = parse_facebook_json(album_file)
+            for photo in album_json['photos']:
+                entry = entry_from_file_path(self.extracted_files_path / photo['uri'], self)
+                entry.date_on_timeline = pytz.utc.localize(datetime.fromtimestamp(photo['creation_timestamp']))
+
+                if photo.get('description'):  # description is the caption
+                    entry.description = f"{photo['title']} - {photo['description']}"
+                elif album_json.get('description'):
+                    entry.description = f"{photo['title']} - {album_json['description']}"
+                else:  # title is the album title
+                    entry.description = photo.get('title', '')
+                yield entry
+
+    def extract_videos(self):
+        logger.info(f"Processing videos")
+        json_data = parse_facebook_json(self.extracted_files_path / 'photos_and_videos/your_videos.json')
+        for video in json_data.get('videos', []):
+            entry = entry_from_file_path(self.extracted_files_path / video['uri'], self)
+            entry.description = video['description']
+            entry.date_on_timeline = pytz.utc.localize(datetime.fromtimestamp(video['creation_timestamp']))
+            yield entry
+
+    def extract_messages(self) -> Generator[Entry, None, None]:
         messages_root = self.extracted_files_path / 'messages'
         message_dirs = (
             messages_root / 'archived_threads',
