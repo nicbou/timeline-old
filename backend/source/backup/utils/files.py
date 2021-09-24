@@ -89,6 +89,22 @@ def get_files_matching_rules(files: Iterable[Path], rules: Iterable[Path]) -> Ge
 
 
 def get_mimetype(file_path: Path) -> str:
+    if file_path.suffix == '.mp4':
+        # Some .mp4 files are actually audio files. Notably, Facebook archives use .mp4 for audio messages.
+        ffprobe_cmd = subprocess.run(
+            [
+                'ffprobe',
+                '-v', 'error',
+                '-show_entries', 'stream=codec_type',
+                '-of', 'json',
+                str(file_path)
+            ],
+            stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        )
+        all_streams = json.loads(ffprobe_cmd.stdout.decode('utf-8')).get('streams', [])
+        has_audio_streams = bool([s for s in all_streams if s['codec_type'] == 'audio'])
+        has_video_streams = bool([s for s in all_streams if s['codec_type'] == 'video'])
+        return 'audio/mp4' if has_audio_streams and not has_video_streams else 'video/mp4'
     return mimetypes.guess_type(file_path, strict=False)[0]
 
 
@@ -100,7 +116,6 @@ def get_schema_from_mimetype(mimetype) -> str:
     if mimetype.startswith('image/'):
         schema += '.image'
     elif mimetype.startswith('video/'):
-        # TODO: Some MP4 files are audio only, but recognised as videos
         schema += '.video'
     elif mimetype.startswith('audio/'):
         schema += '.audio'
