@@ -1,5 +1,6 @@
-from rest_framework import parsers
 from formencode.variabledecode import variable_decode
+from rest_framework import parsers
+
 
 class MultipartFormencodeParser(parsers.MultiPartParser):
     def parse(self, stream, media_type=None, parser_context=None):

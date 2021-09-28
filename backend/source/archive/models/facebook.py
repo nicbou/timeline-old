@@ -1,6 +1,5 @@
 import json
 import logging
-import re
 from collections import Generator
 from datetime import datetime
 from functools import partial
@@ -8,9 +7,8 @@ from pathlib import Path
 from typing import Iterable
 
 import pytz
-from django.db import models
 
-from archive.models.base import CompressedFileArchive, archive_path
+from archive.models.base import CompressedFileArchive
 from backup.utils.files import entry_from_file_path
 from timeline.models import Entry
 from timeline.utils.postprocessing import generate_previews
