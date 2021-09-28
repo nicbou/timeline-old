@@ -177,10 +177,10 @@ input, button, textarea, select, .button, .files-input{font:var(--font-m);border
         .post main :last-child{margin-bottom:0;}
 
     .post.journal{}
-        .post.journal main div p{margin:22px 0}
-            .post.journal main div *:first-child{margin-top:0;}
-            .post.journal main div *:last-child{margin-bottom:0}
-            .post.journal main div:hover{background:var(--color-background-02)}
+        .post.journal main .content p{margin:22px 0}
+            .post.journal main .content *:first-child{margin-top:0;}
+            .post.journal main .content *:last-child{margin-bottom:0}
+            .post.journal main .content:hover{background:var(--color-background-02)}
         .post.journal main textarea{background:var(--color-background-02);width:100%;height:400px;box-sizing:border-box;padding:0;border:0;margin:0;outline:none;display:block;font:var(--font-m);color:var(--color-text);}
 
     .post.browsing-history li{list-style:none;border-bottom:var(--border-03);padding:var(--spacing-xs);}

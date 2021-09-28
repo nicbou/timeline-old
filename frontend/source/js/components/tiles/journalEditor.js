@@ -29,7 +29,12 @@ export default Vue.component('journal-editor', {
       });
     },
     saveChanges: function(){
+      this.isEditing = false;
       return this.$store.dispatch('timeline/setJournalEntry', this.asMarkdown);
+    },
+    cancelChanges: function() {
+      this.isEditing = false;
+      this.asMarkdown = this.journalEntryDescription;
     },
   },
   template: `
@@ -43,8 +48,12 @@ export default Vue.component('journal-editor', {
         </span>
       </header>
       <main>
-        <textarea ref="editor" v-show="isEditing" v-model="asMarkdown" @change="saveChanges" @blur="isEditing = false"></textarea>
-        <div v-html="asHtml"
+        <textarea ref="editor" class="journal-content" v-if="isEditing" v-model="asMarkdown"></textarea>
+        <div class="input-group" v-if="isEditing">
+          <button class="button" @click.stop.prevent="saveChanges">Save changes</button>
+          <button class="button" @click.stop.prevent="cancelChanges">Cancel</button>
+        </div>
+        <div v-html="asHtml" class="journal-content"
           v-if="!isEditing"
           @click="editEntry"></div>
       </main>
