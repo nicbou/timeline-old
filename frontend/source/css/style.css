@@ -77,12 +77,11 @@ html, body{width:100%;height:100%;background:var(--color-background-01);color:va
                 .sidebar .current-date{font:var(--font-h3);margin-top:0;}
                 .sidebar .recap li{list-style-type:none;}
                     .sidebar .recap li > i{width:18px;text-align:center}
-                .sidebar .map{max-width:100%;padding-bottom:calc(100% * 400 / 600);height:0px;border:var(--border-02);border-radius:var(--border-radius);overflow:hidden;background:#d4e1cf;margin:var(--spacing-m) 0;}
-                    .sidebar .map img{width:100%;}
                 .sidebar .archive-list{list-style:inside none;margin:calc(var(--spacing-s) * -1) 0}
                     .sidebar .archive-list li a{display:block;border-bottom:var(--border-02);padding:var(--spacing-s) 0}
                         .sidebar .archive-list li:last-child{border-bottom:none}
                         .sidebar .archive-list .name{display:block;font:var(--font-l)}
+                .sidebar .map{width:100%;height:300px;border-radius:var(--border-radius);overflow:hidden;overflow:hidden;background:#d4e1cf;margin:var(--spacing-m) 0;}
             .content-with-sidebar .content{flex:0 1 100%;background:var(--color-background-03);box-sizing:border-box;padding:var(--spacing-l);}
 
 /* Typography */

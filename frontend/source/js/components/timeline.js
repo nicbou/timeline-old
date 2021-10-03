@@ -1,4 +1,5 @@
-import EntryMap from './entryMap.js'
+//import EntryMap from './entryMap.js'
+import EntryMap from './previews/geolocation.js'
 import JournalEditorTile from './tiles/journalEditor.js'
 import Preview from './preview.js';
 import SpinnerComponent from './spinner.js';
@@ -208,7 +209,7 @@ export default Vue.component('timeline', {
               {{ group.entries.length }} {{ group.readableName }}
             </li>
           </ul>
-          <entry-map v-if="!isLoading" :entries="entries" width="300" height="200"></entry-map>
+          <entry-map class="map" v-show="!isLoading" :entries="entries"></entry-map>
         </div>
         <spinner v-if="isLoading"></spinner>
         <div class="content tiles">
