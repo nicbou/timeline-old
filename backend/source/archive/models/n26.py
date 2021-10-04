@@ -23,7 +23,7 @@ class N26CsvArchive(FileArchive):
         income_types = ('Income', 'Direct Debit Reversal')
 
         for csv_file in self.get_archive_files():
-            for line in csv.DictReader(codecs.iterdecode(csv_file, 'utf-8'), delimiter=',', quotechar='"'):
+            for line in csv.DictReader(codecs.iterdecode(csv_file.open('rb'), 'utf-8'), delimiter=',', quotechar='"'):
                 schema = 'finance.income' if line['Transaction type'] in income_types else 'finance.expense'
 
                 you = {
