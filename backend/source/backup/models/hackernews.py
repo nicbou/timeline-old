@@ -37,7 +37,7 @@ class HackerNewsSource(BaseSource):
                 item_date = datetime.fromtimestamp(item['time'], pytz.UTC)
                 if after_date and item_date <= after_date:
                     break
-                if item['deleted']:
+                if item.get('deleted'):
                     break
 
                 entry_values = {
