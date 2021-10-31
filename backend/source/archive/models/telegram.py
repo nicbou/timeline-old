@@ -1,6 +1,6 @@
 import json
 import logging
-from collections import Generator
+from typing import Generator
 from datetime import datetime
 from functools import partial
 from pathlib import Path

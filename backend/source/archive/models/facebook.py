@@ -1,10 +1,9 @@
 import json
 import logging
-from collections import Generator
 from datetime import datetime
 from functools import partial
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, Generator
 
 import pytz
 

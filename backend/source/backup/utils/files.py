@@ -4,11 +4,11 @@ import logging
 import mimetypes
 import re
 import subprocess
-from collections import Generator
+# from collections import Generator
 from datetime import datetime
 from fnmatch import fnmatch
 from pathlib import Path
-from typing import Iterable, List, Optional
+from typing import Iterable, List, Optional, Generator
 
 import pytz
 from PIL import Image
