@@ -228,12 +228,15 @@ class GoogleTakeoutArchive(CompressedFileArchive):
                 raise
 
             # Todo: extra attributes. "Heart minutes", step count, calories, distance, speed, active minutes
+            extra_attributes = {}
+            extra_attributes['duration'] = float(duration_sec)/60
 
             yield Entry(
                 title=activity,
-                description='Duration {:.1f} min'.format(float(duration_sec)/60),
+                description='',
                 source=self.entry_source,
                 schema='activity.motion',
                 date_on_timeline=time,
+                extra_attributes=extra_attributes
             )
 

@@ -43,6 +43,13 @@ The user's geolocation at that time.
 - `description`: Text description, such as messages sent by a GPS beacon.
 - `mixin:location`
 
+### activity.motion
+
+A physical activity
+
+- `title`: The type of physical activity
+- `duration`: Duration of activity, in minutes
+
 ## file
 
 Describes a file on a filesystem.
