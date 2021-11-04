@@ -1,6 +1,7 @@
 import json
 import logging
 from collections import Generator
+import glob
 from datetime import datetime
 from pathlib import Path
 from typing import Iterable
@@ -73,6 +74,7 @@ class GoogleTakeoutArchive(CompressedFileArchive):
         yield from self.extract_browser_history()
         yield from self.extract_search_history()
         yield from self.extract_youtube_history()
+        yield from self.extract_fit_history()
 
     def extract_browser_history(self) -> Generator[Entry, None, None]:
         json_files = list(self.extracted_files_path.glob('**/Chrome/BrowserHistory.json'))
@@ -202,3 +204,36 @@ class GoogleTakeoutArchive(CompressedFileArchive):
                     except:
                         logging.exception(f"Could not parse entry: {entry}")
                         raise
+
+    def extract_fit_history(self) -> Generator[Entry, None, None]:
+        json_files = list((self.extracted_files_path / 'Takeout/Fit/All sessions/').glob('*.json'))
+        logger.info(f'Processing fit history in "{self.entry_source}". '
+                    f'{len(json_files)} files found.')
+
+        for json_file in json_files:
+            logger.info(f'Processing fit history entries in {str(json_file)}')
+            with json_file.open(encoding='utf-8') as json_file_handle:
+                json_entry = json.load(json_file_handle)
+
+            try:
+                time = pytz.utc.localize(datetime.strptime(json_entry['startTime'], '%Y-%m-%dT%H:%M:%S.%fZ'))
+            except ValueError:
+                time = json_to_datetime(json_entry['startTime'])
+
+            try:
+                activity = json_entry['fitnessActivity']
+                duration_sec = json_entry['duration'][:-1] # ignore final "s" for second
+            except:
+                logging.exception(f"Could not parse entry: {json_entry}")
+                raise
+
+            # Todo: extra attributes. "Heart minutes", step count, calories, distance, speed, active minutes
+
+            yield Entry(
+                title=activity,
+                description='Duration {:.1f} min'.format(float(duration_sec)/60),
+                source=self.entry_source,
+                schema='activity.motion',
+                date_on_timeline=time,
+            )
+
