@@ -27,7 +27,15 @@ export default Vue.component('motion-tile', {
       return txt;
     },
     description: function() {
-      return `in ` + this.entry.extra_attributes.duration.toFixed(1) + ` min`;
+      var dist_str = '';
+      var dur_str = '';
+      if (!!this.entry.extra_attributes.distance) {
+        dist_str = (parseFloat(this.entry.extra_attributes.distance)/1000).toFixed(1) + ` km `; 
+      }
+      if (!!this.entry.extra_attributes.duration) {
+        dur_str = `in ` + (parseFloat(this.entry.extra_attributes.duration)/60).toFixed(0) + ` min`
+      }
+      return dist_str + dur_str;
     },
     iconClass: function() {
       if (this.entry.title == 'walking') {
