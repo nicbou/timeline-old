@@ -9,6 +9,7 @@ import TimelineNav from './timeline-nav.js';
 import TimelinePostTile from './tiles/post.js'
 import TimelineTextTile from './tiles/text.js'
 import TimelineMessageTile from './tiles/message.js';
+import TimelineMotionTile from './tiles/motion.js';
 import TimelineVideoTile from './tiles/video.js';
 import TransactionsTile from './tiles/transactions.js';
 import { RequestStatus } from './../models/requests.js';
