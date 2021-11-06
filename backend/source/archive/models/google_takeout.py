@@ -227,9 +227,15 @@ class GoogleTakeoutArchive(CompressedFileArchive):
                 logging.exception(f"Could not parse entry: {json_entry}")
                 raise
 
-            # Todo: extra attributes. "Heart minutes", step count, calories, distance, speed, active minutes
+            # Extra attributes. "Heart minutes", step count, calories, distance, speed, active minutes
             extra_attributes = {}
-            extra_attributes['duration'] = float(duration_sec)/60
+            extra_attributes['duration'] = duration_sec
+            if json_entry['aggregate']:
+                for elem in json_entry['aggregate']:
+                    # usually of form com.google.heart_minutes.summary - extract 3rd part
+                    key = elem['metricName'].split('.')[2]
+                    value = elem.get('floatValue') or elem.get('intValue')
+                    extra_attributes[key] = value
 
             yield Entry(
                 title=activity,

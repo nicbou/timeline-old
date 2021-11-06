@@ -48,7 +48,13 @@ The user's geolocation at that time.
 A physical activity
 
 - `title`: The type of physical activity
-- `duration`: Duration of activity, in minutes
+- `duration`: Duration of activity, in seconds
+- `heart_minutes`: google 'heart minutes'. The number of Heart Points earned depends on the intensity of the activity. See google documentation to calculate Heart Points.
+- `calories`: The total calories (in kilocalories) burned by the user, including calories burned at rest (BMR).
+- `step_count`
+- `distance`: in meters
+- `speed`: average speed over the activity in meters per second
+- `active_minutes`: Number of minutes of activity. May be different to duration if some of the time was spent e.g. resting.
 
 ## file
 
