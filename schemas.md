@@ -43,9 +43,11 @@ The user's geolocation at that time.
 - `description`: Text description, such as messages sent by a GPS beacon.
 - `mixin:location`
 
-### activity.motion
+### activity.exercise.session
 
-A physical activity
+A physical activity session. Can be composed of different segments within itself, but will be the main activity feature. 
+
+For example, during a mixed martial arts session, there was also a period of boxing, and a period of running. This will show up only as `Mixed martial arts`, but can contain unexpected elements such as `step counter` due to the running activity.
 
 - `title`: The type of physical activity
 - `duration`: Duration of activity, in seconds
