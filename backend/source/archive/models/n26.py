@@ -1,7 +1,7 @@
 import codecs
 import csv
 import logging
-from collections import Generator
+from typing import Generator
 from datetime import datetime
 from decimal import Decimal
 

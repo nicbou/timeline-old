@@ -1,4 +1,4 @@
-FROM python:slim
+FROM python
 
 # Install dependencies
 RUN apt-get update \
@@ -14,6 +14,7 @@ RUN apt-get update \
         sshpass \
         util-linux \
         wget \
+        libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # cron: To run the backups on a schedule
