@@ -9,6 +9,7 @@ import TimelineNav from './timeline-nav.js';
 import TimelinePostTile from './tiles/post.js'
 import TimelineTextTile from './tiles/text.js'
 import TimelineMessageTile from './tiles/message.js';
+import TimelineMotionTile from './tiles/motion.js';
 import TimelineVideoTile from './tiles/video.js';
 import TransactionsTile from './tiles/transactions.js';
 import { RequestStatus } from './../models/requests.js';
@@ -94,6 +95,11 @@ export default Vue.component('timeline', {
           iconClass: 'fas fa-comments',
           entries: [],
         },
+        motion: {
+          readableName: 'activities',
+          iconClass: 'fas fa-running',
+          entries: [],
+        },
         reddit: {
           readableName: 'reddit comments',
           iconClass: 'fab fa-reddit',
@@ -160,6 +166,10 @@ export default Vue.component('timeline', {
         if (entry.schema.startsWith('file.video.')) {
           groups.videos.entries.push(entry);
         }
+
+        if (entry.schema.startsWith('activity.exercise.session')) {
+          groups.motion.entries.push(entry);
+        }
         return groups;
       }, emptyGroups);
     },
@@ -190,6 +200,9 @@ export default Vue.component('timeline', {
       }
       else if(s.startsWith('message.')) {
         return 'message-tile';
+      }
+      else if(s.startsWith('activity.exercise.session')) {
+        return 'motion-tile';
       }
     },
   },

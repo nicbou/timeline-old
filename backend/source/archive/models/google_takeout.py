@@ -1,8 +1,11 @@
 import json
 import logging
+from collections import Generator
+import glob
 from datetime import datetime
 from pathlib import Path
 from typing import Iterable, Generator
+import re
 
 import pytz
 
@@ -72,6 +75,7 @@ class GoogleTakeoutArchive(CompressedFileArchive):
         yield from self.extract_browser_history()
         yield from self.extract_search_history()
         yield from self.extract_youtube_history()
+        yield from self.extract_fit_history()
 
     def extract_browser_history(self) -> Generator[Entry, None, None]:
         json_files = list(self.extracted_files_path.glob('**/Chrome/BrowserHistory.json'))
@@ -201,3 +205,45 @@ class GoogleTakeoutArchive(CompressedFileArchive):
                     except:
                         logging.exception(f"Could not parse entry: {entry}")
                         raise
+
+    def extract_fit_history(self) -> Generator[Entry, None, None]:
+        json_files = list((self.extracted_files_path / 'Takeout/Fit/All sessions/').glob('*.json'))
+        logger.info(f'Processing fit history in "{self.entry_source}". '
+                    f'{len(json_files)} files found.')
+
+        for json_file in json_files:
+            logger.info(f'Processing fit history entries in {str(json_file)}')
+            with json_file.open(encoding='utf-8') as json_file_handle:
+                json_entry = json.load(json_file_handle)
+
+            try:
+                time = pytz.utc.localize(datetime.strptime(json_entry['startTime'], '%Y-%m-%dT%H:%M:%S.%fZ'))
+            except ValueError:
+                time = json_to_datetime(json_entry['startTime'])
+
+            try:
+                activity = json_entry['fitnessActivity']
+                # remove any non-digit characters (e.g. 's' for seconds)
+                duration_sec = re.sub('[^0-9.]','', json_entry['duration']) 
+            except:
+                logging.exception(f"Could not parse entry: {json_entry}")
+                raise
+
+            # Extra attributes. "Heart minutes", step count, calories, distance, speed, active minutes
+            extra_attributes = {}
+            extra_attributes['duration'] = duration_sec
+            for elem in json_entry.get('aggregate', []):
+                    # usually of form com.google.heart_minutes.summary - extract 3rd part
+                    key = elem['metricName'].split('.')[2]
+                    value = elem.get('floatValue') or elem.get('intValue')
+                    extra_attributes[key] = value
+
+            yield Entry(
+                title=activity,
+                description='',
+                source=self.entry_source,
+                schema='activity.exercise.session',
+                date_on_timeline=time,
+                extra_attributes=extra_attributes
+            )
+

@@ -218,6 +218,8 @@ When you create a Google Takeout archive, you must select certain export setting
 * Include all the necessary data sets:
     * "Chrome"
         * Browsing history (`activity.browsing.website`)
+    * "Fit"
+        * Physical activities (`activity.exercise.session`)
     * "Location History"
         * Location history (`activity.location`)
     * "My Activity" `en` `json`
