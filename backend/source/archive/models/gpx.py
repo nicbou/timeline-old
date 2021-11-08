@@ -1,5 +1,5 @@
 import logging
-from collections import Generator
+from typing import Generator
 
 import gpxpy as gpxpy
 
