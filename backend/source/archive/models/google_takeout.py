@@ -4,7 +4,8 @@ from collections import Generator
 import glob
 from datetime import datetime
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, Generator
+import re
 
 import pytz
 
@@ -222,7 +223,8 @@ class GoogleTakeoutArchive(CompressedFileArchive):
 
             try:
                 activity = json_entry['fitnessActivity']
-                duration_sec = json_entry['duration'][:-1] # ignore final "s" for second
+                # remove any non-digit characters (e.g. 's' for seconds)
+                duration_sec = re.sub('[^0-9.]','', json_entry['duration']) 
             except:
                 logging.exception(f"Could not parse entry: {json_entry}")
                 raise
@@ -230,8 +232,7 @@ class GoogleTakeoutArchive(CompressedFileArchive):
             # Extra attributes. "Heart minutes", step count, calories, distance, speed, active minutes
             extra_attributes = {}
             extra_attributes['duration'] = duration_sec
-            if json_entry['aggregate']:
-                for elem in json_entry['aggregate']:
+            for elem in json_entry.get('aggregate', []):
                     # usually of form com.google.heart_minutes.summary - extract 3rd part
                     key = elem['metricName'].split('.')[2]
                     value = elem.get('floatValue') or elem.get('intValue')
@@ -241,7 +242,7 @@ class GoogleTakeoutArchive(CompressedFileArchive):
                 title=activity,
                 description='',
                 source=self.entry_source,
-                schema='activity.motion',
+                schema='activity.exercise.session',
                 date_on_timeline=time,
                 extra_attributes=extra_attributes
             )

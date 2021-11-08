@@ -167,7 +167,7 @@ export default Vue.component('timeline', {
           groups.videos.entries.push(entry);
         }
 
-        if (entry.schema.startsWith('activity.motion')) {
+        if (entry.schema.startsWith('activity.exercise.session')) {
           groups.motion.entries.push(entry);
         }
         return groups;
@@ -201,7 +201,7 @@ export default Vue.component('timeline', {
       else if(s.startsWith('message.')) {
         return 'message-tile';
       }
-      else if(s.startsWith('activity.motion')) {
+      else if(s.startsWith('activity.exercise.session')) {
         return 'motion-tile';
       }
     },
