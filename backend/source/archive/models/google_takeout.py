@@ -1,6 +1,5 @@
 import json
 import logging
-from collections import Generator
 import glob
 from datetime import datetime
 from pathlib import Path
