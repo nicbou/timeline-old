@@ -1,6 +1,6 @@
 const apiBase = `https://${window.location.hostname}/api/archive/`;
 
-const displayNames = {
+export const archiveTypes = {
   facebook: 'Facebook',
   googletakeout: 'Google Takeout',
   gpx: 'GPX track',
@@ -67,9 +67,5 @@ export default class {
 
   static async deleteArchiveFile(fileId) {
     return fetch(new URL(`archivefile/${fileId}/`, apiBase), { method: 'DELETE' });
-  }
-
-  static getDisplayName(archiveType){
-    return displayNames[archiveType] || archiveType;
   }
 }
