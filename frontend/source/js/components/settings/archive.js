@@ -104,11 +104,11 @@ export default Vue.component('archive', {
           </div>
         </div>
         <div class="input-group" v-if="isNew">
-          <button :disabled="isSaving" class="button" @click="updateArchive" :disabled="!(archive.key && archive.description)">Create archive</button>
+          <button :disabled="isSaving || !(archive.key && archive.description)" class="button" @click="updateArchive">Create archive</button>
           <button :disabled="isSaving" class="button" @click="cancelChanges">Cancel</button>
         </div>
         <div class="input-group" v-if="!isNew">
-          <button :disabled="isSaving" class="button" @click="updateArchive" :disabled="!(archive.key && archive.description)">Save changes</button>
+          <button :disabled="isSaving || !(archive.key && archive.description)" class="button" @click="updateArchive">Save changes</button>
           <button :disabled="isSaving" class="button" @click="cancelChanges">Cancel</button>
         </div>
       </div>
