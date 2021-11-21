@@ -38,7 +38,7 @@ export default {
     async getArchives(context, forceRefresh=false) {
       if (context.state.archivesRequestStatus === RequestStatus.NONE || forceRefresh) {
         context.commit('ARCHIVES_REQUEST_PENDING');
-        const archivesRequestPromise = ArchiveService.getArchives()
+        const archivesRequestPromise = ArchiveService.get()
           .then(archives => {
             context.commit('SET_ARCHIVES', archives);
             context.commit('ARCHIVES_REQUEST_SUCCESS');
@@ -55,7 +55,7 @@ export default {
       return context.state.archivesRequestPromise;
     },
     async createArchive(context, {archive, files}) {
-      return ArchiveService.createArchive(archive, files)
+      return ArchiveService.create(archive, files)
         .then((updatedArchive) => {
           context.commit('ADD_ARCHIVE', updatedArchive);
           return context.state.archives;
@@ -65,7 +65,7 @@ export default {
         });
     },
     async updateArchive(context, {archive, newFiles}) {
-      return ArchiveService.updateArchive(archive, newFiles)
+      return ArchiveService.update(archive, newFiles)
         .then((updatedArchive) => {
           context.commit('UPDATE_ARCHIVE', updatedArchive);
           return context.state.archives;
@@ -75,7 +75,7 @@ export default {
         });
     },
     async deleteArchive(context, archive) {
-      return ArchiveService.deleteArchive(archive)
+      return ArchiveService.delete(archive)
         .then(() => {
           context.commit('DELETE_ARCHIVE', archive);
           return context.state.archives;

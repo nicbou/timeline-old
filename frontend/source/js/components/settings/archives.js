@@ -13,7 +13,7 @@ export default Vue.component('archives', {
   },
   created: function() {
     this.$store.dispatch('archives/getArchives');
-    ArchiveService.getArchiveEndpoints().then(archiveEndpoints => {
+    ArchiveService.getEndpoints().then(archiveEndpoints => {
       this.archiveEndpoints = archiveEndpoints;
     })
   },

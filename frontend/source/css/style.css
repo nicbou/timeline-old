@@ -190,12 +190,12 @@ input, button, textarea, select, .button, .files-input{font:var(--font-m);border
     .preview .post{height:100%;}
 
 /* Settings */
-.archive-list > li{list-style:inside none;margin:0;padding:0;display:block;border-bottom:var(--border-02);padding:var(--spacing-s) 0 0;max-width:var(--content-max-width);}
-.archive-list > li:last-child{border-bottom:none}
-.archive-preview{display:flex;align-items:bottom;align-items:center;flex-wrap:wrap;}
-    .archive-preview .input-group{flex:0}
-    .archive-preview .archive-details{flex:1 1 350px}
-    .archive h2{font:var(--font-h3)}
+.archive-list > li, .source-list > li{list-style:inside none;margin:0;padding:0;display:block;border-bottom:var(--border-02);padding:var(--spacing-s) 0 0;max-width:var(--content-max-width);}
+.archive-list > li:last-child, .source > li:last-child{border-bottom:none}
+.archive-preview, .source-preview{display:flex;align-items:bottom;align-items:center;flex-wrap:wrap;}
+    .archive-preview .input-group, .source-preview .input-group{flex:0}
+    .archive-preview .archive-details, .source-preview .source-details{flex:1 1 350px}
+    .archive h2, .source h2{font:var(--font-h3)}
 
 @media screen and ( max-width:601px ){
     #page > *{display:block;}

@@ -51,7 +51,7 @@ export default Vue.component('archive', {
       this.$store.dispatch('archives/deleteArchive', this.archive);
     },
     deleteArchiveFile: function(fileId) {
-      ArchiveService.deleteArchiveFile(fileId).then(response => {
+      ArchiveService.deleteFile(fileId).then(response => {
         this.archive.archive_files = archive.archive_files.filter(f => f.id !== fileId);
       });
     },
