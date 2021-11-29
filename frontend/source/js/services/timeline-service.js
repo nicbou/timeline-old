@@ -28,7 +28,7 @@ export default class {
         body: JSON.stringify(entry),
       }
     ).then((response) => {
-      return response.json().results;
+      return response.json();
     });
   }
 }

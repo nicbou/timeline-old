@@ -52,25 +52,14 @@ export default {
       }
       return context.state.entriesRequestPromise;
     },
-    async setJournalEntry(context, description) {
-      const schema = 'journal';
-      const entries = await context.dispatch('getEntries');
-      const existingJournalEntry = entries.find(e => e.schema == schema)
-
-      const journalEntry = existingJournalEntry || {
-        'schema': schema,
-        'source': 'frontend/web',
-        'title': '',
-        'description': '',
-        'extra_attributes': {},
-        'date_on_timeline': moment(this.state.route.query.date, 'YYYY-MM-DD').format(),
-      };
-
-      journalEntry.description = description;
-
-      TimelineService.saveEntry(journalEntry).then(serverEntry => {
-        const action = existingJournalEntry ? 'UPDATE_ENTRY' : 'ADD_ENTRY';
-        context.commit(action, journalEntry);
+    async addEntry(context, entry) {
+      TimelineService.saveEntry(entry).then(serverEntry => {
+        context.commit('ADD_ENTRY', serverEntry);
+      });
+    },
+    async updateEntry(context, entry) {
+      TimelineService.saveEntry(entry).then(serverEntry => {
+        context.commit('UPDATE_ENTRY', serverEntry);
       });
     }
   }
