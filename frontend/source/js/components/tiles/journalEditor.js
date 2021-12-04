@@ -30,6 +30,7 @@ export default Vue.component('journal-editor', {
     },
     editNewEntry: function() {
       this.isEditingNewEntry = true;
+      this.currentlyEditingEntryId = null;
       this.$nextTick(() => {
         this.$refs.newEntryEditor.focus();
       });
@@ -47,7 +48,11 @@ export default Vue.component('journal-editor', {
         'description': this.newEntryDescription,
         'extra_attributes': {},
         'date_on_timeline': dateOnTimeline.format(),
-      }).then(e => this.newEntryDescription = "");
+      }).then(e => {
+        this.newEntryDescription = "";
+        this.isEditingNewEntry = false;
+        this.currentlyEditingEntryId = null;
+      });
     },
     updateEntry: function(){
       this.currentlyEditingEntry.description = this.currentEntryDescription;
