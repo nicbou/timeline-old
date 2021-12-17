@@ -21,7 +21,7 @@ export default Vue.component('settings', {
         <nav class="sidebar">
           <ul>
             <li><i class="icon fas fa-file-archive"></i> <router-link :to="{ name: 'archives'}">Archives</router-link></li>
-            <li><i class="icon fas fa-sign-in-alt"></i> <router-link :to="{ name: 'archives'}">Sources</router-link></li>
+            <li><i class="icon fas fa-sign-in-alt"></i> <router-link :to="{ name: 'sources'}">Sources</router-link></li>
             <li><i class="icon fas fa-sign-out-alt"></i> <router-link :to="{ name: 'archives'}">Destinations</router-link></li>
           </ul>
         </nav>
