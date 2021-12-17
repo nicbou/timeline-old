@@ -13,5 +13,6 @@ __all__ = [
     'RedditSource',
     'RssSource',
     'RsyncSource',
+    'TraktSource',
     'TwitterSource',
 ]
