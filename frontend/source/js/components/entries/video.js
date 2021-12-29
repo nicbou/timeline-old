@@ -1,4 +1,4 @@
-export default Vue.component('video-tile', {
+export default Vue.component('video-entry', {
   props: ['entry'],
   computed: {
     hasGeolocation: function() {

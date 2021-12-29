@@ -58,7 +58,7 @@ const postTypes = {
   },
 }
 
-export default Vue.component('post-tile', {
+export default Vue.component('post-entry', {
   props: ['entry'],
   computed: {
     postClass: function() {

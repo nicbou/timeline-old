@@ -1,4 +1,4 @@
-export default Vue.component('text-tile', {
+export default Vue.component('text-entry', {
   props: ['entry'],
   computed: {
     fileName: function() {

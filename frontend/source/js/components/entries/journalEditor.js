@@ -66,7 +66,7 @@ export default Vue.component('journal-editor', {
     },
   },
   template: `
-    <article class="post tile journal">
+    <article class="post journal">
       <header>
         <span class="post-icon">
           <i class="fas fa-pen-square"></i>

@@ -1,4 +1,4 @@
-export default Vue.component('motion-tile', {
+export default Vue.component('motion-entry', {
   props: ['entry'],
   computed: {
     time: function() {

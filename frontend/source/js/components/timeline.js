@@ -1,17 +1,17 @@
 //import EntryMap from './entryMap.js'
 import EntryMap from './previews/geolocation.js'
-import JournalEditorTile from './tiles/journalEditor.js'
+import JournalEditorEntry from './entries/journalEditor.js'
 import Preview from './preview.js';
 import SpinnerComponent from './spinner.js';
-import TimelineActivityTile from './tiles/activity.js';
-import TimelineImageTile from './tiles/image.js';
+import TimelineActivityEntry from './entries/activity.js';
+import TimelineImageEntry from './entries/image.js';
 import TimelineNav from './timeline-nav.js';
-import TimelinePostTile from './tiles/post.js'
-import TimelineTextTile from './tiles/text.js'
-import TimelineMessageTile from './tiles/message.js';
-import TimelineMotionTile from './tiles/motion.js';
-import TimelineVideoTile from './tiles/video.js';
-import TransactionsTile from './tiles/transactions.js';
+import TimelinePostEntry from './entries/post.js'
+import TimelineTextEntry from './entries/text.js'
+import TimelineMessageEntry from './entries/message.js';
+import TimelineMotionEntry from './entries/motion.js';
+import TimelineVideoEntry from './entries/video.js';
+import TransactionsEntry from './entries/transactions.js';
 import { RequestStatus } from './../models/requests.js';
 
 function makeRouteValid(to, from, next) {
@@ -181,28 +181,28 @@ export default Vue.component('timeline', {
     closePreview: function() {
       this.selectedEntry = null;
     },
-    tileType: function(entry) {
+    entryType: function(entry) {
       const s = entry.schema;
       if (s.startsWith('file.image') || s.startsWith('file.document.pdf')) {
-        return 'image-tile';
+        return 'image-entry';
       }
       else if(s.startsWith('file.video')) {
-        return 'video-tile';
+        return 'video-entry';
       }
       else if(s.startsWith('social.')) {
-        return 'post-tile';
+        return 'post-entry';
       }
       else if(s.startsWith('file.text')) {
-        return 'text-tile';
+        return 'text-entry';
       }
       else if(s.startsWith('activity.browsing')) {
-        return 'activity-tile';
+        return 'activity-entry';
       }
       else if(s.startsWith('message.')) {
-        return 'message-tile';
+        return 'message-entry';
       }
       else if(s.startsWith('activity.exercise.session')) {
-        return 'motion-tile';
+        return 'motion-entry';
       }
     },
   },
@@ -225,17 +225,17 @@ export default Vue.component('timeline', {
           <entry-map class="map" v-show="!isLoading" :entries="entries"></entry-map>
         </div>
         <spinner v-if="isLoading"></spinner>
-        <div class="content tiles">
+        <div class="content entries">
           <journal-editor v-if="!isLoading"></journal-editor>
           <component
             :entry="entry"
-            :is="tileType(entry)"
+            :is="entryType(entry)"
             :key="entry.id"
             @select="openPreview"
-            class="tile"
+            class="entry"
             v-for="entry in entries"
-            v-if="tileType(entry) && !isLoading"></component>
-          <transactions-tile v-if="!isLoading" :entries="entryGroups.transactions.entries"></transactions-tile>
+            v-if="entryType(entry) && !isLoading"></component>
+          <transactions-entry v-if="!isLoading" :entries="entryGroups.transactions.entries"></transactions-entry>
         </div>
       </main>
       <preview :entry="selectedEntry" v-if="selectedEntry" @close="closePreview"></preview>

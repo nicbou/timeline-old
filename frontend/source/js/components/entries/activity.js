@@ -1,4 +1,4 @@
-export default Vue.component('activity-tile', {
+export default Vue.component('activity-entry', {
   props: ['entry'],
   computed: {
     time: function() {

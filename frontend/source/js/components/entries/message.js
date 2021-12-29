@@ -1,4 +1,4 @@
-export default Vue.component('message-tile', {
+export default Vue.component('message-entry', {
   props: ['entry'],
   computed: {
     iconClass: function() {
@@ -38,14 +38,14 @@ export default Vue.component('message-tile', {
           <span :title="recipientName" class="recipient">{{ recipientName }}</span></span>
       </header>
       <main>
-        <image-tile
+        <image-entry
           v-if="entry.extra_attributes.file && entry.extra_attributes.file.mimetype.startsWith('image/') && entry.extra_attributes.previews"
           @select="$emit('select', entry)"
-          :entry="entry"></image-tile>
-        <video-tile
+          :entry="entry"></image-entry>
+        <video-entry
           v-if="entry.extra_attributes.file && entry.extra_attributes.file.mimetype.startsWith('video/') && entry.extra_attributes.previews"
           @select="$emit('select', entry)"
-          :entry="entry"></video-tile>
+          :entry="entry"></video-entry>
         <audio controls
           v-if="entry.extra_attributes.file && entry.extra_attributes.file.mimetype.startsWith('audio/')" :src="entry.extra_attributes.file.path"></audio>
         {{ entry.description }}

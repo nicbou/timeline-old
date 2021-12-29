@@ -1,4 +1,4 @@
-export default Vue.component('image-tile', {
+export default Vue.component('image-entry', {
   props: ['entry'],
   computed: {
     hasGeolocation: function() {

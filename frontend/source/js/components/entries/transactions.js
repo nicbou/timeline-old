@@ -1,4 +1,4 @@
-export default Vue.component('transactions-tile', {
+export default Vue.component('transactions-entry', {
   props: ['entries'],
   computed: {
     transactions: function(){
@@ -35,7 +35,7 @@ export default Vue.component('transactions-tile', {
     }
   },
   template: `
-    <article class="post tile transactions" v-if="transactions.length">
+    <article class="post transactions" v-if="transactions.length">
       <header>
         <span class="post-icon">
           <i class="fas fa-piggy-bank"></i>
