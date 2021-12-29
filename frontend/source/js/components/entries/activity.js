@@ -1,18 +1,15 @@
 export default Vue.component('activity-entry', {
   props: ['entry'],
   computed: {
-    time: function() {
-      return new Date(this.entry.date_on_timeline).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-    },
-    text: function() {
+    metaText: function() {
       if(this.entry.schema === 'activity.browsing.search') {
-        return `Searched for <a href="${this.url}">"${this.entry.title}"</a>`;
+        return 'Google search';
       }
       else if(this.entry.schema === 'activity.browsing.watch') {
-        return `Watched <a href="${this.url}">"${this.entry.title}"</a>`;
+        return 'YouTube video';
       }
       else {
-        return `<a href="${this.url}">${this.entry.title}</a>`;
+        return 'Page view';
       }
     },
     icon: function() {
@@ -42,11 +39,13 @@ export default Vue.component('activity-entry', {
     },
   },
   template: `
-    <div class="activity compact">
+    <div>
       <i class="icon" :class="iconClass"></i>
-      <time>{{ time }}</time>
-      <span v-html="text"></span>
-      <small v-if="entry.description">{{ entry.description }}</small>
+      <div class="meta">{{ metaText }}</div>
+      <div class="content">
+        <a :href="url">"{{ entry.title }}"</a>
+        <small v-if="entry.description">{{ entry.description }}</small>
+      </div>
     </div>
   `
 });

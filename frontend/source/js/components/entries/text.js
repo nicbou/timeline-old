@@ -13,16 +13,10 @@ export default Vue.component('text-entry', {
     },
   },
   template: `
-    <article class="post text">
-      <header>
-        <span class="post-icon">
-          <i class="fas fa-file-alt"></i>
-        </span>
-        <span class="post-title">
-          {{ fileName }}
-        </span>
-      </header>
-      <main v-html="richDescription"></main>
-    </article>
+    <div>
+      <i class="icon fas fa-file-alt" :class="iconClass"></i>
+      <div class="meta">{{ fileName }}</div>
+      <div class="content" v-html="richDescription"></div>
+    </div>
   `
 });

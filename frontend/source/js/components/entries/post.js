@@ -69,25 +69,16 @@ export default Vue.component('post-entry', {
     },
   },
   template: `
-    <article class="post" :class="postClass">
-      <header>
-        <a :href="postType.getPostUrl(entry)" class="post-icon" target="_blank">
-          <i :class="postType.getIconClass(entry)"></i>
-        </a>
-        <span class="post-title">
-          <a :href="postType.getPostUrl(entry)" class="post-type" target="_blank">
-            {{ postType.getPostWebsite(entry) }} {{ postType.getPostType(entry) }}
-          </a>
-          by
-          <a :href="postType.getUserUrl(entry)" class="post-user">{{ postType.getUser(entry) }}</a>
-          <span v-if="postType.getPostCommunity(entry)">
-            on <a :href="postType.getPostCommunityUrl(entry)" class="post-community">{{ postType.getPostCommunity(entry) }}</a>
-          </span>
+    <div :class="postClass">
+      <i class="icon" :class="postType.getIconClass(entry)"></i>
+      <div class="meta">
+        <a :href="postType.getUserUrl(entry)" class="user" target="_blank">{{ postType.getUser(entry) }}</a>
+        <span v-if="postType.getPostCommunity(entry)">
+          on <a :href="postType.getPostUrl(entry)" class="community" target="_blank">{{ postType.getPostCommunity(entry) }}</a>
         </span>
-        <span v-if="entry.extra_attributes.post_score !== undefined" class="post-score" :class="{positive: entry.extra_attributes.post_score >= 1, negative: entry.extra_attributes.post_score < 1}">{{ entry.extra_attributes.post_score }}</span>
-      </header>
-      <main v-html="postType.getRichDescription(entry)">
-      </main>
-    </article>
+        <span v-if="entry.extra_attributes.post_score !== undefined" class="score" :class="{positive: entry.extra_attributes.post_score >= 1, negative: entry.extra_attributes.post_score < 1}">{{ entry.extra_attributes.post_score }}</span>
+      </div>
+      <div class="content" v-html="postType.getRichDescription(entry)"></div>
+    </div>
   `
 });

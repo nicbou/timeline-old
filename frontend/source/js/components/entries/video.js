@@ -1,3 +1,4 @@
+import VideoThumbnailComponent from './../thumbnails/video.js';
 export default Vue.component('video-entry', {
   props: ['entry'],
   computed: {
@@ -5,24 +6,9 @@ export default Vue.component('video-entry', {
       return !!this.entry.extra_attributes.location;
     },
   },
-  methods: {
-    videoHoverStart: function() {
-      this.$refs.videoElement.play()
-    },
-    videoHoverEnd: function() {
-      this.$refs.videoElement.pause()
-      this.$refs.videoElement.currentTime = 0;
-    },
-  },
   template: `
     <div class="video" @click="$emit('select', entry)" v-if="entry.extra_attributes.previews">
-      <video
-        :alt="entry.title"
-        :src="entry.extra_attributes.previews.thumbnail"
-        @mouseleave="videoHoverEnd"
-        @mouseover="videoHoverStart"
-        loop
-        ref="videoElement"/>
+      <video-thumbnail :entry="entry" height="200"/>
       <div class="media-icons">
         <i v-if="hasGeolocation" class="fas fa-map-marker-alt"></i>
         <i class="fas fa-play-circle"></i>

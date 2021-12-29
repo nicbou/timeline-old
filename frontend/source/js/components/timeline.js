@@ -1,17 +1,19 @@
 //import EntryMap from './entryMap.js'
 import EntryMap from './previews/geolocation.js'
-import JournalEditorEntry from './entries/journalEditor.js'
+import JournalNewEntry from './entries/journalNew.js'
+import JournalEntry from './entries/journal.js'
 import Preview from './preview.js';
 import SpinnerComponent from './spinner.js';
 import TimelineActivityEntry from './entries/activity.js';
+import TimelineJournalEntry from './entries/journal.js'
 import TimelineImageEntry from './entries/image.js';
 import TimelineNav from './timeline-nav.js';
 import TimelinePostEntry from './entries/post.js'
-import TimelineTextEntry from './entries/text.js'
 import TimelineMessageEntry from './entries/message.js';
 import TimelineMotionEntry from './entries/motion.js';
+import TimelineTextEntry from './entries/text.js';
 import TimelineVideoEntry from './entries/video.js';
-import TransactionsEntry from './entries/transactions.js';
+import TransactionEntry from './entries/transaction.js';
 import { RequestStatus } from './../models/requests.js';
 
 function makeRouteValid(to, from, next) {
@@ -88,6 +90,11 @@ export default Vue.component('timeline', {
         images: {
           readableName: 'images',
           iconClass: 'fas fa-image',
+          entries: [],
+        },
+        journal: {
+          readableName: 'journal entries',
+          iconClass: 'fas fa-pen-square',
           entries: [],
         },
         messages: {
@@ -167,6 +174,10 @@ export default Vue.component('timeline', {
           groups.videos.entries.push(entry);
         }
 
+        if (entry.schema === 'journal') {
+          groups.journal.entries.push(entry);
+        }
+
         if (entry.schema.startsWith('activity.exercise.session')) {
           groups.motion.entries.push(entry);
         }
@@ -183,11 +194,20 @@ export default Vue.component('timeline', {
     },
     entryType: function(entry) {
       const s = entry.schema;
-      if (s.startsWith('file.image') || s.startsWith('file.document.pdf')) {
+      if(s.startsWith('activity.browsing')) {
+        return 'activity-entry';
+      }
+      else if (s.startsWith('file.image') || s.startsWith('file.document.pdf')) {
         return 'image-entry';
       }
-      else if(s.startsWith('file.video')) {
-        return 'video-entry';
+      else if(s === 'journal') {
+        return 'journal-entry';
+      }
+      else if(s.startsWith('message.')) {
+        return 'message-entry';
+      }
+      else if(s.startsWith('activity.exercise.session')) {
+        return 'motion-entry';
       }
       else if(s.startsWith('social.')) {
         return 'post-entry';
@@ -195,14 +215,8 @@ export default Vue.component('timeline', {
       else if(s.startsWith('file.text')) {
         return 'text-entry';
       }
-      else if(s.startsWith('activity.browsing')) {
-        return 'activity-entry';
-      }
-      else if(s.startsWith('message.')) {
-        return 'message-entry';
-      }
-      else if(s.startsWith('activity.exercise.session')) {
-        return 'motion-entry';
+      else if(s.startsWith('file.video')) {
+        return 'video-entry';
       }
     },
   },
@@ -226,7 +240,8 @@ export default Vue.component('timeline', {
         </div>
         <spinner v-if="isLoading"></spinner>
         <div class="content entries">
-          <journal-editor v-if="!isLoading"></journal-editor>
+          <new-journal-entry v-if="!isLoading"></new-journal-entry>
+          <div class="separator">On this day</div>
           <component
             :entry="entry"
             :is="entryType(entry)"
@@ -235,7 +250,11 @@ export default Vue.component('timeline', {
             class="entry"
             v-for="entry in entries"
             v-if="entryType(entry) && !isLoading"></component>
-          <transactions-entry v-if="!isLoading" :entries="entryGroups.transactions.entries"></transactions-entry>
+          <div class="separator" v-if="entryGroups.transactions.entries.length">Unknown time</div>
+          <transaction-entry
+            :entry="entry"
+            class="entry"
+            v-for="entry in entryGroups.transactions.entries"></transaction-entry>
         </div>
       </main>
       <preview :entry="selectedEntry" v-if="selectedEntry" @close="closePreview"></preview>
