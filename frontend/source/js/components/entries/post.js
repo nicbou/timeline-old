@@ -76,7 +76,7 @@ export default Vue.component('post-entry', {
         <span v-if="postType.getPostCommunity(entry)">
           on <a :href="postType.getPostUrl(entry)" class="community" target="_blank">{{ postType.getPostCommunity(entry) }}</a>
         </span>
-        <span v-if="entry.extra_attributes.post_score !== undefined" class="score" :class="{positive: entry.extra_attributes.post_score >= 1, negative: entry.extra_attributes.post_score < 1}">{{ entry.extra_attributes.post_score }}</span>
+        <span v-if="entry.extra_attributes.post_score !== undefined && entry.extra_attributes.post_score !== null" class="score" :class="{positive: entry.extra_attributes.post_score >= 1, negative: entry.extra_attributes.post_score < 1}">{{ entry.extra_attributes.post_score }}</span>
       </div>
       <div class="content" v-html="postType.getRichDescription(entry)"></div>
     </div>
