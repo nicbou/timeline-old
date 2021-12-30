@@ -38,7 +38,7 @@ export default Vue.component('new-journal-entry', {
     },
   },
   template: `
-    <div class="journal new-journal">
+    <div class="journal journal-add">
       <i class="icon fas fa-pen-square"></i>
       <textarea ref="editor" class="journal-content" v-if="isEditing" v-model="unsavedDescription"></textarea>
       <div class="input-group" v-if="isEditing">

@@ -39,14 +39,14 @@ export default Vue.component('message-entry', {
         <span :title="recipientName" class="recipient">{{ recipientName }}</span>
       </div>
       <div class="content">
-        <image-entry
+        <image-thumbnail
           v-if="entry.extra_attributes.file && entry.extra_attributes.file.mimetype.startsWith('image/') && entry.extra_attributes.previews"
           @select="$emit('select', entry)"
-          :entry="entry"></image-entry>
-        <video-entry
+          :entry="entry"></image-thumbnail>
+        <video-thumbnail
           v-if="entry.extra_attributes.file && entry.extra_attributes.file.mimetype.startsWith('video/') && entry.extra_attributes.previews"
           @select="$emit('select', entry)"
-          :entry="entry"></video-entry>
+          :entry="entry"></video-thumbnail>
         <audio controls
           v-if="entry.extra_attributes.file && entry.extra_attributes.file.mimetype.startsWith('audio/')" :src="entry.extra_attributes.file.path"></audio>
         {{ entry.description }}

@@ -15,6 +15,7 @@ import TimelineTextEntry from './entries/text.js';
 import TimelineVideoEntry from './entries/video.js';
 import TransactionEntry from './entries/transaction.js';
 import { RequestStatus } from './../models/requests.js';
+import EntryFilter from './filter.js'
 
 function makeRouteValid(to, from, next) {
   // Enforce a valid current date in the route
@@ -235,6 +236,7 @@ export default Vue.component('timeline', {
               <i :class="group.iconClass"></i>
               {{ group.entries.length }} {{ group.readableName }}
             </li>
+            <li><entry-filter name="journal"></entry-filter></li>
           </ul>
           <entry-map class="map" v-show="!isLoading" :entries="entries"></entry-map>
         </div>

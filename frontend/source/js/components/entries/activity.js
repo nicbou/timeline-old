@@ -26,6 +26,18 @@ export default Vue.component('activity-entry', {
       catch {}
       return hostname;
     },
+    entryClass: function() {
+      if (this.hostname && this.hostname.startsWith('youtube.')) {
+        return 'watch youtube';
+      }
+      else if(this.entry.schema === 'activity.browsing.search') {
+        return 'search';
+      }
+      else {
+        return 'browse';
+      }
+
+    },
     iconClass: function() {
       if (this.hostname && this.hostname.startsWith('youtube.')) {
         return 'fab fa-youtube';
@@ -39,7 +51,7 @@ export default Vue.component('activity-entry', {
     },
   },
   template: `
-    <div>
+    <div :class="entryClass">
       <i class="icon" :class="iconClass"></i>
       <div class="meta">{{ metaText }}</div>
       <div class="content">
