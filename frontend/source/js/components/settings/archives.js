@@ -44,7 +44,7 @@ export default Vue.component('archives', {
         <li v-if="newArchive">
           <archive :archive="newArchive" :is-new="true" @save="newArchive = null" @cancel="newArchive = null"></archive>
         </li>
-        <li v-for="archive in archives">
+        <li v-for="archive in archives" :key="archive.key">
           <archive :archive="archive"></archive>
         </li>
       </ul>
