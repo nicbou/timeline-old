@@ -45,7 +45,7 @@ export default Vue.component('archive', {
     },
     cancelChanges: function() {
       this.isEditing = false;
-      this.$emit('save', this.archive);
+      this.$emit('cancel', this.archive);
     },
     deleteArchive: function() {
       this.$store.dispatch('archives/deleteArchive', this.archive);
@@ -109,6 +109,7 @@ export default Vue.component('archive', {
         </div>
         <div class="input-group" v-if="!isNew">
           <button :disabled="isSaving || !(archive.key && archive.description)" class="button" @click="updateArchive">Save changes</button>
+          <button :disabled="isSaving" class="button" @click="deleteArchive">Delete archive</button>
           <button :disabled="isSaving" class="button" @click="cancelChanges">Cancel</button>
         </div>
       </div>
