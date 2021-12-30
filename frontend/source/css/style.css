@@ -117,8 +117,9 @@ input, button, textarea, select, .button, .files-input{font:var(--font-m);border
 
 /* Timeline elements */
 .entries{}
-    .entry{display:grid;grid-template-columns:30px 320px 1fr;grid-gap:var(--spacing-s);}
-        .entry .icon{color:var(--color-text-faded);font-size:var(--font-size-icons);line-height:30px;text-align:center;}
+    .entry{display:grid;grid-template-columns:var(--font-size-icons) 320px 1fr;grid-gap:var(--spacing-s);}
+        .entry + .entry{border-top:var(--border-03)}
+        .entry .icon{color:var(--color-text-faded);font-size:var(--font-size-icons);line-height:var(--font-size-icons);text-align:center;}
             .entry.facebook-messenger .icon{color:#00b2ff} /* or #006AFF */
             .entry.hackernews .icon{color:#ff4000}
             .entry.reddit .icon{color:#ff4500;}
@@ -153,6 +154,12 @@ input, button, textarea, select, .button, .files-input{font:var(--font-m);border
     .journal-add p{margin:0;}
     .journal-add .icon{font-size:var(--font-size-icons);line-height:22px;}
     .journal-add :not(.icon){grid-column-start:2;}
+
+.filter{display:flex;align-items:center;margin:var(--spacing-s) 0;cursor:pointer;}
+    .filter.disabled{color:var(--color-text-faded)}
+    .filter .icon{font-size:var(--font-size-icons);width:40px;text-align:center;}
+    .filter .filter-name{flex: 1 1 auto;margin-left:var(--spacing-s)}
+    .filter button{border-radius:100px;border:none;margin-left:var(--spacing-s);line-height:var(--font-size-icons);width:var(--font-size-icons);text-align:center;padding:0}
 
 .preview{position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:1000;overflow:hidden;}
     .preview > img, .preview > video{object-fit:contain;position:absolute;top:0;left:0;width:100%;height:100%;}

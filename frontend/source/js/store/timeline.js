@@ -1,10 +1,12 @@
 import { RequestStatus } from './../models/requests.js';
+import { filters } from './../models/filters.js';
 import TimelineService from './../services/timeline-service.js';
 
 export default {
   namespaced: true,
   state: {
     entries: [],
+    enabledFilters: [],
     entriesRequestStatus: RequestStatus.NONE,
     entriesRequestPromise: null,
   },
@@ -30,6 +32,26 @@ export default {
     ENTRIES_REQUEST_FAILURE(state) {
       state.entriesRequestStatus = RequestStatus.FAILURE;
     },
+    TOGGLE_FILTER(state, filterName) {
+      const indexOf = state.enabledFilters.indexOf(filterName);
+      if(indexOf >= 0) {
+        state.enabledFilters.splice(indexOf, 1);
+      }
+      else {
+        state.enabledFilters.push(filterName);
+        state.enabledFilters.sort();
+      }
+    },
+  },
+  getters: {
+    filteredEntries: state => {
+      if(state.enabledFilters.length === 0) {
+        return state.entries;
+      }
+      return state.entries.filter(
+        entry => state.enabledFilters.some(filterName => filters[filterName].filterFunction(entry))
+      );
+    }
   },
   actions: {
     async getEntries(context, forceRefresh=false) {
@@ -61,6 +83,12 @@ export default {
       TimelineService.saveEntry(entry).then(serverEntry => {
         context.commit('UPDATE_ENTRY', serverEntry);
       });
-    }
+    },
+    toggleFilter(context, filterName) {
+      if(!(filterName in filters)){
+        throw new Error(`Filter "${filterName}" does not exist.`);
+      }
+      context.commit('TOGGLE_FILTER', filterName);
+    },
   }
 };

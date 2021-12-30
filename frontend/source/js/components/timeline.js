@@ -1,21 +1,21 @@
-//import EntryMap from './entryMap.js'
+import EntryFilter from './filter.js'
 import EntryMap from './previews/geolocation.js'
-import JournalNewEntry from './entries/journalNew.js'
 import JournalEntry from './entries/journal.js'
+import JournalNewEntry from './entries/journalNew.js'
 import Preview from './preview.js';
 import SpinnerComponent from './spinner.js';
 import TimelineActivityEntry from './entries/activity.js';
-import TimelineJournalEntry from './entries/journal.js'
 import TimelineImageEntry from './entries/image.js';
-import TimelineNav from './timeline-nav.js';
-import TimelinePostEntry from './entries/post.js'
+import TimelineJournalEntry from './entries/journal.js'
 import TimelineMessageEntry from './entries/message.js';
 import TimelineMotionEntry from './entries/motion.js';
+import TimelineNav from './timeline-nav.js';
+import TimelinePostEntry from './entries/post.js'
 import TimelineTextEntry from './entries/text.js';
 import TimelineVideoEntry from './entries/video.js';
 import TransactionEntry from './entries/transaction.js';
+import { filters } from './../models/filters.js';
 import { RequestStatus } from './../models/requests.js';
-import EntryFilter from './filter.js'
 
 function makeRouteValid(to, from, next) {
   // Enforce a valid current date in the route
@@ -35,6 +35,7 @@ export default Vue.component('timeline', {
   data: function() {
     return {
       selectedEntry: null,
+      filters: filters,
     }
   },
   created: function() {
@@ -56,134 +57,13 @@ export default Vue.component('timeline', {
       return duration !== 0 ? moment.duration(duration).humanize(true) : 'today';
     },
     entries: function() {
-      return this.$store.state.timeline.entries;
+      return this.$store.getters['timeline/filteredEntries'];
     },
     isLoading: function() {
       return this.$store.state.timeline.entriesRequestStatus === RequestStatus.PENDING;
     },
-    entryGroups: function() {
-      const emptyGroups = {
-        blog: {
-          readableName: 'blog posts',
-          iconClass: 'fas fa-rss-square',
-          entries: [],
-        },
-        browsingHistory: {
-          readableName: 'browsing entries',
-          iconClass: 'fas fa-globe-americas',
-          entries: [],
-        },
-        files: {
-          readableName: 'files',
-          iconClass: 'fas fa-file',
-          entries: [],
-        },
-        geolocation: {
-          readableName: 'geolocation pings',
-          iconClass: 'fas fa-map-marker-alt',
-          entries: [],
-        },
-        hackerNews: {
-          readableName: 'Hacker News comments',
-          iconClass: 'fab fa-y-combinator',
-          entries: [],
-        },
-        images: {
-          readableName: 'images',
-          iconClass: 'fas fa-image',
-          entries: [],
-        },
-        journal: {
-          readableName: 'journal entries',
-          iconClass: 'fas fa-pen-square',
-          entries: [],
-        },
-        messages: {
-          readableName: 'messages',
-          iconClass: 'fas fa-comments',
-          entries: [],
-        },
-        motion: {
-          readableName: 'activities',
-          iconClass: 'fas fa-running',
-          entries: [],
-        },
-        reddit: {
-          readableName: 'reddit comments',
-          iconClass: 'fab fa-reddit',
-          entries: [],
-        },
-        transactions: {
-          readableName: 'transactions',
-          iconClass: 'fas fa-piggy-bank',
-          entries: [],
-        },
-        twitter: {
-          readableName: 'tweets',
-          iconClass: 'fab fa-twitter',
-          entries: [],
-        },
-        videos: {
-          readableName: 'videos',
-          iconClass: 'fas fa-video',
-          entries: [],
-        },
-      };
-
-      return this.entries.reduce(function(groups, entry) {
-        if (entry.schema.startsWith('social.blog.')) {
-          groups.blog.entries.push(entry);
-        }
-
-        if (entry.schema.startsWith('activity.browsing')) {
-          groups.browsingHistory.entries.push(entry);
-        }
-
-        if (entry.schema.startsWith('file.')) {
-          groups.files.entries.push(entry);
-        }
-
-        if (entry.extra_attributes.location && entry.extra_attributes.location.latitude && entry.extra_attributes.location.longitude) {
-          groups.geolocation.entries.push(entry);
-        }
-
-        if (entry.schema.startsWith('social.hackernews.')) {
-          groups.hackerNews.entries.push(entry);
-        }
-
-        if (entry.schema.startsWith('file.image.')) {
-          groups.images.entries.push(entry);
-        }
-
-        if (entry.schema.startsWith('message')) {
-          groups.messages.entries.push(entry);
-        }
-
-        if (entry.schema.startsWith('social.reddit.')) {
-          groups.reddit.entries.push(entry);
-        }
-
-        if (entry.schema === 'finance.income' || entry.schema === 'finance.expense') {
-          groups.transactions.entries.push(entry);
-        }
-
-        if (entry.schema.startsWith('social.twitter.')) {
-          groups.twitter.entries.push(entry);
-        }
-
-        if (entry.schema.startsWith('file.video.')) {
-          groups.videos.entries.push(entry);
-        }
-
-        if (entry.schema === 'journal') {
-          groups.journal.entries.push(entry);
-        }
-
-        if (entry.schema.startsWith('activity.exercise.session')) {
-          groups.motion.entries.push(entry);
-        }
-        return groups;
-      }, emptyGroups);
+    transactionsEntries: function() {
+      return this.entries.filter(this.filters.transaction.filterFunction);
     },
   },
   methods: {
@@ -231,14 +111,10 @@ export default Vue.component('timeline', {
         <div class="sidebar">
           <h1 class="current-date">{{ timelineDate.format('LL') }}</h1>
           <span class="subtitle">{{ timelineDate.format('dddd') }}, {{ relativeTimelineDate }}</span>
-          <ul class="recap" v-if="!isLoading">
-            <li v-for="group in entryGroups" v-if="group.entries.length">
-              <i :class="group.iconClass"></i>
-              {{ group.entries.length }} {{ group.readableName }}
-            </li>
-            <li><entry-filter name="journal"></entry-filter></li>
-          </ul>
           <entry-map class="map" v-show="!isLoading" :entries="entries"></entry-map>
+          <ul class="recap" v-if="!isLoading">
+            <li v-for="(filter, filterName) in filters"><entry-filter :name="filterName"></entry-filter></li>
+          </ul>
         </div>
         <spinner v-if="isLoading"></spinner>
         <div class="content entries">
@@ -252,11 +128,11 @@ export default Vue.component('timeline', {
             class="entry"
             v-for="entry in entries"
             v-if="entryType(entry) && !isLoading"></component>
-          <div class="separator" v-if="entryGroups.transactions.entries.length">Unknown time</div>
+          <div class="separator" v-if="transactionsEntries.length">Unknown time</div>
           <transaction-entry
             :entry="entry"
             class="entry"
-            v-for="entry in entryGroups.transactions.entries"></transaction-entry>
+            v-for="entry in transactionsEntries"></transaction-entry>
         </div>
       </main>
       <preview :entry="selectedEntry" v-if="selectedEntry" @close="closePreview"></preview>
