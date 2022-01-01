@@ -27,7 +27,7 @@ export default class {
   static async create(object, fileAttachments) {
     return fetch(new URL(`${object.type}/`, this.getApiBase()), {
       method: 'POST',
-      body: objectToFormData(object, fileAttachments),
+      body: this.objectToFormData(object, fileAttachments),
     }).then(response => response.json()).then(createdObject => {
       createdObject.type = object.type;
       return createdObject;
@@ -37,7 +37,7 @@ export default class {
   static async update(object, newFileAttachments) {
     return fetch(object.url, {
       method: 'PUT',
-      body: objectToFormData(object, newFileAttachments),
+      body: this.objectToFormData(object, newFileAttachments),
     }).then(response => response.json()).then(updatedObject => {
       updatedObject.type = object.type;
       return updatedObject;
