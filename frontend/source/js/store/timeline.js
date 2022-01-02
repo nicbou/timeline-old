@@ -20,6 +20,9 @@ export default {
     UPDATE_ENTRY(state, entry) {
       Object.assign(state.entries.find(e => e.id === entry.id), entry);
     },
+    DELETE_ENTRY(state, entry) {
+      state.entries.splice(state.entries.indexOf(entry), 1);
+    },
     SET_ENTRIES_REQUEST_PROMISE(state, promise) {
       state.entriesRequestPromise = promise;
     },
@@ -82,6 +85,11 @@ export default {
     async updateEntry(context, entry) {
       TimelineService.saveEntry(entry).then(serverEntry => {
         context.commit('UPDATE_ENTRY', serverEntry);
+      });
+    },
+    async deleteEntry(context, entry) {
+      TimelineService.deleteEntry(entry).then(serverResponse => {
+        context.commit('DELETE_ENTRY', entry);
       });
     },
     toggleFilter(context, filterName) {

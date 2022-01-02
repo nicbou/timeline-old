@@ -22,12 +22,20 @@ export default Vue.component('journal-entry', {
     },
     saveChanges: function(){
       this.isSaving = true;
-      this.entry.description = this.unsavedDescription;
-      this.$store.dispatch('timeline/updateEntry', this.entry).then(e => {
-        this.unsavedDescription = null;
-        this.isEditing = false;
-        this.isSaving = false;
-      });
+      if(this.unsavedDescription.length) {
+        this.entry.description = this.unsavedDescription;
+        this.$store.dispatch('timeline/updateEntry', this.entry).then(e => {
+          this.unsavedDescription = null;
+          this.isEditing = false;
+          this.isSaving = false;
+        });
+      }
+      else {
+        this.deleteEntry();
+      }
+    },
+    deleteEntry: function() {
+      this.$store.dispatch('timeline/deleteEntry', this.entry);
     },
     cancelChanges: function() {
       this.isEditing = false;
@@ -42,6 +50,7 @@ export default Vue.component('journal-entry', {
         <textarea ref="editor" class="journal-content" v-if="isEditing" v-model="unsavedDescription"></textarea>
         <div class="input-group" v-if="isEditing">
           <button class="button" @click.stop.prevent="saveChanges" :disabled="isSaving">Save changes</button>
+          <button class="button" @click.stop.prevent="deleteEntry" :disabled="isSaving">Delete entry</button>
           <button class="button" @click.stop.prevent="cancelChanges" :disabled="isSaving">Cancel</button>
         </div>
         <div v-html="markdownDescription" v-if="!isEditing" @click="edit"></div>

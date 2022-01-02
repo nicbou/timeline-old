@@ -31,4 +31,9 @@ export default class {
       return response.json();
     });
   }
+
+  static async deleteEntry(entry) {
+    const entryUrl = new URL(`/api/timeline/entries/${entry.id}/`, `https://${window.location.hostname}/api/`);
+    return fetch(entryUrl, { method: 'DELETE' });
+  }
 }
