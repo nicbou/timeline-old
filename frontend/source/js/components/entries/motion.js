@@ -50,7 +50,7 @@ export default Vue.component('motion-entry', {
   },
   template: `
     <div>
-      <i class="icon" :class="iconClass"></i>
+      <i class="icon" :class="iconClass" :title="new Date(entry.date_on_timeline).toLocaleString()"></i>
       <div class="meta">Activity</div>
       <div class="content">
         {{ description }}

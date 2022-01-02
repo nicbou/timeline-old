@@ -44,7 +44,7 @@ export default Vue.component('transaction-entry', {
   },
   template: `
     <div class="transaction">
-      <i class="icon fas fa-piggy-bank"></i>
+      <i class="icon fas fa-piggy-bank" :title="new Date(entry.date_on_timeline).toLocaleString()"></i>
       <div class="meta">{{ otherPartyName }}</div>
       <div class="content">
         <strong>{{ amount }}{{ currency }}</strong> {{ transactionType }}

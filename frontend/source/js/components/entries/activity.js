@@ -52,7 +52,7 @@ export default Vue.component('activity-entry', {
   },
   template: `
     <div :class="entryClass">
-      <i class="icon" :class="iconClass"></i>
+      <i class="icon" :class="iconClass" :title="new Date(entry.date_on_timeline).toLocaleString()"></i>
       <div class="meta">{{ metaText }}</div>
       <div class="content">
         <a :href="url">"{{ entry.title }}"</a>

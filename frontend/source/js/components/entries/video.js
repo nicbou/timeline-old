@@ -8,7 +8,7 @@ export default Vue.component('video-entry', {
   },
   template: `
     <div class="video" @click="$emit('select', entry)" v-if="entry.extra_attributes.previews">
-      <i class="icon fas fa-play-circle"></i>
+      <i class="icon fas fa-play-circle" :title="new Date(entry.date_on_timeline).toLocaleString()"></i>
       <div class="meta">{{ entry.title }}</div>
       <div class="content">
         <video-thumbnail :entry="entry" height="200"/>

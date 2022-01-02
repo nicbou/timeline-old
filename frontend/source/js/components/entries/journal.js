@@ -36,7 +36,7 @@ export default Vue.component('journal-entry', {
   },
   template: `
     <div class="journal">
-      <i class="icon fas fa-pen-square"></i>
+      <i class="icon fas fa-pen-square" :title="new Date(entry.date_on_timeline).toLocaleString()"></i>
       <div class="meta">Journal entry</div>
       <div class="content" :class="{editing: isEditing}">
         <textarea ref="editor" class="journal-content" v-if="isEditing" v-model="unsavedDescription"></textarea>

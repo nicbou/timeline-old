@@ -14,7 +14,7 @@ export default Vue.component('text-entry', {
   },
   template: `
     <div>
-      <i class="icon fas fa-file-alt" :class="iconClass"></i>
+      <i class="icon fas fa-file-alt" :class="iconClass" :title="new Date(entry.date_on_timeline).toLocaleString()"></i>
       <div class="meta">{{ fileName }}</div>
       <div class="content" v-html="richDescription"></div>
     </div>
