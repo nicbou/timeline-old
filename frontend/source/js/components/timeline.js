@@ -119,7 +119,6 @@ export default Vue.component('timeline', {
         <spinner v-if="isLoading"></spinner>
         <div class="content entries">
           <new-journal-entry v-if="!isLoading"></new-journal-entry>
-          <div class="separator">On this day</div>
           <component
             :entry="entry"
             :is="entryType(entry)"
