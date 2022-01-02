@@ -137,8 +137,8 @@ export default Vue.component('timeline', {
             <li v-for="(filter, filterName) in filters" :key="filterName"><entry-filter :name="filterName"></entry-filter></li>
           </ul>
         </div>
-        <spinner v-if="isLoading"></spinner>
         <div class="content entries">
+          <spinner v-if="isLoading"></spinner>
           <new-journal-entry v-if="!isLoading"></new-journal-entry>
           <div class="entry-group" v-for="group in groupedEntries" :data-group-title="formattedTime(group[0].date_on_timeline)">
             <component
