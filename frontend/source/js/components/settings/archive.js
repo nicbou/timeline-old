@@ -72,7 +72,7 @@ export default Vue.component('archive', {
           <label for="archive-type">Type</label>
           <input type="text" :value="archiveTypes[archive.type]" disabled v-if="!isNew"/>
           <select id="archive-type" v-model="archive.type" v-if="isNew">
-            <option v-for="(archiveTypeDisplay, archiveType) in archiveTypes" :value="archiveType">{{ archiveTypeDisplay }}</option>
+            <option v-for="(archiveTypeDisplay, archiveType) in archiveTypes" :value="archiveType" :key="archiveType">{{ archiveTypeDisplay }}</option>
           </select>
         </div>
         <div class="input-group">
@@ -87,7 +87,7 @@ export default Vue.component('archive', {
           <label for="archive-files">Files</label>
           <div class="files-input">
             <ul>
-              <li v-for="archiveFile in archive.archive_files">
+              <li v-for="archiveFile in archive.archive_files" :key="archiveFile.id">
                 <i class="fas fa-check-circle"></i><span class="file-name">{{ fileName(archiveFile.url) }}</span>
                 <div class="actions">
                   <a :href="archiveFile.url" title="Download file"><i class="fas fa-download"></i></a>

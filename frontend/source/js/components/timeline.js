@@ -113,7 +113,7 @@ export default Vue.component('timeline', {
           <span class="subtitle">{{ timelineDate.format('dddd') }}, {{ relativeTimelineDate }}</span>
           <entry-map class="map" v-show="!isLoading" :entries="entries"></entry-map>
           <ul class="recap" v-if="!isLoading">
-            <li v-for="(filter, filterName) in filters"><entry-filter :name="filterName"></entry-filter></li>
+            <li v-for="(filter, filterName) in filters" :key="filterName"><entry-filter :name="filterName"></entry-filter></li>
           </ul>
         </div>
         <spinner v-if="isLoading"></spinner>
@@ -130,6 +130,7 @@ export default Vue.component('timeline', {
           <div class="separator" v-if="transactionsEntries.length">Unknown time</div>
           <transaction-entry
             :entry="entry"
+            :key="entry.id"
             class="entry"
             v-for="entry in transactionsEntries"></transaction-entry>
         </div>
