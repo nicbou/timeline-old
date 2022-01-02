@@ -144,7 +144,7 @@ input, button, textarea, select, .button, .files-input{font:var(--font-m);border
             .entry .content pre{margin:var(--spacing-m) 0;max-width:100%;overflow:auto}
             .entry .content blockquote{padding-left:var(--spacing-s);font-style:italic;border-left:5px solid var(--color-background-02);}
             .entry.image .content img, .entry.video .content video{cursor: pointer;display:block;height:var(--entry-max-height);}
-                .entry .content .media-icons{position:absolute;bottom:0;right:0;padding:var(--spacing-m);font-size:var(--font-size-icons);}
+                .entry .content .media-icons{position:absolute;bottom:0;left:0;padding:var(--spacing-m);font-size:var(--font-size-icons);color:#fff;text-shadow:0 0 5px #000;opacity:0.5}
             .entry.journal .content:not(.editing):hover{background:var(--color-background-02);}
                 .entry.journal .content p{margin:22px 0}
     .separator{border-bottom:2px solid var(--color-text);margin:var(--spacing-m) 0 var(--spacing-s);font:var(--font-h3)}
