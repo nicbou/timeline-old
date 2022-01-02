@@ -59,6 +59,23 @@ export default Vue.component('timeline', {
     entries: function() {
       return this.$store.getters['timeline/filteredEntries'];
     },
+    groupedEntries: function() {
+      // Group entries by time
+      let lastGroupDate = null;
+      let lastGroupName = null;
+      const groups = this.entries.reduce((groups, entry) => {
+        const timeDiff = lastGroupDate ? (new Date(entry.date_on_timeline) - lastGroupDate)/1000 : 0;
+        if(!lastGroupDate || timeDiff > 3600) {
+          lastGroupDate = new Date(entry.date_on_timeline);
+          lastGroupName = entry.date_on_timeline;
+          groups[lastGroupName] = [];
+        }
+
+        groups[lastGroupName].push(entry);
+        return groups;
+      }, []);
+      return Object.keys(groups).sort().map(key => groups[key]);
+    },
     isLoading: function() {
       return this.$store.state.timeline.entriesRequestStatus === RequestStatus.PENDING;
     },
@@ -100,6 +117,10 @@ export default Vue.component('timeline', {
         return 'video-entry';
       }
     },
+    formattedTime: function(dateString) {
+      const date = new Date(dateString);
+      return `${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
+    }
   },
   template: `
     <div id="timeline">
@@ -119,14 +140,16 @@ export default Vue.component('timeline', {
         <spinner v-if="isLoading"></spinner>
         <div class="content entries">
           <new-journal-entry v-if="!isLoading"></new-journal-entry>
-          <component
-            :entry="entry"
-            :is="entryType(entry)"
-            :key="entry.id"
-            @select="openPreview"
-            class="entry"
-            v-for="entry in entries"
-            v-if="entryType(entry) && !isLoading"></component>
+          <div class="entry-group" v-for="group in groupedEntries" :data-group-title="formattedTime(group[0].date_on_timeline)">
+            <component
+              :entry="entry"
+              :is="entryType(entry)"
+              :key="entry.id"
+              @select="openPreview"
+              class="entry"
+              v-for="entry in group"
+              v-if="entryType(entry) && !isLoading"></component>
+          </div>
           <div class="separator" v-if="transactionsEntries.length">Unknown time</div>
           <transaction-entry
             :entry="entry"
