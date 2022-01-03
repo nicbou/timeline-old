@@ -58,10 +58,11 @@ export default Vue.component('archive', {
   },
   template: `
     <div class="archive">
-      <div class="archive-preview" v-if="!isEditing && !isNew">
+      <div class="archive-preview" :class="{processed: !!archive.date_processed}" v-if="!isEditing && !isNew">
+        <i class="icon fas fa-file-archive"></i>
         <div class="archive-details">
           <h2>{{ archive.key || 'New archive' }}</h2>
-          {{ archiveTypes[this.archive.type] }} archive
+          {{ archiveTypes[this.archive.type] }}
         </div>
         <div class="input-group">
           <button class="button" @click="isEditing=true">Edit</button>
