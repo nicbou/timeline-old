@@ -195,3 +195,10 @@ input, button, textarea, select, .button, .files-input{font:var(--font-m);border
         .timeline-nav .plus-1-day{border-radius:0 var(--border-radius) var(--border-radius) 0;}
         .timeline-nav .minus-1-day{border-radius:var(--border-radius) 0 0 var(--border-radius);}
 }
+
+@media screen and ( max-width:1024px ){
+    .entry{grid-template-columns:var(--width-icon) 1fr;grid-row-gap:0;}
+        .entry > .icon{margin-top:var(--spacing-xs)}
+        .entry .meta{line-height:var(--font-size-icons)}
+        .entry .content{grid-column-start:2;grid-column-end:2;max-width:100%;}
+}
