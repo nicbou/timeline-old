@@ -62,7 +62,9 @@ export default Vue.component('archive', {
         <i class="icon fas fa-file-archive"></i>
         <div class="archive-details">
           <h2>{{ archive.key || 'New archive' }}</h2>
-          {{ archiveTypes[this.archive.type] }}
+          {{ archiveTypes[this.archive.type] }}.
+          <span v-if="!!archive.date_processed">Processed {{ relativeDate(archive.date_processed) }}.</span>
+          <span v-if="!archive.date_processed">Not yet processed.</span>
         </div>
         <div class="input-group">
           <button class="button" @click="isEditing=true">Edit</button>
