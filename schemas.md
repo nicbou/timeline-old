@@ -6,9 +6,9 @@ This is a list of the schemas that are currently in use
 
 - `title`
 - `description`
-- `source`
-- `schema`
-- `date_on_timeline`
+- `source`: the source or archive that created this entry. For example, "RsyncSource/bedroom-pc".
+- `schema`: the schema of this entry
+- `date_on_timeline`: the date this entry will appear on the timeline
 
 ## activity
 
@@ -49,14 +49,29 @@ A physical activity session. Can be composed of different segments within itself
 
 For example, during a mixed martial arts session, there was also a period of boxing, and a period of running. This will show up only as `Mixed martial arts`, but can contain unexpected elements such as `step counter` due to the running activity.
 
-- `title`: The type of physical activity
+- `title`: Type of physical activity
 - `duration`: Duration of activity, in seconds
-- `heart_minutes`: google 'heart minutes'. The number of Heart Points earned depends on the intensity of the activity. See google documentation to calculate Heart Points.
+- `heart_minutes`: Google 'heart minutes'. The number of Heart Points earned depends on the intensity of the activity. See google documentation to calculate Heart Points.
 - `calories`: The total calories (in kilocalories) burned by the user, including calories burned at rest (BMR).
 - `step_count`
-- `distance`: in meters
-- `speed`: average speed over the activity in meters per second
+- `distance`: Distance covered, in meters
+- `speed`: Average speed over the activity, in meters per second
 - `active_minutes`: Number of minutes of activity. May be different to duration if some of the time was spent e.g. resting.
+
+## commit
+
+A git commit.
+
+- `title`: the commit message
+- `hash`
+- `url`: Direct link to the commit (optional)
+- `author.name`: Commit author name. For example, "John Smith".
+- `author.email`
+- `repo.name`: Repository name. For example, "timeline".
+- `repo.url`: Direct link to the repo (optional)
+- `changes.files`: Number of files that changed
+- `changes.insertions`: Number of lines inserted
+- `changes.deletions`: Number of lines deleted
 
 ## file
 

@@ -5,25 +5,27 @@ from rest_framework import viewsets
 from rest_framework.exceptions import APIException, AuthenticationFailed
 
 from .models import FileSystemSource
+from .models.git import GitSource
 from .models.hackernews import HackerNewsSource
 from .models.reddit import RedditSource
 from .models.rss import RssSource
 from .models.rsync import RsyncSource, RsyncDestination
 from .models.twitter import TwitterSource
 from .serializers import RsyncSourceSerializer, TwitterSourceSerializer, RedditSourceSerializer, \
-    HackerNewsSourceSerializer, RssSourceSerializer, FileSystemSourceSerializer, RsyncDestinationSerializer
+    HackerNewsSourceSerializer, RssSourceSerializer, FileSystemSourceSerializer, RsyncDestinationSerializer, \
+    GitSourceSerializer
 from .utils.ssh import copy_ssh_keys, SSHCredentialsError, SSHTimeoutError
 
 logger = logging.getLogger(__name__)
 
 
-class RsyncSourceViewSet(viewsets.ModelViewSet):
-    """
-    List and manage backup Sources. A Source is a remote server from which files are backed up.
-    """
+class BaseSourceViewSet(viewsets.ModelViewSet):
+    permission_classes = [permissions.AllowAny]
+
+
+class RsyncSourceViewSet(BaseSourceViewSet):
     queryset = RsyncSource.objects.all()
     serializer_class = RsyncSourceSerializer
-    permission_classes = [permissions.AllowAny]
 
     @staticmethod
     def copy_ssh_keys(serializer):
@@ -52,34 +54,33 @@ class RsyncSourceViewSet(viewsets.ModelViewSet):
 class RsyncDestinationViewSet(RsyncSourceViewSet):
     queryset = RsyncDestination.objects.all().order_by('key')
     serializer_class = RsyncDestinationSerializer
-    permission_classes = [permissions.AllowAny]
 
 
-class TwitterSourceViewSet(viewsets.ModelViewSet):
+class TwitterSourceViewSet(BaseSourceViewSet):
     queryset = TwitterSource.objects.all().order_by('twitter_username')
     serializer_class = TwitterSourceSerializer
-    permission_classes = [permissions.AllowAny]
 
 
-class RedditSourceViewSet(viewsets.ModelViewSet):
+class RedditSourceViewSet(BaseSourceViewSet):
     queryset = RedditSource.objects.all().order_by('reddit_username')
     serializer_class = RedditSourceSerializer
-    permission_classes = [permissions.AllowAny]
 
 
-class HackerNewsSourceViewSet(viewsets.ModelViewSet):
+class HackerNewsSourceViewSet(BaseSourceViewSet):
     queryset = HackerNewsSource.objects.all().order_by('hackernews_username')
     serializer_class = HackerNewsSourceSerializer
-    permission_classes = [permissions.AllowAny]
 
 
-class RssSourceViewSet(viewsets.ModelViewSet):
+class RssSourceViewSet(BaseSourceViewSet):
     queryset = RssSource.objects.all()
     serializer_class = RssSourceSerializer
-    permission_classes = [permissions.AllowAny]
 
 
-class FileSystemSourceViewSet(viewsets.ModelViewSet):
+class FileSystemSourceViewSet(BaseSourceViewSet):
     queryset = FileSystemSource.objects.all()
     serializer_class = FileSystemSourceSerializer
-    permission_classes = [permissions.AllowAny]
+
+
+class GitSourceViewSet(BaseSourceViewSet):
+    queryset = GitSource.objects.all()
+    serializer_class = GitSourceSerializer

@@ -5,6 +5,7 @@ import JournalNewEntry from './entries/journalNew.js'
 import Preview from './preview.js';
 import SpinnerComponent from './spinner.js';
 import TimelineActivityEntry from './entries/activity.js';
+import TimelineCommitEntry from './entries/commit.js';
 import TimelineImageEntry from './entries/image.js';
 import TimelineJournalEntry from './entries/journal.js'
 import TimelineMessageEntry from './entries/message.js';
@@ -94,6 +95,9 @@ export default Vue.component('timeline', {
       const s = entry.schema;
       if(s.startsWith('activity.browsing')) {
         return 'activity-entry';
+      }
+      else if(s === 'commit') {
+        return 'commit-entry';
       }
       else if (s.startsWith('file.image') || s.startsWith('file.document.pdf')) {
         return 'image-entry';

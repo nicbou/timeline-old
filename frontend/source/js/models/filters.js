@@ -11,6 +11,12 @@ export const filters = {
     iconClass: 'fas fa-globe-americas',
     filterFunction: (entry) => entry.schema.startsWith('activity.browsing'),
   },
+  commit: {
+    displayName: 'commit',
+    displayNamePlural: 'commits',
+    iconClass: 'fab fa-git-square',
+    filterFunction: (entry) => entry.schema === 'commit',
+  },
   file: {
     displayName: 'file',
     displayNamePlural: 'files',

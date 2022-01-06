@@ -121,6 +121,11 @@ logging.config.dictConfig({
             'handlers': ['console'],
             'propagate': True,
             'qualname': 'gunicorn.access',
+        },
+        'pydriller': {
+            'level': 'ERROR',
+            'handlers': ['console'],
+            'propagate': True,
         }
     },
 })

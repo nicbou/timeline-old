@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from .models import FileSystemSource
+from .models.git import GitSource
 from .models.hackernews import HackerNewsSource
 from .models.reddit import RedditSource
 from .models.rss import RssSource
@@ -55,4 +56,10 @@ class RssSourceSerializer(BaseSourceSerializer):
 class FileSystemSourceSerializer(BaseSourceSerializer):
     class Meta:
         model = FileSystemSource
+        fields = '__all__'
+
+
+class GitSourceSerializer(BaseSourceSerializer):
+    class Meta:
+        model = GitSource
         fields = '__all__'
