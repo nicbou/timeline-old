@@ -129,6 +129,7 @@ input, button, textarea, select, .button, .files-input{font:var(--font-m);border
             .entry.telegram > .icon{color:#0088cc;}
             .entry.twitter > .icon{color:#1da1f2;}
             .entry.youtube > .icon{color:#f00}
+            .entry.commit > .icon{color:#f1502f}
         .entry .meta{margin:var(--spacing-xs) 0;overflow:hidden;}
             .entry .meta .sender, .entry .meta .recipient{white-space:nowrap;}
             .entry .meta .sender{font-weight:bold}

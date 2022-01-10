@@ -7,7 +7,7 @@ const postTypes = {
     getPostWebsite: entry => 'Twitter',
     getPostCommunity: entry => null,
     getPostCommunityUrl: entry => null,
-    getPostType: entry => 'tweet',
+    getPostType: entry => 'Tweet',
     getRichDescription: entry => `<p>${entry.description}</p>`.replace(/@([\w]{1,50})/ig, '<a target="_blank" href="https://twitter.com/$1">@$1</a>'),
   },
   reddit: {
@@ -18,7 +18,7 @@ const postTypes = {
     getPostWebsite: entry => 'Reddit',
     getPostCommunity: entry => `/r/${entry.extra_attributes.post_community}`,
     getPostCommunityUrl: entry => `https://www.reddit.com/r/${entry.extra_attributes.post_community}`,
-    getPostType: entry => entry.schema === 'social.reddit.comment' ? 'comment' : 'post',
+    getPostType: entry => entry.schema === 'social.reddit.comment' ? 'Comment' : 'Post',
     getRichDescription: entry => {
       if(entry.schema === 'social.reddit.post') {
         return `<h3><a href="${entry.extra_attributes.post_url}">${entry.title}</a></h3>`;
@@ -34,7 +34,7 @@ const postTypes = {
     getPostWebsite: entry => 'Hacker News',
     getPostCommunity: entry => null,
     getPostCommunityUrl: entry => null,
-    getPostType: entry => entry.schema === 'social.hackernews.comment' ? 'comment' : 'submission',
+    getPostType: entry => entry.schema === 'social.hackernews.comment' ? 'Comment' : 'Submission',
     getRichDescription: entry => {
       if(entry.schema === 'social.hackernews.story'){
         return `<h3><a href="https://news.ycombinator.com/item?id=${entry.extra_attributes.post_id}">${entry.title}</a></h3>`
@@ -53,7 +53,7 @@ const postTypes = {
     getPostWebsite: entry => 'Website',
     getPostCommunity: entry => new URL(entry.extra_attributes.post_url).hostname,
     getPostCommunityUrl: entry => new URL(entry.extra_attributes.post_url).hostname,
-    getPostType: entry => 'post',
+    getPostType: entry => 'Post',
     getRichDescription: entry => entry.extra_attributes.post_body_html,
   },
 }
@@ -72,9 +72,9 @@ export default Vue.component('post-entry', {
     <div :class="postClass" :title="new Date(entry.date_on_timeline).toLocaleString()">
       <i class="icon" :class="postType.getIconClass(entry)"></i>
       <div class="meta">
-        <a :href="postType.getUserUrl(entry)" class="user" target="_blank">{{ postType.getUser(entry) }}</a>
+        <a :href="postType.getPostUrl(entry)" class="user" target="_blank">{{ postType.getPostType(entry) }}</a>
         <span v-if="postType.getPostCommunity(entry)">
-          on <a :href="postType.getPostUrl(entry)" class="community" target="_blank">{{ postType.getPostCommunity(entry) }}</a>
+          on <a :href="postType.getPostCommunityUrl(entry)" class="community" target="_blank">{{ postType.getPostCommunity(entry) }}</a>
         </span>
         <span v-if="!postType.getPostCommunity(entry)">
           on <a :href="postType.getPostUrl(entry)" class="community" target="_blank">{{ postType.getPostWebsite(entry) }}</a>
