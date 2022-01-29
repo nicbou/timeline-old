@@ -44,11 +44,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_filters',
-    'rest_framework',
     'generic_relations',
     'timeline.apps.TimelineConfig',
     'archive.apps.ArchiveConfig',
     'backup.apps.BackupConfig',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -197,7 +197,12 @@ VIDEO_PREVIEW_SIZES = {
 }
 
 REST_FRAMEWORK = {
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination'
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',
+        'timeline.renderers.GpxRenderer',
+    ],
 }
 
 # In bytes

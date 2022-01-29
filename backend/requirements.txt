@@ -4,7 +4,7 @@ Django==3.1.2
 djangorestframework==3.12.1
 feedparser==6.0.2
 FormEncode==2.0.0
-gpxpy==1.4.2
+gpxpy==1.5.0
 gunicorn==20.0.4
 icalendar==4.0.9
 phonenumbers==8.12.23
