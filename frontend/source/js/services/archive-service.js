@@ -5,6 +5,7 @@ export const archiveTypes = {
   facebook: 'Facebook',
   googletakeout: 'Google Takeout',
   gpx: 'GPX track',
+  icalendar: 'iCalendar file',
   json: 'JSON entries',
   n26csv: 'N26 CSV export',
   telegram: 'Telegram',
