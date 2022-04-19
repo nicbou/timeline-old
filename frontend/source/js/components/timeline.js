@@ -117,6 +117,10 @@ export default Vue.component('timeline', {
     closePreview: function() {
       this.selectedEntry = null;
     },
+    entryGroupTitle: function(group) {
+      const firstEntry = Array.isArray(group[0]) ? group[0][0] : group[0];
+      return this.formattedTime(firstEntry.date_on_timeline);
+    },
     entryType: function(entry) {
       if(Array.isArray(entry)) {
         return 'gallery';
@@ -168,7 +172,7 @@ export default Vue.component('timeline', {
         <div class="content entries">
           <spinner v-if="isLoading"></spinner>
           <new-journal-entry v-if="!isLoading"></new-journal-entry>
-          <div class="entry-group" v-for="group in groupedEntries" :data-group-title="formattedTime(group[0].date_on_timeline)">
+          <div class="entry-group" v-for="group in groupedEntries" :data-group-title="entryGroupTitle(group)">
             <component
               :entry="entry"
               :is="entryType(entry)"
