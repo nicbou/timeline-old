@@ -153,6 +153,7 @@ input, button, textarea, select, .button, .files-input{font:var(--font-m);border
                     .entry .content .thumbnail .media-icons{position:absolute;bottom:0;left:0;padding:var(--spacing-m);font-size:var(--font-size-icons);color:#fff;text-shadow:0 0 5px #000;opacity:0.5}
             .entry.journal .content:not(.editing):hover{background:var(--color-background-02);}
                 .entry.journal .content p{margin:22px 0}
+                .entry.journal .content.editing textarea{margin-bottom:var(--spacing-m)}
     .separator, .entry-group:not(:empty):before{display:block;border-bottom:1px solid var(--color-text);margin:var(--spacing-m) 0 var(--spacing-s);font:var(--font-h3)}
         .entry-group:not(:empty):before{content:attr(data-group-title);}
     .spinner{font-style:italic;color:var(--color-text-faded)}
