@@ -278,7 +278,7 @@ Generally, you should import data with a `TwitterSource`, because it will keep l
 
 ## Destinations
 
-`/api/backup`
+`/api/destination`
 
 A Destination is a place where the timeline data is exported. This is how you back up your timeline.
 
