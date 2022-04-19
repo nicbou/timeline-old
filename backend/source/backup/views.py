@@ -9,10 +9,10 @@ from .models.git import GitSource
 from .models.hackernews import HackerNewsSource
 from .models.reddit import RedditSource
 from .models.rss import RssSource
-from .models.rsync import RsyncSource, RsyncDestination
+from .models.rsync import RsyncSource
 from .models.twitter import TwitterSource
 from .serializers import RsyncSourceSerializer, TwitterSourceSerializer, RedditSourceSerializer, \
-    HackerNewsSourceSerializer, RssSourceSerializer, FileSystemSourceSerializer, RsyncDestinationSerializer, \
+    HackerNewsSourceSerializer, RssSourceSerializer, FileSystemSourceSerializer, \
     GitSourceSerializer
 from .utils.ssh import copy_ssh_keys, SSHCredentialsError, SSHTimeoutError
 
@@ -49,11 +49,6 @@ class RsyncSourceViewSet(BaseSourceViewSet):
         self.copy_ssh_keys(serializer)
         serializer.validated_data.pop('password')
         return super().perform_update(serializer)
-
-
-class RsyncDestinationViewSet(RsyncSourceViewSet):
-    queryset = RsyncDestination.objects.all().order_by('key')
-    serializer_class = RsyncDestinationSerializer
 
 
 class TwitterSourceViewSet(BaseSourceViewSet):

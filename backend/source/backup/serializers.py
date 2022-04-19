@@ -5,7 +5,7 @@ from .models.git import GitSource
 from .models.hackernews import HackerNewsSource
 from .models.reddit import RedditSource
 from .models.rss import RssSource
-from .models.rsync import RsyncSource, RsyncDestination
+from .models.rsync import RsyncSource
 from .models.twitter import TwitterSource
 
 
@@ -18,14 +18,6 @@ class RsyncSourceSerializer(BaseSourceSerializer):
 
     class Meta:
         model = RsyncSource
-        fields = '__all__'
-
-
-class RsyncDestinationSerializer(BaseSourceSerializer):
-    password = serializers.CharField(write_only=True, style={'input_type': 'password'})
-
-    class Meta:
-        model = RsyncDestination
         fields = '__all__'
 
 

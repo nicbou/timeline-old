@@ -11,11 +11,9 @@ from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models, transaction
 
-from backup.models.destination import BaseDestination
 from backup.models.source import BaseSource
 from backup.utils.datetime import datetime_to_json
 from backup.utils.files import get_files_in_dir, create_entries_from_directory
-from backup.utils.preprocessing import dump_entries
 from backup.utils.ssh import KEY_EXCHANGE_SSH_COPY_ID, KEY_EXCHANGE_METHODS
 from timeline.utils.postprocessing import generate_previews
 
@@ -24,6 +22,7 @@ logger = logging.getLogger(__name__)
 
 def pathlib_to_rsync_path(path: Path) -> str:
     return str_to_rsync_path(str(path.resolve()))
+
 
 def str_to_rsync_path(path: str) -> str:
     # Rsync won't sync dotfiles in the root directory, unless you add a trailing slash
@@ -279,30 +278,3 @@ class RsyncSource(RsyncConnectionMixin, BaseSource):
         return [
             partial(generate_previews, source=self),
         ]
-
-
-class RsyncDestination(RsyncConnectionMixin, BaseDestination):
-    """
-    Backs up the timeline using rsync
-    """
-    def get_preprocessing_tasks(self):
-        return [
-            dump_entries,
-        ]
-
-    def process(self, force=False):
-        source_dir = pathlib_to_rsync_path(settings.DATA_ROOT)
-        destination_dir = str_to_rsync_path(self.path)
-        remote_destination = remote_rsync_path(self.user, self.host, destination_dir)
-        logger.info(f"Exporting data with rsync to {remote_destination}")
-        rsync_command = [
-            "rsync",
-            "-az",
-            "-H",  # Preserve hard links. Avoids retransfering hard linked files in incremental backups
-            "--delete",
-            "-e", f"ssh -p{self.port}",
-            "--timeout", "120",
-            source_dir,
-            remote_destination,
-        ]
-        subprocess.check_call(rsync_command)

@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'timeline.apps.TimelineConfig',
     'archive.apps.ArchiveConfig',
     'backup.apps.BackupConfig',
+    'destination.apps.DestinationConfig',
     'rest_framework',
 ]
 
