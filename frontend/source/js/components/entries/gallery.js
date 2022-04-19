@@ -12,21 +12,20 @@ export default Vue.component('gallery', {
     },
     hasGeolocation: function(entry) {
       return !!entry.extra_attributes.location;
-    },
+    }
   },
   template: `
     <div class="gallery">
       <i class="icon fas fa-image"></i>
       <div class="meta">Gallery</div>
       <div class="content">
-        <div class="thumbnail" v-for="subentry in entry">
+        <div class="thumbnail" v-for="subentry in entry" @click="$emit('select', subentry)">
           <component
             height="200"
             v-if="subentry.extra_attributes.previews"
             :is="thumbnailType(subentry)"
             :entry="subentry"
-            :title="new Date(subentry.date_on_timeline).toLocaleString()"
-            @click="$emit('select', subentry)"></component>
+            :title="new Date(subentry.date_on_timeline).toLocaleString()"></component>
           <div class="media-icons">
             <i v-if="hasGeolocation(subentry)" class="fas fa-map-marker-alt"></i>
           </div>
