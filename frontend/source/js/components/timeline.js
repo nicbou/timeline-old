@@ -6,14 +6,13 @@ import Preview from './preview.js';
 import SpinnerComponent from './spinner.js';
 import TimelineActivityEntry from './entries/activity.js';
 import TimelineCommitEntry from './entries/commit.js';
-import TimelineImageEntry from './entries/image.js';
+import TimelineGalleryEntry from './entries/gallery.js';
 import TimelineJournalEntry from './entries/journal.js'
 import TimelineMessageEntry from './entries/message.js';
 import TimelineMotionEntry from './entries/motion.js';
 import TimelineNav from './timeline-nav.js';
 import TimelinePostEntry from './entries/post.js'
 import TimelineTextEntry from './entries/text.js';
-import TimelineVideoEntry from './entries/video.js';
 import TransactionEntry from './entries/transaction.js';
 import { filters } from './../models/filters.js';
 import { RequestStatus } from './../models/requests.js';
@@ -61,10 +60,10 @@ export default Vue.component('timeline', {
       return this.$store.getters['timeline/filteredEntries'];
     },
     groupedEntries: function() {
-      // Group entries by time
+      // Group entries by time, in roughly 1 hour groups
       let lastGroupDate = null;
       let lastGroupName = null;
-      const groups = this.entries.reduce((groups, entry) => {
+      const timeGroups = this.entries.reduce((groups, entry) => {
         const timeDiff = lastGroupDate ? (new Date(entry.date_on_timeline) - lastGroupDate)/1000 : 0;
         if(!lastGroupDate || timeDiff > 3600) {
           lastGroupDate = new Date(entry.date_on_timeline);
@@ -75,7 +74,34 @@ export default Vue.component('timeline', {
         groups[lastGroupName].push(entry);
         return groups;
       }, []);
-      return Object.keys(groups).sort().map(key => groups[key]);
+      const sortedTimeGroups = Object.keys(timeGroups).sort().map(key => timeGroups[key]);
+
+      // Combine media entries within a time group into a single gallery
+      return sortedTimeGroups.map(timeGroup => {
+        const isMediaEntry = entry => {
+          const s = entry.schema;
+          return s.startsWith('file.image') || s.startsWith('file.document.pdf') || s.startsWith('file.video');
+        };
+
+        let galleryIndex = null;
+        return timeGroup.reduce((entries, entry, index) => {
+          const s = entry.schema;
+          const isGalleryEntry = s.startsWith('file.image') || s.startsWith('file.document.pdf') || s.startsWith('file.video');
+
+          // The first media in the group becomes a gallery. The other ones get deleted.
+          if(isGalleryEntry) {
+            if(galleryIndex === null){
+              galleryIndex = index;
+              entries.push([]); // Create a gallery - a subgroup of entries
+            }
+            entries[galleryIndex].push(entry);
+          }
+          else {
+            entries.push(entry);
+          }
+          return entries;
+        }, []);
+      });
     },
     isLoading: function() {
       return this.$store.state.timeline.entriesRequestStatus === RequestStatus.PENDING;
@@ -92,15 +118,16 @@ export default Vue.component('timeline', {
       this.selectedEntry = null;
     },
     entryType: function(entry) {
+      if(Array.isArray(entry)) {
+        return 'gallery';
+      }
+
       const s = entry.schema;
       if(s.startsWith('activity.browsing')) {
         return 'activity-entry';
       }
       else if(s === 'commit') {
         return 'commit-entry';
-      }
-      else if (s.startsWith('file.image') || s.startsWith('file.document.pdf')) {
-        return 'image-entry';
       }
       else if(s === 'journal') {
         return 'journal-entry';
@@ -116,9 +143,6 @@ export default Vue.component('timeline', {
       }
       else if(s.startsWith('file.text')) {
         return 'text-entry';
-      }
-      else if(s.startsWith('file.video')) {
-        return 'video-entry';
       }
     },
     formattedTime: function(dateString) {
