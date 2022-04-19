@@ -34,6 +34,11 @@ export default Vue.component('google-map', {
       this.markers.forEach(marker => {
         mapBounds.extend(new google.maps.LatLng(marker.lat, marker.lng));
       });
+
+      // Prevent excessive zoom when all the markers are really close
+      google.maps.event.addListenerOnce(
+        this.map, 'bounds_changed', () => this.map.setZoom(Math.min(15, this.map.getZoom()))
+      );
       this.map.fitBounds(mapBounds);
     },
   },
