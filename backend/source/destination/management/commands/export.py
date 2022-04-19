@@ -1,6 +1,6 @@
 import logging
 
-from backup.management.commands import ModelProcessingCommand
+from source.management.commands import ModelProcessingCommand
 from destination.models.destination import BaseDestination
 
 logger = logging.getLogger(__name__)

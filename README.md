@@ -76,13 +76,13 @@ Entries also have a `source` attribute. This allows you to query entries that ar
 
 ## Sources
 
-`/api/backup`
+`/api/source`
 
 A Source is a source of data. Sources are suited for frequent, automatic data imports. You add a source (an API, an RSS feed, etc) to monitor, and new data is automatically imported.
 
 For example, you can use them to automatically import photos from your phone, import your new tweets, or watch a website for new posts.
 
-New sources can be added directly through the API. You can browse the API at `/api/backup`.
+New sources can be added directly through the API. You can browse the API at `/api/source`.
 
 ### FileSystemSource
 
@@ -193,7 +193,7 @@ An archive is a source of data. Archives are for irregular, manual data imports.
 
 Unlike Sources, Archives are only processed once. After processing, original archive is preserved. 
 
-New archives can be added directly through the API. You can browse the API at `/api/backup`.
+New archives can be added directly through the API. You can browse the API at `/api/source`.
 
 **Required fields:**
 

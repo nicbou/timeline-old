@@ -3,8 +3,8 @@ import subprocess
 
 from django.conf import settings
 
-from backup.models.rsync import RsyncConnectionMixin, pathlib_to_rsync_path, str_to_rsync_path, remote_rsync_path
-from backup.utils.preprocessing import dump_entries
+from source.models.rsync import RsyncConnectionMixin, pathlib_to_rsync_path, str_to_rsync_path, remote_rsync_path
+from source.utils.preprocessing import dump_entries
 from destination.models.destination import BaseDestination
 
 

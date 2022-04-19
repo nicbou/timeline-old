@@ -1,4 +1,4 @@
-from backup.views import RsyncSourceViewSet
+from source.views import RsyncSourceViewSet
 from destination.models import RsyncDestination
 from destination.serializers import RsyncDestinationSerializer
 

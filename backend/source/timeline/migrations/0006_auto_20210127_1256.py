@@ -6,10 +6,10 @@ from django.db import migrations, models
 from django.db.transaction import atomic
 
 from backend import settings
-from backup.models.hackernews import HackerNewsSource
-from backup.models.reddit import RedditSource
-from backup.models.rsync import RsyncSource
-from backup.models.twitter import TwitterSource
+from source.models.hackernews import HackerNewsSource
+from source.models.reddit import RedditSource
+from source.models.rsync import RsyncSource
+from source.models.twitter import TwitterSource
 from timeline.models import Entry
 
 logger = logging.getLogger(__name__)

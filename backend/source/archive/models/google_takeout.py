@@ -9,7 +9,7 @@ import re
 import pytz
 
 from archive.models.base import BaseArchive, CompressedFileArchive
-from backup.utils.datetime import json_to_datetime
+from source.utils.datetime import json_to_datetime
 from timeline.models import Entry
 
 logger = logging.getLogger(__name__)

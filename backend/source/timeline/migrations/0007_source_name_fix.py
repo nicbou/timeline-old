@@ -4,8 +4,8 @@ import logging
 from django.db import migrations
 from django.db.transaction import atomic
 
-from backup.models.hackernews import HackerNewsSource
-from backup.models.reddit import RedditSource
+from source.models.hackernews import HackerNewsSource
+from source.models.reddit import RedditSource
 from timeline.models import Entry
 
 logger = logging.getLogger(__name__)

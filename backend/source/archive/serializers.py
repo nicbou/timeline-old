@@ -5,7 +5,7 @@ from archive.models import JsonArchive, GpxArchive, N26CsvArchive, TelegramArchi
 from archive.models.base import ArchiveFile
 from archive.models.google_takeout import GoogleTakeoutArchive
 from archive.models.twitter import TwitterArchive
-from backup.serializers import BaseSourceSerializer
+from source.serializers import BaseSourceSerializer
 
 
 class ArchiveFileSerializer(serializers.ModelSerializer):

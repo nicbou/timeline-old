@@ -7,7 +7,7 @@ import pytz
 from icalendar import Calendar
 
 from archive.models.base import FileArchive
-from backup.utils.datetime import datetime_to_json
+from source.utils.datetime import datetime_to_json
 from timeline.models import Entry
 
 logger = logging.getLogger(__name__)

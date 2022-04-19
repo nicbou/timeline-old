@@ -5,7 +5,7 @@ from typing import List, Callable
 from django.conf import settings
 from django.db import transaction
 
-from backup.models.source import BaseSource
+from source.models.source import BaseSource
 from timeline.models import Entry
 from timeline.utils.files import generate_pdf_preview, generate_video_preview, generate_image_preview, \
     VideoDurationError

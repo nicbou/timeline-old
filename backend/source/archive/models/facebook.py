@@ -8,7 +8,7 @@ from typing import Iterable, Generator
 import pytz
 
 from archive.models.base import CompressedFileArchive
-from backup.utils.files import entry_from_file_path
+from source.utils.files import entry_from_file_path
 from timeline.models import Entry
 from timeline.utils.postprocessing import generate_previews
 

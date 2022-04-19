@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     'generic_relations',
     'timeline.apps.TimelineConfig',
     'archive.apps.ArchiveConfig',
-    'backup.apps.BackupConfig',
+    'source.apps.SourceConfig',
     'destination.apps.DestinationConfig',
     'rest_framework',
 ]
