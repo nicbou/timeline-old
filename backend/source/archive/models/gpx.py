@@ -32,7 +32,7 @@ class GpxArchive(FileArchive):
 
     def extract_entries(self) -> Generator[Entry, None, None]:
         for gpx_file in self.get_archive_files():
-            gpx = gpxpy.parse(gpx_file)
+            gpx = gpxpy.parse(open(gpx_file, 'r'))
             for track in gpx.tracks:
                 for segment in track.segments:
                     for point in segment.points:
