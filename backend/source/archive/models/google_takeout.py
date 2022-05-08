@@ -16,11 +16,27 @@ logger = logging.getLogger(__name__)
 
 
 def e7_to_decimal(e7_coordinate: int) -> float:
-    return float(e7_coordinate) / 10000000
+    try:
+        return float(e7_coordinate) / 10000000
+    except:
+        return 
 
 
 def millis_str_to_time(timestamp: str) -> datetime:
     return datetime.fromtimestamp(int(timestamp) / 1000, tz=pytz.UTC)
+
+
+def tz_str_to_time(timestamp: str) -> datetime:
+    # if string is only millis
+    if timestamp.find('Z') == -1:
+        return millis_str_to_time(timestamp)
+
+    # Remove milliseconds if existing
+    ms_id = timestamp.find('.')
+    if not ms_id == -1:
+        timestamp = timestamp[:ms_id] + "Z"
+
+    return datetime.strptime(timestamp[:-1], '%Y-%m-%dT%H:%M:%S')
 
 
 def microseconds_to_time(timestamp: int):
@@ -111,8 +127,8 @@ class GoogleTakeoutArchive(CompressedFileArchive):
                 if 'activitySegment' in entry:
                     if 'latitudeE7' in entry['activitySegment']['startLocation']:
                         yield geolocation_entry(
-                            date_on_timeline=millis_str_to_time(
-                                entry['activitySegment']['duration']['startTimestampMs']),
+                            date_on_timeline=tz_str_to_time(
+                                entry['activitySegment']['duration']['startTimestamp']),
                             latitude=e7_to_decimal(entry['activitySegment']['startLocation']['latitudeE7']),
                             longitude=e7_to_decimal(entry['activitySegment']['startLocation']['longitudeE7']),
                             archive=self,
@@ -120,8 +136,8 @@ class GoogleTakeoutArchive(CompressedFileArchive):
 
                     if 'latitudeE7' in entry['activitySegment']['endLocation']:
                         yield geolocation_entry(
-                            date_on_timeline=millis_str_to_time(
-                                entry['activitySegment']['duration']['endTimestampMs']),
+                            date_on_timeline=tz_str_to_time(
+                                entry['activitySegment']['duration']['endTimestamp']),
                             latitude=e7_to_decimal(entry['activitySegment']['endLocation']['latitudeE7']),
                             longitude=e7_to_decimal(entry['activitySegment']['endLocation']['longitudeE7']),
                             archive=self,
@@ -130,7 +146,7 @@ class GoogleTakeoutArchive(CompressedFileArchive):
                     if 'simplifiedRawPath' in entry['activitySegment']:
                         for point in entry['activitySegment']['simplifiedRawPath'].get('points', []):
                             yield geolocation_entry(
-                                date_on_timeline=millis_str_to_time(point['timestampMs']),
+                                date_on_timeline=tz_str_to_time(point['timestamp']),
                                 latitude=e7_to_decimal(point['latE7']),
                                 longitude=e7_to_decimal(point['lngE7']),
                                 accuracy=point['accuracyMeters'],
@@ -143,7 +159,7 @@ class GoogleTakeoutArchive(CompressedFileArchive):
                             entry['placeVisit']['location'].get('name')
                             or entry['placeVisit']['otherCandidateLocations'][0].get('name')
                         ),
-                        date_on_timeline=millis_str_to_time(entry['placeVisit']['duration']['endTimestampMs']),
+                        date_on_timeline=tz_str_to_time(entry['placeVisit']['duration']['endTimestamp']),
                         latitude=e7_to_decimal(
                             entry['placeVisit']['location'].get('latitudeE7')
                             or entry['placeVisit']['otherCandidateLocations'][0].get('latitudeE7')
@@ -179,31 +195,34 @@ class GoogleTakeoutArchive(CompressedFileArchive):
                                 prefix: str) -> Generator[Entry, None, None]:
         for json_file in json_files:
             logger.info(f'Processing activity in "{str(json_file)}"')
-            for entry in json.load(json_file.open('r')):
-                if entry['title'].startswith(prefix):
-                    try:
-                        time = pytz.utc.localize(datetime.strptime(entry['time'], '%Y-%m-%dT%H:%M:%S.%fZ'))
-                    except ValueError:
-                        time = json_to_datetime(entry['time'])
+            try:
+                for entry in json.load(json_file.open('r')):
+                    if entry['title'].startswith(prefix):
+                        try:
+                            time = pytz.utc.localize(datetime.strptime(entry['time'], '%Y-%m-%dT%H:%M:%S.%fZ'))
+                        except ValueError:
+                            time = json_to_datetime(entry['time'])
 
-                    extra_attributes = {}
-                    if entry.get('titleUrl'):
-                        extra_attributes['url'] = entry['titleUrl']
+                        extra_attributes = {}
+                        if entry.get('titleUrl'):
+                            extra_attributes['url'] = entry['titleUrl']
 
-                    try:
-                        yield Entry(
-                            title=entry['title'].replace(prefix, '', 1),
-                            description='',
-                            source=self.entry_source,
-                            schema=schema,
-                            date_on_timeline=time,
-                            extra_attributes=extra_attributes
-                        )
-                    except KeyboardInterrupt:
-                        raise
-                    except:
-                        logging.exception(f"Could not parse entry: {entry}")
-                        raise
+                        try:
+                            yield Entry(
+                                title=entry['title'].replace(prefix, '', 1),
+                                description='',
+                                source=self.entry_source,
+                                schema=schema,
+                                date_on_timeline=time,
+                                extra_attributes=extra_attributes
+                            )
+                        except KeyboardInterrupt:
+                            raise
+                        except:
+                            logging.exception(f"Could not parse entry: {entry}")
+                            raise
+            except:
+                pass
 
     def extract_fit_history(self) -> Generator[Entry, None, None]:
         json_files = list((self.extracted_files_path / 'Takeout/Fit/All sessions/').glob('*.json'))
