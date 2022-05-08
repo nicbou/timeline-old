@@ -1,6 +1,5 @@
 import logging
 from typing import Tuple, List
-from threading import Condition
 
 from trakt import Trakt
 from django.db import models, transaction
@@ -28,7 +27,7 @@ class TraktPin(object):
 
         if not self.authorization:
             print('ERROR: Authentication required')
-            exit(1)
+            return 1
 
         with Trakt.configuration.oauth.from_response(self.authorization):
 
@@ -40,13 +39,17 @@ class TraktPin(object):
         """
         Check the authentication credentials
         """
+        if not self.has_auth():
+            print('ERROR: Authentication required')
+            return False
+
         with Trakt.configuration.oauth.from_response(self.authorization):
             # grab a small data that requires authenticing. Returns 'None' for failure
             watched_movies_test = Trakt['sync/history'].get(media='movies', per_page=10)
             return (watched_movies_test != None)
 
     def authenticate(self) -> bool:
-        if self.authorization:
+        if self.has_auth():
             return True
 
         # Request authentication
@@ -80,6 +83,10 @@ class TraktPin(object):
         self.save_auth(response)
 
         print('Token refreshed - authorization: %r' % self.authorization)
+
+    def has_auth(self) -> bool:
+        # Check if have authentication information
+        return bool(self.authorization['access_token'])
 
     def save_auth(self, authorization):
         """
