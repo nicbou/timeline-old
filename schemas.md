@@ -34,8 +34,10 @@ The activity of watching a video
 The activity of watching a movie
 
 - `title`: Movie title
-- `description`: Unique Trakt ID for this watched event
-- `ids`: Various ids for the movie (e.g. IMBD, TMDB)
+- `description`: Movie description
+- `url`: The URL of the movie in Trakt
+- `trakt_event_id`: Unique Trakt ID for this watched event
+- `trakt_id`: Trakt ID for the movie
 - `year`: Movie release year
 
 ### activity.watching.show
@@ -43,16 +45,20 @@ The activity of watching a movie
 The activity of watching an episode of a show
 
 - `title`: Episode title
-- `description`: Unique Trakt ID for this watched event
+- `description`: Episode description
+- `url`: The URL of the episode in Trakt
+- `trakt_event_id`: Unique Trakt ID for this watched event
 - `episode`: Episode information
 - `episode:name`
 - `episode:season`
 - `episode:number`: episode number within season
-- `episode:episode_ids`: Various ids from popular database services for the episode
+- `episode:trakt_id`: Trakt ID for the episode
+- `episode:trakt_slug`: Trakt slug for the episode
 - `show`: show information
 - `show:name` 
 - `show:year`
-- `show:show_ids`: Various ids from popular database services for the show
+- `episode:trakt_id`: Trakt ID for the show
+- `episode:trakt_slug`: Trakt slug for the show
 
 ### activity.browsing.website
 

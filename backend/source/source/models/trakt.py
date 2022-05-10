@@ -8,6 +8,9 @@ from django.forms.models import model_to_dict
 from source.models.source import OAuthSource
 from timeline.models import Entry
 
+# The url root to access trakt movie/show information
+trakt_site = 'https://trakt.tv/'
+
 class TraktPin(object):
     """
     Handles Trakt OAuth and obtaining data from Trakt site
@@ -163,18 +166,16 @@ class TraktSource(OAuthSource):
                     'date_on_timeline': movie.watched_at,
                     'extra_attributes': {
                         'year': movie.year,
-                        'ids': {}
+                        'trakt_id': [k[1] for k in movie.keys if k[0] == 'trakt'][0],
+                        'trakt_event_id': movie.id,
+                        'url': trakt_site + 'movies/' + [k[1] for k in movie.keys if k[0] == 'slug'][0]
                     }
                 }
-
-                for k in movie.keys:
-                    entry_values['extra_attributes']['ids'][k[0]] = k[1]
-
 
                 entry, created = Entry.objects.update_or_create(
                     schema='activity.watching.movie',
                     source=self.entry_source,
-                    description=movie.id,
+                    extra_attributes__trakt_event_id=movie.id,
                     defaults=entry_values
                 )
 
@@ -194,26 +195,23 @@ class TraktSource(OAuthSource):
                             'name': show.title,
                             'season': show.pk[0],
                             'number': show.pk[1],
-                            'episode_ids': {}
+                            'trakt_id': [k[1] for k in show.keys if k[0] == 'trakt'][0],
                         },
                         # overall show info
                         'show': {
                             'name': show.show.title,
                             'year': show.show.year,
-                            'show_ids': {},
-                        }
+                            'trakt_id': [k[1] for k in show.show.keys if k[0] == 'trakt'][0],
+                            'trakt_slug': [k[1] for k in show.show.keys if k[0] == 'slug'][0],
+                        },
+                        'url': trakt_site + 'movies/' + [k[1] for k in movie.keys if k[0] == 'slug'][0]
                     }
                 }
-                # The first key is the season-episode pair, unneeded here
-                for k in show.keys[1:]:
-                    entry_values['extra_attributes']['episode']['episode_ids'][k[0]] = k[1]
-                for k in show.show.keys:
-                    entry_values['extra_attributes']['show']['show_ids'][k[0]] = k[1]
 
                 entry, created = Entry.objects.update_or_create(
                     schema='activity.watching.show',
                     source=self.entry_source,
-                    description=show.id,
+                    extra_attributes__trakt_event_id=show.id,
                     defaults=entry_values
                 )
 
