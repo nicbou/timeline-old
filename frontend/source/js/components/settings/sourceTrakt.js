@@ -19,15 +19,19 @@ export default Vue.component('source-trakt', {
       fetch(this.source.url + 'start_poll/')
             .then(response => response.json())
             .then(data => this.authInfo = { url: data.verification_url, code: data.user_code })
-            .finally(this.isLoading = false);
-    },
+            .finally(() => {
+              this.isLoading = false;
+            });
+          },
     checkAuthStatus: function() {
       // Queries the OAuth endpoint to see if the details are ok
       this.isLoading = true
       fetch(this.source.url + 'status/')
       .then(response => response.json())
       .then(data => this.authStatus = data.status)
-      .finally(this.isLoading = false);
+      .finally(() => {
+        this.isLoading = false;
+      });
     },  
     getURL: function() {
       // Obtain URL for obtaining pin. 1st stage of OAuth process
@@ -35,18 +39,9 @@ export default Vue.component('source-trakt', {
       fetch(this.source.url + 'get_url/')
             .then(response => response.json())
             .then(data => this.authInfo = { url: data.url })
-            .finally(this.isLoading = false);
-    },
-  },
-  computed: {
-    display_status: function() {
-      // Prettify the authentication status message
-      if (this.authStatus){
-        return 'Connected \u{2705}';
-      }
-      else {
-        return 'False \u{274C}';
-      }
+            .finally(() => {
+              this.isLoading = false;
+            });
     },
     submitPin: function() {
       this.isLoading = true
@@ -57,11 +52,23 @@ export default Vue.component('source-trakt', {
         },        
         body: JSON.stringify({'pin': this.authPin})
       })
-            .then(this.authStatus = true)
-            .finally(this.isLoading = false);
-      this.checkAuthStatus()
-    }
-
+        .then(() => {this.authStatus = true})
+        .finally(() => {this.checkAuthStatus()});
+    },
+  },
+  computed: {
+    display_status: function() {
+      if (this.isLoading){
+        return 'Connecting ---'
+      }
+      // Prettify the authentication status message
+      if (this.authStatus){
+        return 'Connected \u{2705}';
+      }
+      else {
+        return 'False \u{274C}';
+      }
+    },
   },
   mounted: function() {
     this.checkAuthStatus()
@@ -69,14 +76,13 @@ export default Vue.component('source-trakt', {
   template: `
     <div>
       <h3>Authentication Status: {{ display_status }} </h3>
-      <spinner v-if="isLoading"></spinner>
-      <button v-on:click="checkAuthStatus">Refresh Status</button>
+      <button class="button" @click="checkAuthStatus">Refresh Status</button>
       <template v-if="!authStatus">
-          <button v-on:click="getURL">Authenticate</button>
+          <button class="button" @click="getURL">Authenticate</button>
           <div v-if="authInfo">
             <p>Please visit <a :href="authInfo.url">{{ authInfo.url }}</a></p>
             <input v-model="authPin" placeholder="Paste response code here">
-            <button v-on:click="submitPin">Submit</button>
+            <button class="button"@click="submitPin">Submit</button>
           </div>
       </template>
     </div>
