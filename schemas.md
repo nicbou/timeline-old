@@ -57,8 +57,8 @@ The activity of watching an episode of a show
 - `show`: show information
 - `show:name` 
 - `show:year`
-- `episode:trakt_id`: Trakt ID for the show
-- `episode:trakt_slug`: Trakt slug for the show
+- `show:trakt_id`: Trakt ID for the show
+- `show:trakt_slug`: Trakt slug for the show
 
 ### activity.browsing.website
 
