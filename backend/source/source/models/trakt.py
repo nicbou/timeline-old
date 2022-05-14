@@ -1,5 +1,6 @@
 import logging
 from typing import Tuple, List
+import datetime
 
 from trakt import Trakt
 from django.db import models, transaction
@@ -98,9 +99,10 @@ class TraktPin(object):
         a = TraktSource.objects.get(pk=self.source["key"])
         a.access_token = authorization["access_token"]
         a.refresh_token = authorization["refresh_token"]
-        a.access_token_expires_in = authorization["expires_in"]
-        a.access_token_created = authorization["created_at"]
-        a.save(update_fields=["access_token", "refresh_token", "access_token_expires_in", "access_token_created"])
+        a.access_token_created = datetime.datetime.utcfromtimestamp(authorization["created_at"])
+        a.access_token_expires = datetime.datetime.utcfromtimestamp(authorization["created_at"]) + datetime.timedelta(seconds=authorization["expires_in"])
+
+        a.save(update_fields=["access_token", "refresh_token", "access_token_expires", "access_token_created"])
         self.authorization = authorization
 
     def load_auth(self, source):
@@ -110,8 +112,10 @@ class TraktPin(object):
         self.source = source
         self.authorization = {
             "access_token": source["access_token"],
-            "created_at": source["access_token_created"],
-            "expires_in": source["access_token_expires_in"],
+            # trakt.py expects these times to be in seconds
+            "created_at": int(source["access_token_created"].timestamp()) if source["access_token_created"] else None,
+            # Expired is in seconds after created_at
+            "expires_in": (source["access_token_expires"] - source["access_token_created"]).total_seconds() if source["access_token_expires"] else None,
             "refresh_token": source["refresh_token"],
         }
 

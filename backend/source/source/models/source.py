@@ -75,8 +75,8 @@ class OAuthSource(BaseSource):
     consumer_secret = models.CharField(max_length=100, blank=False)
     access_token = models.CharField(max_length=100, blank=True)
     refresh_token = models.CharField(max_length=100, blank=True)
-    access_token_created = models.IntegerField(null=True)
-    access_token_expires_in = models.IntegerField(null=True)
+    access_token_created = models.DateTimeField(null=True)
+    access_token_expires = models.DateTimeField(null=True)
 
     class Meta:
         abstract = True
