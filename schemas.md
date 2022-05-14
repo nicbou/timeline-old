@@ -29,6 +29,37 @@ The activity of watching a video
 - `mixin:previews`
 - `url`: The URL of the video
 
+### activity.watching.movie
+
+The activity of watching a movie
+
+- `title`: Movie title
+- `description`: Movie description
+- `url`: The URL of the movie in Trakt
+- `trakt_event_id`: Unique Trakt ID for this watched event
+- `trakt_id`: Trakt ID for the movie
+- `year`: Movie release year
+
+### activity.watching.show
+
+The activity of watching an episode of a show
+
+- `title`: Episode title
+- `description`: Episode description
+- `url`: The URL of the episode in Trakt
+- `trakt_event_id`: Unique Trakt ID for this watched event
+- `episode`: Episode information
+- `episode:name`
+- `episode:season`
+- `episode:number`: episode number within season
+- `episode:trakt_id`: Trakt ID for the episode
+- `episode:trakt_slug`: Trakt slug for the episode
+- `show`: show information
+- `show:name` 
+- `show:year`
+- `show:trakt_id`: Trakt ID for the show
+- `show:trakt_slug`: Trakt slug for the show
+
 ### activity.browsing.website
 
 The activity of visiting a page on a website

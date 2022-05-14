@@ -14,6 +14,7 @@ import TimelineNav from './timeline-nav.js';
 import TimelinePostEntry from './entries/post.js'
 import TimelineTextEntry from './entries/text.js';
 import TransactionEntry from './entries/transaction.js';
+import TimelineTraktEntry from './entries/trakt.js';
 import { filters } from './../models/filters.js';
 import { RequestStatus } from './../models/requests.js';
 
@@ -147,6 +148,9 @@ export default Vue.component('timeline', {
       }
       else if(s.startsWith('file.text')) {
         return 'text-entry';
+      }
+      else if(s.startsWith('activity.watching')) {
+        return 'watch-entry';
       }
     },
     formattedTime: function(dateString) {

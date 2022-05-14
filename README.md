@@ -170,6 +170,21 @@ documents/invoices
 * `key_exchange_method`: The method used to copy SSH keys to the remote host. The default (`ssh-copy-id`) works in most cases.
 * `max_backups`: how many backup versions to keep. If null, old backups are never deleted. If "1", only the latest backup is kept.
 
+### Trakt.tv
+
+`/api/source/trakt`
+
+Displays viewed shows and films from a [Trakt.tv](trakt.tv/) account. 
+
+This source requires a [Trakt App to be created](https://trakt.tv/oauth/applications). (The redirect URI can be the defaul `urn:ietf:wg:oauth:2.0:oob`.)  Once created, select the app name at the site [https://trakt.tv/oauth/applications](https://trakt.tv/oauth/applications), it will display the `Client ID` and `Client Secret`. The `client_id` value is obtained from the URL (e.g. https://trakt.tv/oauth/applications/6688) has a `client_id` of 6688.
+
+**Required fields:**
+
+* `key`: a unique identifier for this source (e.g. "My-User-Name")
+* `consumer_key`: Trakt.tv Client id
+* `consumer_secret`: Trakt.tv Client secret
+* `client_id`: Numerical ID of the created Trakt app
+
 ### TwitterSource
 
 `/api/source/twitter`
