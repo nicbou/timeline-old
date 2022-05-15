@@ -1,5 +1,6 @@
 import ImageThumbnailComponent from './../thumbnails/image.js';
 import VideoThumbnailComponent from './../thumbnails/video.js';
+import { hasGeolocation } from './../../utils/entries.js';
 
 export default Vue.component('gallery', {
   props: ['entry'],
@@ -10,9 +11,7 @@ export default Vue.component('gallery', {
       }
       return 'image-thumbnail';
     },
-    hasGeolocation: function(entry) {
-      return !!entry.extra_attributes.location;
-    }
+    hasGeolocation,
   },
   template: `
     <div class="gallery">

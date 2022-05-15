@@ -1,3 +1,5 @@
+import { hasGeolocation } from './../utils/entries.js';
+
 export const filters = {
   blog: {
     displayName: 'blog post',
@@ -45,7 +47,7 @@ export const filters = {
     displayName: 'location ping',
     displayNamePlural: 'location pings',
     iconClass: 'fas fa-map-marker-alt',
-    filterFunction: (entry) => entry.extra_attributes.location && entry.extra_attributes.location.latitude && entry.extra_attributes.location.longitude,
+    filterFunction: hasGeolocation,
   },
   message: {
     displayName: 'message',

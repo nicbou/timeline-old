@@ -1,10 +1,11 @@
 import config from './../googleMap.js';
+import { hasGeolocation } from './../../utils/entries.js';
 
 export default Vue.component('entry-map', {
   props: ['entries',],
   computed: {
     geolocationEntries: function() {
-      return this.entries.filter(e => e.extra_attributes.location && e.extra_attributes.location.latitude && e.extra_attributes.location.longitude);
+      return this.entries.filter(hasGeolocation);
     },
     markers: function() {
       return this.geolocationEntries.map(e => {
