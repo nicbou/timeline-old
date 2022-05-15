@@ -59,11 +59,23 @@ export const filters = {
     iconClass: 'fas fa-running',
     filterFunction: (entry) => entry.schema.startsWith('activity.exercise.session'),
   },
+  movie: {
+    displayName: 'film',
+    displayNamePlural: 'films',
+    iconClass: 'fas fa-film',
+    filterFunction: (entry) => entry.schema.startsWith('activity.watching.movie'),
+  },
   reddit: {
     displayName: 'reddit entry',
     displayNamePlural: 'reddit entries',
     iconClass: 'fab fa-reddit',
     filterFunction: (entry) => entry.schema.startsWith('social.reddit.'),
+  },
+  show: {
+    displayName: 'show',
+    displayNamePlural: 'shows',
+    iconClass: 'fas fa-tv',
+    filterFunction: (entry) => entry.schema.startsWith('activity.watching.show'),
   },
   transaction: {
     displayName: 'transaction',
