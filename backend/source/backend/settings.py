@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'archive.apps.ArchiveConfig',
     'source.apps.SourceConfig',
     'destination.apps.DestinationConfig',
+    'oauth2_provider',
     'rest_framework',
 ]
 
@@ -131,23 +132,6 @@ logging.config.dictConfig({
     },
 })
 
-
-# Password validation
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
-    },
-    {
-        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
-    },
-]
-
 IMAGE_PREVIEW_SIZES = {
     'thumbnail': {
         'width': 1200,
@@ -198,12 +182,26 @@ VIDEO_PREVIEW_SIZES = {
 }
 
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
         'timeline.renderers.GpxRenderer',
     ],
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    )
+}
+
+OAUTH2_PROVIDER = {
+    'SCOPES': {
+        'read': 'Read scope',
+        'write': 'Write scope',
+    }
 }
 
 # In bytes

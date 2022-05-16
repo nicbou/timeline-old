@@ -23,7 +23,7 @@ logger = logging.getLogger(__name__)
 
 
 class BaseSourceViewSet(viewsets.ModelViewSet):
-    permission_classes = [permissions.AllowAny]
+    pass
 
 
 class RsyncSourceViewSet(BaseSourceViewSet):
@@ -54,6 +54,10 @@ class RsyncSourceViewSet(BaseSourceViewSet):
         return super().perform_update(serializer)
 
 
+class OAuth2Authentication(object):
+    pass
+
+
 class TwitterSourceViewSet(BaseSourceViewSet):
     queryset = TwitterSource.objects.all().order_by('twitter_username')
     serializer_class = TwitterSourceSerializer
@@ -78,15 +82,15 @@ class FileSystemSourceViewSet(BaseSourceViewSet):
     queryset = FileSystemSource.objects.all()
     serializer_class = FileSystemSourceSerializer
 
+
 class GitSourceViewSet(BaseSourceViewSet):
     queryset = GitSource.objects.all()
     serializer_class = GitSourceSerializer
-    permission_classes = [permissions.AllowAny]
+
 
 class TraktSourceViewSet(viewsets.ModelViewSet):
     queryset = TraktSource.objects.all()
     serializer_class = TraktSourceSerializer
-    permission_classes = [permissions.AllowAny]
 
     @action(detail=True)
     def start_poll(self, request, pk=None):

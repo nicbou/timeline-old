@@ -14,7 +14,6 @@ class EntryViewSet(viewsets.ModelViewSet):
     queryset = Entry.objects.all().order_by('date_on_timeline')
     serializer_class = EntrySerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter]
-    permission_classes = [permissions.AllowAny]
     filterset_fields = {
         'date_on_timeline': ['gte', 'lte', 'exact', 'gt', 'lt'],
         'schema': ['exact', 'contains'],
