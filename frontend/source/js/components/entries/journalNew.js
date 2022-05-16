@@ -41,7 +41,7 @@ export default Vue.component('new-journal-entry', {
   },
   template: `
     <div class="journal journal-add">
-      <entry-icon icon-class="fas fa-pen-square" :entry="entry"></entry-icon>
+      <i class="icon fas fa-pen-square"></i>
       <textarea ref="editor" class="journal-content" v-if="isEditing" v-model="unsavedDescription"></textarea>
       <div class="input-group" v-if="isEditing">
         <button class="button" @click.stop.prevent="saveChanges" :disabled="isSaving">Save changes</button>
