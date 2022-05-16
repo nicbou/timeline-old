@@ -45,7 +45,7 @@ class ModelProcessingCommand(BaseCommand):
                 elif instance.date_from:
                     range_message = f' (from {instance.date_from.strftime("%Y-%m-%d %H:%M")})'
                 elif instance.date_until:
-                    range_message = f' (until {instance.date_from.strftime("%Y-%m-%d %H:%M")})'
+                    range_message = f' (until {instance.date_until.strftime("%Y-%m-%d %H:%M")})'
                 logger.info(f"Processing {instance}{range_message}{force_message}")
                 self.process_instance(instance, force=options['force'])
             except KeyboardInterrupt:

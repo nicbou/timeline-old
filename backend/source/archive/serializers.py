@@ -1,7 +1,8 @@
 from django.db import transaction
 from rest_framework import serializers
 
-from archive.models import JsonArchive, GpxArchive, N26CsvArchive, TelegramArchive, FacebookArchive, ICalendarArchive
+from archive.models import JsonArchive, GpxArchive, N26CsvArchive, TelegramArchive, FacebookArchive, ICalendarArchive, \
+    RedditArchive
 from archive.models.base import ArchiveFile
 from archive.models.google_takeout import GoogleTakeoutArchive
 from archive.models.twitter import TwitterArchive
@@ -96,4 +97,10 @@ class FacebookArchiveSerializer(BaseArchiveSerializer):
 class ICalendarArchiveSerializer(BaseArchiveSerializer):
     class Meta:
         model = ICalendarArchive
+        fields = '__all__'
+
+
+class RedditArchiveSerializer(BaseArchiveSerializer):
+    class Meta:
+        model = RedditArchive
         fields = '__all__'

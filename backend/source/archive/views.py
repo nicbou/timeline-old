@@ -1,12 +1,12 @@
 from rest_framework import viewsets, permissions
 
 from archive.models import JsonArchive, GpxArchive, N26CsvArchive, TelegramArchive, FacebookArchive, ArchiveFile, \
-    ICalendarArchive
+    ICalendarArchive, RedditArchive
 from archive.models.google_takeout import GoogleTakeoutArchive
 from archive.models.twitter import TwitterArchive
 from archive.serializers import GoogleTakeoutArchiveSerializer, TwitterArchiveSerializer, JsonArchiveSerializer, \
     GpxArchiveSerializer, N26CsvArchiveSerializer, TelegramArchiveSerializer, FacebookArchiveSerializer, \
-    ArchiveFileSerializer, ICalendarArchiveSerializer
+    ArchiveFileSerializer, ICalendarArchiveSerializer, RedditArchiveSerializer
 
 
 class GoogleTakeoutArchiveViewSet(viewsets.ModelViewSet):
@@ -54,6 +54,12 @@ class FacebookArchiveViewSet(viewsets.ModelViewSet):
 class ICalendarArchiveViewSet(viewsets.ModelViewSet):
     queryset = ICalendarArchive.objects.all()
     serializer_class = ICalendarArchiveSerializer
+    permission_classes = [permissions.AllowAny]
+
+
+class RedditArchiveViewSet(viewsets.ModelViewSet):
+    queryset = RedditArchive.objects.all()
+    serializer_class = RedditArchiveSerializer
     permission_classes = [permissions.AllowAny]
 
 

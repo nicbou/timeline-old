@@ -2,7 +2,8 @@ from django.urls import include, path
 from rest_framework import routers
 
 from .views import GoogleTakeoutArchiveViewSet, TwitterArchiveViewSet, JsonArchiveViewSet, GpxArchiveViewSet, \
-    N26CsvArchiveViewSet, TelegramArchiveViewSet, FacebookArchiveViewSet, ArchiveFileViewSet, ICalendarArchiveViewSet
+    N26CsvArchiveViewSet, TelegramArchiveViewSet, FacebookArchiveViewSet, ArchiveFileViewSet, ICalendarArchiveViewSet, \
+    RedditArchiveViewSet
 
 router = routers.DefaultRouter()
 router.register(r'facebook', FacebookArchiveViewSet)
@@ -13,6 +14,7 @@ router.register(r'n26csv', N26CsvArchiveViewSet)
 router.register(r'telegram', TelegramArchiveViewSet)
 router.register(r'twitter', TwitterArchiveViewSet)
 router.register(r'icalendar', ICalendarArchiveViewSet)
+router.register(r'reddit', RedditArchiveViewSet)
 router.register(r'archivefile', ArchiveFileViewSet)
 
 urlpatterns = [

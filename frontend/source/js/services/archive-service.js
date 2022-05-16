@@ -8,6 +8,7 @@ export const archiveTypes = {
   icalendar: 'iCalendar file',
   json: 'JSON entries',
   n26csv: 'N26 CSV export',
+  reddit: 'Reddit',
   telegram: 'Telegram',
   twitter: 'Twitter',
 };
