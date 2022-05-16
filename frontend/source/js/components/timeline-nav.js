@@ -5,13 +5,9 @@ export default Vue.component('timeline-nav', {
         return moment(this.$store.state.route.query.date, 'YYYY-MM-DD', true);
       },
       set(newDate) {
-        const routeParams = {
-          name: 'timeline',
-          query: {
-            date: moment.min(newDate, this.today).format('YYYY-MM-DD'),
-          }
-        };
-        return this.$router.push(routeParams);
+        const queryParams = { ...this.$store.state.route.query };
+        queryParams.date = moment.min(newDate, this.today).format('YYYY-MM-DD');
+        return this.$router.push({ name: 'timeline', query: queryParams });
       }
     },
     timelineDateIso: {

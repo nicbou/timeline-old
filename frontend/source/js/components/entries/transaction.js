@@ -1,3 +1,5 @@
+import TimelineEntryIcon from './entry-icon.js';
+
 export default Vue.component('transaction-entry', {
   props: ['entry'],
   computed: {
@@ -44,7 +46,7 @@ export default Vue.component('transaction-entry', {
   },
   template: `
     <div class="transaction">
-      <i class="icon fas fa-piggy-bank" :title="new Date(entry.date_on_timeline).toLocaleString()"></i>
+      <entry-icon icon-class="fas fa-piggy-bank" :entry="entry"></entry-icon>
       <div class="meta">{{ otherPartyName }}</div>
       <div class="content">
         <strong>{{ amount }}{{ currency }}</strong> {{ transactionType }}

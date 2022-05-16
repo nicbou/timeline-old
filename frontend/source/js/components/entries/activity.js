@@ -1,3 +1,5 @@
+import TimelineEntryIcon from './entry-icon.js';
+
 export default Vue.component('activity-entry', {
   props: ['entry'],
   computed: {
@@ -8,9 +10,7 @@ export default Vue.component('activity-entry', {
       else if(this.entry.schema === 'activity.browsing.watch') {
         return 'YouTube video';
       }
-      else {
-        return 'Page view';
-      }
+      return 'Page view';
     },
     icon: function() {
       return this.entry.schema === 'activity.browsing.search' ? `"${this.entry.title}"` : this.entry.title;
@@ -33,10 +33,7 @@ export default Vue.component('activity-entry', {
       else if(this.entry.schema === 'activity.browsing.search') {
         return 'search';
       }
-      else {
-        return 'browse';
-      }
-
+      return 'browse';
     },
     iconClass: function() {
       if (this.hostname && this.hostname.startsWith('youtube.')) {
@@ -45,14 +42,12 @@ export default Vue.component('activity-entry', {
       else if(this.entry.schema === 'activity.browsing.search') {
         return 'fas fa-search';
       }
-      else {
-        return 'fas fa-globe-americas';
-      }
+      return 'fas fa-globe-americas';
     },
   },
   template: `
     <div :class="entryClass">
-      <i class="icon" :class="iconClass" :title="new Date(entry.date_on_timeline).toLocaleString()"></i>
+      <entry-icon :icon-class="iconClass" :entry="entry"></entry-icon>
       <div class="meta">{{ metaText }}</div>
       <div class="content">
         <a :href="url">"{{ entry.title }}"</a>

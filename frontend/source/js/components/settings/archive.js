@@ -80,7 +80,10 @@ export default Vue.component('archive', {
         </div>
         <div class="input-group">
           <label for="archive-key">Key</label>
-          <input type="text" id="archive-key" v-model="archive.key" :disabled="!isNew"/>
+          <input type="text" id="archive-key" v-model="archive.key" v-if="isNew"/>
+          <router-link title="Show entries on the timeline" class="fake-input" :to="{ name: 'timeline', query: { source: archive.type + '/' + archive.key}}" v-if="!isNew">
+            {{ archive.type }}/{{ archive.key }}
+          </router-link>
         </div>
         <div class="input-group">
           <label for="archive-description">Description</label>

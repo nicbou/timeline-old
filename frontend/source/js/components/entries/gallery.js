@@ -1,6 +1,7 @@
 import ImageThumbnailComponent from './../thumbnails/image.js';
 import VideoThumbnailComponent from './../thumbnails/video.js';
 import { hasGeolocation } from './../../utils/entries.js';
+import TimelineEntryIcon from './entry-icon.js';
 
 export default Vue.component('gallery', {
   props: ['entry'],
@@ -15,7 +16,7 @@ export default Vue.component('gallery', {
   },
   template: `
     <div class="gallery">
-      <i class="icon fas fa-image"></i>
+      <entry-icon icon-class="fas fa-image" :entry="entry[0]"></entry-icon>
       <div class="meta">Gallery</div>
       <div class="content">
         <div class="thumbnail" v-for="subentry in entry" @click="$emit('select', subentry)">

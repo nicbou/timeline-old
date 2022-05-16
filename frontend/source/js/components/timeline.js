@@ -27,24 +27,25 @@ function makeRouteValid(to, from, next) {
       return;
     }
   }
-  next({
-    name: 'timeline', query: { date: moment().format('YYYY-MM-DD') }
-  });
+  const queryParams = { ...to.query };
+  queryParams.date = moment().format('YYYY-MM-DD');
+  next({ name: 'timeline', query: queryParams });
 }
 
 export default Vue.component('timeline', {
   data: function() {
     return {
       selectedEntry: null,
-      filters: filters,
+      filters,
     }
   },
   created: function() {
     this.$store.dispatch('timeline/getEntries');
   },
   watch: {
-    '$route.query.date': function() {
-      this.$store.dispatch('timeline/getEntries', true)
+    '$route.query': function() {
+      this.selectedEntry = null;
+      this.$store.dispatch('timeline/getEntries', true);
     }
   },
   beforeRouteEnter: makeRouteValid,
@@ -112,6 +113,11 @@ export default Vue.component('timeline', {
     },
   },
   methods: {
+    clearSource: function() {
+      const queryParams = { ...this.$store.state.route.query };
+      delete queryParams.source;
+      this.$router.push({ name: 'timeline', query: queryParams });
+    },
     openPreview: function(entry) {
       this.selectedEntry = entry;
     },
@@ -170,6 +176,12 @@ export default Vue.component('timeline', {
           <span class="subtitle">{{ timelineDate.format('dddd') }}, {{ relativeTimelineDate }}</span>
           <entry-map class="map" v-show="!isLoading" :entries="entries"></entry-map>
           <ul class="recap" v-if="!isLoading">
+            <li v-if="$route.query.source" @click="clearSource">
+              <div class="filter source">
+                <i class="icon fas fa-sign-in-alt"></i>
+                <span class="filter-name">{{ $route.query.source }}</span>
+              </div>
+            </li>
             <li v-for="(filter, filterName) in filters" :key="filterName"><entry-filter :name="filterName"></entry-filter></li>
           </ul>
         </div>

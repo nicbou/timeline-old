@@ -1,3 +1,5 @@
+import TimelineEntryIcon from './entry-icon.js';
+
 const postTypes = {
   twitter: {
     getIconClass: entry => 'fab fa-twitter',
@@ -69,8 +71,8 @@ export default Vue.component('post-entry', {
     },
   },
   template: `
-    <div :class="postClass" :title="new Date(entry.date_on_timeline).toLocaleString()">
-      <i class="icon" :class="postType.getIconClass(entry)"></i>
+    <div :class="postClass">
+      <entry-icon :icon-class="postType.getIconClass(entry)" :entry="entry"></entry-icon>
       <div class="meta">
         <a :href="postType.getPostUrl(entry)" class="user" target="_blank">{{ postType.getPostType(entry) }}</a>
         <span v-if="postType.getPostCommunity(entry)">

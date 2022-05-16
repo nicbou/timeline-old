@@ -1,3 +1,5 @@
+import TimelineEntryIcon from './entry-icon.js';
+
 export default Vue.component('text-entry', {
   props: ['entry'],
   computed: {
@@ -14,7 +16,7 @@ export default Vue.component('text-entry', {
   },
   template: `
     <div>
-      <i class="icon fas fa-file-alt" :class="iconClass" :title="new Date(entry.date_on_timeline).toLocaleString()"></i>
+      <entry-icon icon-class="fas fa-file-alt" :entry="entry"></entry-icon>
       <div class="meta">{{ fileName }}</div>
       <div class="content" v-html="richDescription"></div>
     </div>

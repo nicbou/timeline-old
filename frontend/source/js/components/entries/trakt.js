@@ -1,3 +1,5 @@
+import TimelineEntryIcon from './entry-icon.js';
+
 export default Vue.component('watch-entry', {
   props: ['entry'],
   computed: {
@@ -16,7 +18,6 @@ export default Vue.component('watch-entry', {
       else if (this.entry.schema == 'activity.watching.show') {
         return 'fas fa-tv';
       }
-      else return
     },
     url: function() {
       return this.entry.extra_attributes.url;
@@ -24,7 +25,7 @@ export default Vue.component('watch-entry', {
   },
   template: `
     <div class="trakt">
-      <i class="icon" :class="iconClass" :title="new Date(entry.date_on_timeline).toLocaleString()"></i>
+      <entry-icon :icon-class="iconClass" :entry="entry"></entry-icon>
       <div class="meta">{{ metaText }}</div>
       <div class="content">
         <a :href="url">"{{ entry.title }}"</a>

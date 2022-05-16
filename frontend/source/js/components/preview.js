@@ -11,9 +11,6 @@ export default Vue.component('preview', {
       }
       return undefined;
     },
-    imageSrcSet: function() {
-        return `${this.entry.extra_attributes.previews.preview} 1x, ${this.entry.extra_attributes.previews.preview2x} 2x`;
-    },
     previewType: function() {
       if (this.mimetype.startsWith('image/') || this.mimetype === 'application/pdf') {
         return 'image-preview';
@@ -47,7 +44,9 @@ export default Vue.component('preview', {
           </div>
           <div class="attribute">
             <dt>Source</dt>
-            <dd>{{ entry.source }}</dd>
+            <dd>
+              <router-link :to="{ path: $route.fullPath, query: { source: entry.source }}">{{ entry.source }}</router-link>
+            </dd>
           </div>
           <div class="attribute">
             <dt>Type</dt>

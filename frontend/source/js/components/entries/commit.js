@@ -1,3 +1,5 @@
+import TimelineEntryIcon from './entry-icon.js';
+
 export default Vue.component('commit-entry', {
   props: ['entry'],
   computed: {
@@ -10,7 +12,7 @@ export default Vue.component('commit-entry', {
   },
   template: `
     <div class="commit">
-      <i class="icon fab fa-git-square" :title="new Date(entry.date_on_timeline).toLocaleString()"></i>
+      <entry-icon icon-class="fab fa-git-square" :entry="entry"></entry-icon>
       <div class="meta">
         <a target="_blank" :href="entry.extra_attributes.url || entry.extra_attributes.repo.url">Commit</a> to <a target="_blank" :href="entry.extra_attributes.repo.url">{{ entry.extra_attributes.repo.name }}</a>
       </div>

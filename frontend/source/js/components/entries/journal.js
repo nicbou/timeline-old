@@ -1,3 +1,5 @@
+import TimelineEntryIcon from './entry-icon.js';
+
 export default Vue.component('journal-entry', {
   props: ['entry'],
   data: function() {
@@ -44,7 +46,7 @@ export default Vue.component('journal-entry', {
   },
   template: `
     <div class="journal">
-      <i class="icon fas fa-pen-square" :title="new Date(entry.date_on_timeline).toLocaleString()"></i>
+      <entry-icon icon-class="fas fa-pen-square" :entry="entry"></entry-icon>
       <div class="meta">Journal entry</div>
       <div class="content" :class="{editing: isEditing}">
         <textarea ref="editor" class="journal-content" v-if="isEditing" v-model="unsavedDescription"></textarea>

@@ -61,7 +61,9 @@ export default {
       const timelineDate = moment(this.state.route.query.date, 'YYYY-MM-DD');
       if (context.state.entriesRequestStatus === RequestStatus.NONE || forceRefresh) {
         context.commit('ENTRIES_REQUEST_PENDING');
-        const entriesRequestPromise = TimelineService.getEntries(timelineDate)
+        const filters = {...this.state.route.query};
+        delete filters['date'];
+        const entriesRequestPromise = TimelineService.getEntries(timelineDate, filters)
           .then(entries => {
             context.commit('SET_ENTRIES', entries);
             context.commit('ENTRIES_REQUEST_SUCCESS');

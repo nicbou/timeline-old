@@ -1,3 +1,5 @@
+import TimelineEntryIcon from './entry-icon.js';
+
 export default Vue.component('message-entry', {
   props: ['entry'],
   computed: {
@@ -32,7 +34,7 @@ export default Vue.component('message-entry', {
   },
   template: `
     <div :class="entryClass">
-      <i class="icon" :class="iconClass" :title="new Date(entry.date_on_timeline).toLocaleString()"></i>
+      <entry-icon :icon-class="iconClass" :entry="entry"></entry-icon>
       <div class="meta">
         <span :title="senderName" class="sender">{{ senderName }}</span>
          ▸ 

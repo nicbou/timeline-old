@@ -1,3 +1,5 @@
+import TimelineEntryIcon from './entry-icon.js';
+
 export default Vue.component('new-journal-entry', {
   data: function() {
     return {
@@ -39,7 +41,7 @@ export default Vue.component('new-journal-entry', {
   },
   template: `
     <div class="journal journal-add">
-      <i class="icon fas fa-pen-square"></i>
+      <entry-icon icon-class="fas fa-pen-square" :entry="entry"></entry-icon>
       <textarea ref="editor" class="journal-content" v-if="isEditing" v-model="unsavedDescription"></textarea>
       <div class="input-group" v-if="isEditing">
         <button class="button" @click.stop.prevent="saveChanges" :disabled="isSaving">Save changes</button>
