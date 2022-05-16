@@ -12,7 +12,8 @@ class Command(ModelProcessingCommand):
 
     def process_instance(self, instance, force):
         created_entries, updated_entries = super().process_instance(instance, force)
-        logger.info(
+        logger.log(
+            logging.INFO if (created_entries + updated_entries) > 0 else logging.DEBUG,
             f"Retrieved {created_entries + updated_entries} entries for {instance}. "
             f"{created_entries} created, {updated_entries} updated."
         )
