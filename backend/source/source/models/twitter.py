@@ -28,10 +28,12 @@ class TwitterSource(BaseSource):
             .filter(source=self.entry_source)\
             .order_by('-extra_attributes__post_id')\
             .first()
-        latest_entry_date = latest_entry.date_on_timeline if latest_entry else None
+        latest_entry_date = latest_entry.date_on_timeline if latest_entry else self.date_from
         latest_entry_id = latest_entry.extra_attributes.get('post_id') if latest_entry else None
 
         if latest_entry_date:
+            if not self.is_date_in_date_range(latest_entry_date):
+                return 0, 0
             logger.info(f'Retrieving all {self} tweets after {latest_entry_date}')
         else:
             logger.info(f'Retrieving all {self} tweets')
@@ -40,6 +42,8 @@ class TwitterSource(BaseSource):
             api.user_timeline,
             screen_name=f'@{self.twitter_username}',
             tweet_mode='extended',
+            since=self.date_from,
+            until=self.date_until,
             since_id=latest_entry_id,
         ).items()
 

@@ -21,6 +21,9 @@ export default class extends ApiObjectService{
     const formData = new FormData();
     formData.append('key', archive.key);
     formData.append('description', archive.description);
+    formData.append('date_from', archive.date_from || '');
+    formData.append('date_until', archive.date_until || '');
+    formData.append('date_processed', archive.date_processed || '');
     for (var i = 0; i < attachedFiles.length; i++) {
       formData.append('archive_files', attachedFiles[i], attachedFiles[i].name);
     }

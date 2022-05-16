@@ -1,6 +1,8 @@
 import logging
+from datetime import datetime, date
 from typing import Tuple, Iterable
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import QuerySet
 from django.db.models.signals import post_delete
@@ -12,6 +14,10 @@ logger = logging.getLogger(__name__)
 
 class BaseSource(models.Model):
     key = models.SlugField(max_length=80, primary_key=True)
+
+    # Date range for this source's entries. This date range is inclusive (to <= date <= from).
+    date_from = models.DateTimeField(null=True)
+    date_until = models.DateTimeField(null=True)
 
     @classmethod
     def __init_subclass__(cls, **kwargs):
@@ -52,7 +58,7 @@ class BaseSource(models.Model):
 
     def delete_entries(self):
         deleted_count = self.get_entries().delete()[0]
-        logger.info(f'Deleted {deleted_count} existing entries for archive "{str(self)}"')
+        logger.info(f'Deleted {deleted_count} existing entries for source "{str(self)}"')
         return deleted_count
 
     def get_preprocessing_tasks(self) -> Iterable:
@@ -64,19 +70,34 @@ class BaseSource(models.Model):
         """
         raise NotImplementedError
 
+    def is_date_in_date_range(self, date: datetime):
+        if self.date_from and date <= self.date_from:
+            return False
+        if self.date_until and date >= self.date_until:
+            return False
+        return True
+
+    def is_entry_in_date_range(self, entry: Entry):
+        return self.is_date_in_date_range(entry.date_on_timeline)
+
+    def delete_entries_outside_date_range(self):
+        total_deleted = 0
+        if self.date_from:
+            total_deleted += self.get_entries().filter(date_on_timeline__lt=self.date_from).delete()[0]
+        elif self.date_until:
+            total_deleted += self.get_entries().filter(date_on_timeline__gt=self.date_until).delete()[0]
+
+        if total_deleted > 0:
+            logger.info(f'Deleted {total_deleted} {str(self)} entries outside of date range ('
+                        f'{self.date_from.strftime("%Y-%m-%d %H:%M")} '
+                        f'to {self.date_until.strftime("%Y-%m-%d %H:%M")}'
+                        f')')
+
     def get_postprocessing_tasks(self) -> Iterable:
-        return []
+        return [
+            lambda force: self.delete_entries_outside_date_range()
+        ]
 
-class OAuthSource(BaseSource):
-    """
-    Data source that requires OAuth capability to access information
-    """
-    consumer_key = models.CharField(max_length=100, blank=False)
-    consumer_secret = models.CharField(max_length=100, blank=False)
-    access_token = models.CharField(max_length=100, blank=True)
-    refresh_token = models.CharField(max_length=100, blank=True)
-    access_token_created = models.DateTimeField(null=True)
-    access_token_expires = models.DateTimeField(null=True)
-
-    class Meta:
-        abstract = True
+    def clean(self):
+        if self.date_from and self.date_until and self.date_from >= self.date_until:
+            raise ValidationError('date_from must be smaller than date_until.')

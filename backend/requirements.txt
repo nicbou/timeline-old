@@ -9,7 +9,7 @@ gunicorn==20.0.4
 icalendar==4.0.9
 phonenumbers==8.12.23
 Pillow==8.0.1
-praw==7.3.0
+praw==7.6.0
 psycopg2-binary==2.8.6
 pydriller==2.0
 requests==2.25.0

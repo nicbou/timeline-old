@@ -38,7 +38,15 @@ class ModelProcessingCommand(BaseCommand):
         failure_count = 0
         for instance in instances_to_process:
             try:
-                logger.info(f"Processing {instance}{force_message}")
+                range_message = ''
+                if instance.date_from and instance.date_until:
+                    range_message = f' ({instance.date_from.strftime("%Y-%m-%d %H:%M")} ' \
+                                    f'to {instance.date_until.strftime("%Y-%m-%d %H:%M")})'
+                elif instance.date_from:
+                    range_message = f' (from {instance.date_from.strftime("%Y-%m-%d %H:%M")})'
+                elif instance.date_until:
+                    range_message = f' (until {instance.date_from.strftime("%Y-%m-%d %H:%M")})'
+                logger.info(f"Processing {instance}{range_message}{force_message}")
                 self.process_instance(instance, force=options['force'])
             except KeyboardInterrupt:
                 raise

@@ -40,7 +40,7 @@ class BaseArchive(BaseSource):
 
         with transaction.atomic():
             self.delete_entries()
-            entries_to_create = self.extract_entries()
+            entries_to_create = filter(self.is_entry_in_date_range(), self.extract_entries())
             entries_created = Entry.objects.bulk_create(entries_to_create)
             self.date_processed = datetime.now(pytz.UTC)
             self.save()

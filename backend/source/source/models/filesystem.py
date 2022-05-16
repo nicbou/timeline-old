@@ -28,6 +28,6 @@ class FileSystemSource(BaseSource):
         )
 
     def get_postprocessing_tasks(self):
-        return [
+        return super().get_postprocessing_tasks() + [
             partial(generate_previews, source=self),
         ]

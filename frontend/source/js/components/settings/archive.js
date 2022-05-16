@@ -12,6 +12,32 @@ export default Vue.component('archive', {
       archiveTypes: archiveTypes,
     }
   },
+  computed: {
+    formattedDateFrom: {
+      get: function() {
+        return this.archive.date_from ? this.archive.date_from.substring(0, 16) : null;
+      },
+      set: function(value) {
+        this.archive.date_from = value ? value + ':00Z' : null;
+      }
+    },
+    formattedDateUntil: {
+      get: function() {
+        return this.archive.date_until ? this.archive.date_until.substring(0, 16) : null;
+      },
+      set: function(value) {
+        this.archive.date_until = value ? value + ':00Z' : null;
+      }
+    },
+    formattedDateProcessed: {
+      get: function() {
+        return this.archive.date_processed ? this.archive.date_processed.substring(0, 16) : null;
+      },
+      set: function(value) {
+        this.archive.date_processed = value ? value + ':00Z' : null;
+      }
+    },
+  },
   methods: {
     onFileInputChange: function(event) {
       this.uploadedFiles = this.$refs.fileInput.files;
@@ -90,6 +116,14 @@ export default Vue.component('archive', {
           <textarea id="archive-description" v-model="archive.description"></textarea>
         </div>
         <div class="input-group">
+          <label for="archive-key">Date from</label>
+          <input type="datetime-local" name="date-from" v-model="formattedDateFrom">
+        </div>
+        <div class="input-group">
+          <label for="archive-key">Date to</label>
+          <input type="datetime-local" name="date-until" v-model="formattedDateUntil">
+        </div>
+        <div class="input-group">
           <label for="archive-files">Files</label>
           <div class="files-input">
             <ul>
@@ -108,6 +142,10 @@ export default Vue.component('archive', {
               </li>
             </ul>
           </div>
+        </div>
+        <div class="input-group">
+          <label for="archive-key">Date processed</label>
+          <input type="datetime-local" name="date-until" v-model="formattedDateProcessed"/>
         </div>
         <div class="input-group" v-if="isNew">
           <button :disabled="isSaving || !(archive.key && archive.description)" class="button" @click="updateArchive">Create archive</button>

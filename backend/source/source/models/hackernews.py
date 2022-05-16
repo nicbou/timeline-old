@@ -17,15 +17,17 @@ class HackerNewsSource(BaseSource):
 
     def process(self, force=False) -> Tuple[int, int]:
         base_schema = 'social.hackernews'
+
+        # Hacker News entries can't be edited or deleted after 2 hours. Only look for latest entries.
         latest_entry = self.get_entries().order_by('-extra_attributes__post_id').first()
-        latest_entry_date = latest_entry.date_on_timeline if latest_entry else None
+        latest_entry_date = latest_entry.date_on_timeline if latest_entry else self.date_from
         two_hours_ago = datetime.now(pytz.UTC) - timedelta(hours=2)
         after_date = min([latest_entry_date, two_hours_ago]) if latest_entry_date else None
 
         if latest_entry_date:
-            logger.info(f'Retrieving all {str(self)} entries after {after_date}')
-        else:
-            logger.info(f'Retrieving all {str(self)} entries')
+            if not self.is_date_in_date_range(latest_entry_date):
+                return 0, 0
+            logger.info(f'Retrieving {str(self)} entries after {after_date}')
 
         updated_entries = []
         created_entries = []
@@ -33,12 +35,14 @@ class HackerNewsSource(BaseSource):
             api_url = "https://hacker-news.firebaseio.com/v0/"
             item_ids_for_user = requests.get(f"{api_url}user/{self.hackernews_username}.json").json()['submitted']
             for item_id in item_ids_for_user:
-                item = requests.get(f"{api_url}item/{item_id}.json?print=pretty").json()
+                item = requests.get(f"{api_url}item/{item_id}.json").json()
                 item_date = datetime.fromtimestamp(item['time'], pytz.UTC)
+                if not self.is_date_in_date_range(item_date):
+                    continue
                 if after_date and item_date <= after_date:
                     break
                 if item.get('deleted'):
-                    break
+                    continue
 
                 entry_values = {
                     'title': item.get('title', ''),

@@ -200,7 +200,8 @@ def create_entries_from_directory(path: Path, source: BaseSource, backup_date: d
         entry.extra_attributes['backup_date'] = datetime_to_json(backup_date)
 
         entry.date_on_timeline = get_file_entry_date(entry)  # This could change, so it's not cached
-        entries_to_create.append(entry)
+        if source.is_entry_in_date_range(entry):
+            entries_to_create.append(entry)
 
     source.get_entries().delete()  # TODO: Only delete the entries in the specified directory?
     return Entry.objects.bulk_create(entries_to_create)

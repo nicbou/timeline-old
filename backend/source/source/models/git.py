@@ -1,3 +1,4 @@
+from datetime import timedelta
 from typing import Tuple
 from urllib.parse import urlparse
 
@@ -32,6 +33,11 @@ class GitSource(BaseSource):
         filters = {}
         if self.author_name:
             filters['only_authors'] = [self.author_name, ]
+
+        if self.date_from:
+            filters['since'] = self.date_from - timedelta(seconds=1)
+        if self.date_until:
+            filters['to'] = self.date_until + timedelta(seconds=1)
 
         commits = Repository(self.repo_url, **filters).traverse_commits()
 

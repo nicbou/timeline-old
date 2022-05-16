@@ -4,6 +4,7 @@ from source.models.hackernews import HackerNewsSource
 from source.models.reddit import RedditSource
 from source.models.rss import RssSource
 from source.models.rsync import RsyncSource
+from source.models.trakt import TraktSource
 from source.models.twitter import TwitterSource
 
 __all__ = [
