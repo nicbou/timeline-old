@@ -27,6 +27,7 @@ class RedditArchive(CompressedFileArchive):
         reddit_username = self.extract_username()
         yield from self.extract_comments(reddit_username)
         yield from self.extract_posts(reddit_username)
+        yield from self.extract_private_messages(reddit_username)
 
     def extract_comments(self, reddit_username) -> Generator[Entry, None, None]:
         csv_file = self.extracted_files_path / 'comments.csv'
@@ -62,5 +63,24 @@ class RedditArchive(CompressedFileArchive):
                     'post_community': line['subreddit'],
                     'post_user': reddit_username,
                     'post_url': line['permalink'],
+                }
+            )
+
+    def extract_private_messages(self, reddit_username) -> Generator[Entry, None, None]:
+        csv_file = self.extracted_files_path / 'messages.csv'
+        for line in csv.DictReader(codecs.iterdecode(csv_file.open('rb'), 'utf-8'),
+                                   delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL):
+            yield Entry(
+                schema='message.reddit.pm',
+                title=line['subject'],
+                description=line['body'],
+                source=self.entry_source,
+                date_on_timeline=pytz.utc.localize(datetime.strptime(line['date'], '%Y-%m-%d %H:%M:%S UTC')),
+                extra_attributes={
+                    'sender_name': line['from'],
+                    'sender_id': line['from'],
+                    'recipient_name': line['to'].removeprefix('/u/'),
+                    'recipient_id': line['to'].removeprefix('/u/'),
+                    'url': line['permalink'],
                 }
             )

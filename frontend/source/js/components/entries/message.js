@@ -13,6 +13,9 @@ export default Vue.component('message-entry', {
       else if (this.entry.schema.startsWith('message.facebook')){
         return 'fab fa-facebook-messenger';
       }
+      else if (this.entry.schema.startsWith('message.reddit')){
+        return 'fab fa-reddit';
+      }
     },
     entryClass: function() {
       if (this.entry.schema.startsWith('message.text.sms')) {
@@ -23,6 +26,9 @@ export default Vue.component('message-entry', {
       }
       else if (this.entry.schema.startsWith('message.facebook')){
         return 'facebook-messenger';
+      }
+      else if (this.entry.schema.startsWith('message.reddit')){
+        return 'reddit';
       }
     },
     senderName: function() {

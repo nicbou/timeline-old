@@ -137,16 +137,20 @@ A journal/diary entry
 
 A message sent by a sender to a recipient. The recipient can be another person or a group.
 
+- `title`: The message subject, if applicable
 - `description`: The message body
-- `sender_name`: The name of the sender
-- `sender_id`: The phone number of the sender
-- `recipient_name`: The name of the recipient
-- `recipient_id`: The phone number of the recipient
+- `sender_name`: The display name of the sender
+- `sender_id`: The username or phone number or ID of the sender
+- `recipient_name`: The display name of the recipient
+- `recipient_id`: The username, phone number or ID of the recipient
 - `mixin:file`: Message attachments
 - `mixin:preview`: Preview for the message attachments
 - `mixin:media`: Media information about the message attachments
 
 ### message.text.sms
+
+- `sender_id`: The phone number of the sender
+- `recipient_id`: The phone number of the recipient
 
 ### message.facebook
 
@@ -159,6 +163,12 @@ A message sent by a sender to a recipient. The recipient can be another person o
 #### message.facebook.sticker
 
 #### message.facebook.video
+
+### message.reddit.pm
+
+A reddit private message.
+
+- `url`: Message permalink
 
 ### message.telegram
 
