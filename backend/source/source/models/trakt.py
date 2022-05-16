@@ -6,16 +6,18 @@ from trakt import Trakt
 from django.db import models, transaction
 from django.forms.models import model_to_dict
 
-from source.models.source import OAuthSource
+from source.models.oauth import OAuthSource
 from timeline.models import Entry
 
 # The url root to access trakt movie/show information
 trakt_site = 'https://trakt.tv/'
 
+
 class TraktPin(object):
     """
     Handles Trakt OAuth and obtaining data from Trakt site
     """
+
     def __init__(self):
         self.authorization = None
 
@@ -34,10 +36,9 @@ class TraktPin(object):
             return 1
 
         with Trakt.configuration.oauth.from_response(self.authorization):
-
             watched_movies = Trakt['sync/history'].get(media='movies', pagination=True, per_page=100)
             watched_shows = Trakt['sync/history'].get(media='shows', pagination=True, per_page=100)
-            return (watched_movies, watched_shows)
+            return watched_movies, watched_shows
 
     def status(self) -> bool:
         """
@@ -50,7 +51,7 @@ class TraktPin(object):
         with Trakt.configuration.oauth.from_response(self.authorization):
             # grab a small data that requires authenticing. Returns 'None' for failure
             watched_movies_test = Trakt['sync/history'].get(media='movies', per_page=10)
-            return (watched_movies_test != None)
+            return watched_movies_test is not None
 
     def authenticate(self) -> bool:
         if self.has_auth():
@@ -80,7 +81,6 @@ class TraktPin(object):
         self.save_auth(auth_resp)
         return True
 
-
     def on_token_refreshed(self, response):
         # OAuth token refreshed, save token for future calls
         self.authorization = response
@@ -100,7 +100,8 @@ class TraktPin(object):
         a.access_token = authorization["access_token"]
         a.refresh_token = authorization["refresh_token"]
         a.access_token_created = datetime.datetime.utcfromtimestamp(authorization["created_at"])
-        a.access_token_expires = datetime.datetime.utcfromtimestamp(authorization["created_at"]) + datetime.timedelta(seconds=authorization["expires_in"])
+        a.access_token_expires = datetime.datetime.utcfromtimestamp(authorization["created_at"]) + datetime.timedelta(
+            seconds=authorization["expires_in"])
 
         a.save(update_fields=["access_token", "refresh_token", "access_token_expires", "access_token_created"])
         self.authorization = authorization
@@ -115,9 +116,11 @@ class TraktPin(object):
             # trakt.py expects these times to be in seconds
             "created_at": int(source["access_token_created"].timestamp()) if source["access_token_created"] else None,
             # Expired is in seconds after created_at
-            "expires_in": (source["access_token_expires"] - source["access_token_created"]).total_seconds() if source["access_token_expires"] else None,
+            "expires_in": (source["access_token_expires"] - source["access_token_created"]).total_seconds() if source[
+                "access_token_expires"] else None,
             "refresh_token": source["refresh_token"],
         }
+
 
 class TraktSource(OAuthSource):
     """
@@ -142,7 +145,6 @@ class TraktSource(OAuthSource):
         )
         self.traktApp.load_auth(model_to_dict(self))
 
-    
     def app(self) -> Tuple:
         """
         Grab Trakt user info
@@ -157,7 +159,7 @@ class TraktSource(OAuthSource):
 
     def process(self, force=False) -> Tuple[int, int]:
         self.app_init()
-        (movies,shows) = self.app()
+        (movies, shows) = self.app()
 
         updated_shows = []
         created_shows = []
@@ -188,10 +190,9 @@ class TraktSource(OAuthSource):
                 else:
                     updated_movies.append(entry)
 
-
             for show in shows:
                 entry_values = {
-                    'title': show.show.title + ' - ' + show.title + '- S' +str(show.pk[0]) + 'E' + str(show.pk[1]),
+                    'title': show.show.title + ' - ' + show.title + '- S' + str(show.pk[0]) + 'E' + str(show.pk[1]),
                     'date_on_timeline': show.watched_at,
                     'extra_attributes': {
                         # specific episode info
@@ -225,4 +226,3 @@ class TraktSource(OAuthSource):
                     updated_shows.append(entry)
 
         return len(created_shows + created_movies), len(updated_shows + updated_movies)
-
