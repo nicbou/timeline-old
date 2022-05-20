@@ -207,9 +207,9 @@ class TraktSource(OAuthSource):
                             'name': show.show.title,
                             'year': show.show.year,
                             'trakt_id': [k[1] for k in show.show.keys if k[0] == 'trakt'][0],
-                            'trakt_slug': [k[1] for k in show.show.keys if k[0] == 'slug'][0],
                         },
-                        'url': trakt_site + 'movies/' + [k[1] for k in movie.keys if k[0] == 'slug'][0]
+                        'trakt_event_id': show.id,
+                        'url': f'{trakt_site}shows/{[k[1] for k in show.show.keys if k[0] == "slug"][0]}/seasons/{show.pk[0]}/episodes/{show.pk[1]}' 
                     }
                 }
 
