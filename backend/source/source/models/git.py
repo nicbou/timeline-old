@@ -1,6 +1,6 @@
 from datetime import timedelta
 from typing import Tuple
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlunparse
 
 import pytz
 from django.db import models, transaction
@@ -14,10 +14,13 @@ class GitSource(BaseSource):
     repo_url = models.URLField(blank=False)
     author_name = models.CharField(max_length=200, null=True)
 
-    def get_repo_url(self):
-        if urlparse(self.repo_url).netloc == 'github.com':
-            return self.repo_url.rsplit('.', 1)[0]  # Remove the .git extension
-        return self.repo_url
+    def get_repo_url(self, strip_credentials=False):
+        parsed_url = urlparse(self.repo_url)
+        if strip_credentials:
+            # Remove username and password if they are included in the URL
+            parsed_url = parsed_url._replace(netloc=parsed_url.hostname)
+
+        return urlunparse(parsed_url)
 
     def get_repo_name(self):
         parsed_url = urlparse(self.repo_url)
@@ -65,7 +68,7 @@ class GitSource(BaseSource):
                     },
                     'repo': {
                         'name': self.get_repo_name() or commit.project_name,
-                        'url': self.get_repo_url(),
+                        'url': self.get_repo_url(strip_credentials=True),
                     },
                 }
             ))
