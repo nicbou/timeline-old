@@ -48,7 +48,7 @@ const postTypes = {
     },
   },
   blog: {
-    getIconClass: entry => 'fas fa-rss-square',
+    getIconClass: entry => 'fas fa-rss',
     getUser: entry => entry.extra_attributes.post_user,
     getUserUrl: entry => null,
     getPostUrl: entry => entry.extra_attributes.post_url,

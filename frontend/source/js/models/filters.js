@@ -4,7 +4,7 @@ export const filters = {
   blog: {
     displayName: 'blog post',
     displayNamePlural: 'blog posts',
-    iconClass: 'fas fa-rss-square',
+    iconClass: 'fas fa-rss',
     filterFunction: (entry) => entry.schema.startsWith('social.blog.'),
   },
   browse: {
