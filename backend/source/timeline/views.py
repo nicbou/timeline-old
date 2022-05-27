@@ -2,15 +2,24 @@ import json
 
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import permissions
+from oauth2_provider.contrib.rest_framework import TokenMatchesOASRequirements
 from rest_framework import viewsets
 from rest_framework.filters import OrderingFilter
+
 
 from .models import Entry
 from .serializers import EntrySerializer
 
 
 class EntryViewSet(viewsets.ModelViewSet):
+    permission_classes = [TokenMatchesOASRequirements]
+    required_alternate_scopes = {
+        "GET": [["entry:read"]],
+        "POST": [["entry:write"]],
+        "PUT":  [["entry:write"]],
+        "DELETE": [["entry:write"]],
+    }
+
     queryset = Entry.objects.all().order_by('date_on_timeline')
     serializer_class = EntrySerializer
     filter_backends = [DjangoFilterBackend, OrderingFilter]

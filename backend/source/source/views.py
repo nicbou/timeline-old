@@ -1,5 +1,6 @@
 import logging
 
+from oauth2_provider.contrib.rest_framework import TokenMatchesOASRequirements
 from rest_framework import permissions, viewsets, status
 from rest_framework.exceptions import APIException, AuthenticationFailed
 from rest_framework.response import Response
@@ -23,7 +24,13 @@ logger = logging.getLogger(__name__)
 
 
 class BaseSourceViewSet(viewsets.ModelViewSet):
-    pass
+    permission_classes = [TokenMatchesOASRequirements]
+    required_alternate_scopes = {
+        "GET": [["source:read"]],
+        "POST": [["source:write"]],
+        "PUT":  [["source:write"]],
+        "DELETE": [["source:write"]],
+    }
 
 
 class RsyncSourceViewSet(BaseSourceViewSet):
@@ -52,10 +59,6 @@ class RsyncSourceViewSet(BaseSourceViewSet):
         self.copy_ssh_keys(serializer)
         serializer.validated_data.pop('password')
         return super().perform_update(serializer)
-
-
-class OAuth2Authentication(object):
-    pass
 
 
 class TwitterSourceViewSet(BaseSourceViewSet):
@@ -88,7 +91,7 @@ class GitSourceViewSet(BaseSourceViewSet):
     serializer_class = GitSourceSerializer
 
 
-class TraktSourceViewSet(viewsets.ModelViewSet):
+class TraktSourceViewSet(BaseSourceViewSet):
     queryset = TraktSource.objects.all()
     serializer_class = TraktSourceSerializer
 

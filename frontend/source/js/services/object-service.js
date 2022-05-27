@@ -1,9 +1,7 @@
-export default class {
-  static objectToFormData(object, attachedFiles) {
-  }
+import ApiService from './api-service.js';
 
-  static getApiBase() {
-    return `https://${window.location.hostname}/api/`;
+export default class extends ApiService {
+  static objectToFormData(object, attachedFiles) {
   }
 
   static async get() {

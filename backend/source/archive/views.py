@@ -1,3 +1,4 @@
+from oauth2_provider.contrib.rest_framework import TokenMatchesOASRequirements
 from rest_framework import viewsets, permissions
 
 from archive.models import JsonArchive, GpxArchive, N26CsvArchive, TelegramArchive, FacebookArchive, ArchiveFile, \
@@ -9,52 +10,62 @@ from archive.serializers import GoogleTakeoutArchiveSerializer, TwitterArchiveSe
     ArchiveFileSerializer, ICalendarArchiveSerializer, RedditArchiveSerializer
 
 
-class GoogleTakeoutArchiveViewSet(viewsets.ModelViewSet):
+class ArchiveModelViewSet(viewsets.ModelViewSet):
+    permission_classes = [TokenMatchesOASRequirements]
+    required_alternate_scopes = {
+        "GET": [["archive:read"]],
+        "POST": [["archive:write"]],
+        "PUT":  [["archive:write"]],
+        "DELETE": [["archive:write"]],
+    }
+
+
+class GoogleTakeoutArchiveViewSet(ArchiveModelViewSet):
     queryset = GoogleTakeoutArchive.objects.all()
     serializer_class = GoogleTakeoutArchiveSerializer
 
 
-class TwitterArchiveViewSet(viewsets.ModelViewSet):
+class TwitterArchiveViewSet(ArchiveModelViewSet):
     queryset = TwitterArchive.objects.all()
     serializer_class = TwitterArchiveSerializer
 
 
-class JsonArchiveViewSet(viewsets.ModelViewSet):
+class JsonArchiveViewSet(ArchiveModelViewSet):
     queryset = JsonArchive.objects.all()
     serializer_class = JsonArchiveSerializer
 
 
-class GpxArchiveViewSet(viewsets.ModelViewSet):
+class GpxArchiveViewSet(ArchiveModelViewSet):
     queryset = GpxArchive.objects.all()
     serializer_class = GpxArchiveSerializer
 
 
-class N26CsvArchiveViewSet(viewsets.ModelViewSet):
+class N26CsvArchiveViewSet(ArchiveModelViewSet):
     queryset = N26CsvArchive.objects.all()
     serializer_class = N26CsvArchiveSerializer
 
 
-class TelegramArchiveViewSet(viewsets.ModelViewSet):
+class TelegramArchiveViewSet(ArchiveModelViewSet):
     queryset = TelegramArchive.objects.all()
     serializer_class = TelegramArchiveSerializer
 
 
-class FacebookArchiveViewSet(viewsets.ModelViewSet):
+class FacebookArchiveViewSet(ArchiveModelViewSet):
     queryset = FacebookArchive.objects.all()
     serializer_class = FacebookArchiveSerializer
 
 
-class ICalendarArchiveViewSet(viewsets.ModelViewSet):
+class ICalendarArchiveViewSet(ArchiveModelViewSet):
     queryset = ICalendarArchive.objects.all()
     serializer_class = ICalendarArchiveSerializer
 
 
-class RedditArchiveViewSet(viewsets.ModelViewSet):
+class RedditArchiveViewSet(ArchiveModelViewSet):
     queryset = RedditArchive.objects.all()
     serializer_class = RedditArchiveSerializer
 
 
-class ArchiveFileViewSet(viewsets.ModelViewSet):
+class ArchiveFileViewSet(ArchiveModelViewSet):
     queryset = ArchiveFile.objects.all()
     serializer_class = ArchiveFileSerializer
     http_method_names = ['get', 'list', 'delete']

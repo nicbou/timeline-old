@@ -37,12 +37,9 @@ ALLOWED_HOSTS = ['*']
 
 # Application definition
 INSTALLED_APPS = [
-    'django.contrib.admin',
+    'django.contrib.sessions',
     'django.contrib.auth',
     'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
     'django_filters',
     'generic_relations',
     'timeline.apps.TimelineConfig',
@@ -51,6 +48,7 @@ INSTALLED_APPS = [
     'destination.apps.DestinationConfig',
     'oauth2_provider',
     'rest_framework',
+    'authentication',
 ]
 
 MIDDLEWARE = [
@@ -199,10 +197,18 @@ REST_FRAMEWORK = {
 
 OAUTH2_PROVIDER = {
     'SCOPES': {
-        'read': 'Read scope',
-        'write': 'Write scope',
+        'entry:read': 'Read timeline Entries',
+        'entry:write': 'Create, update and delete timeline Entries',
+        'source:read': 'Read Sources',
+        'source:write': 'Edit Sources',
+        'destination:read': 'Read Destinations',
+        'destination:write': 'Edit Destinations',
+        'archive:read': 'Read Archives',
+        'archive:write': 'Edit Archives',
     }
 }
+
+LOGIN_URL = '/api/auth/login'
 
 # In bytes
 MAX_PLAINTEXT_PREVIEW_SIZE = 10000  # 2KB = 1 page of text

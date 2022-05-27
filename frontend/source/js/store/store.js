@@ -1,11 +1,14 @@
-import timelineStore from './timeline.js';
 import archivesStore from './archives.js';
+import authStore from './auth.js';
 import sourcesStore from './sources.js';
+import timelineStore from './timeline.js';
+import AuthService from './../services/timeline-service.js';
 
 export default new Vuex.Store({
   modules: {
-    timeline: timelineStore,
     archives: archivesStore,
+    auth: authStore,
     sources: sourcesStore,
+    timeline: timelineStore,
   },
 });

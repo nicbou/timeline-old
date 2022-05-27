@@ -29,7 +29,7 @@ services:
         max-file: "10"
     restart: unless-stopped
   timeline-frontend:
-    image: nginx
+    build: frontend
     volumes:
       - ./frontend/source:/usr/share/nginx/html:ro
     depends_on:

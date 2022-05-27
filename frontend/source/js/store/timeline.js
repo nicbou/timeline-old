@@ -63,7 +63,7 @@ export default {
         context.commit('ENTRIES_REQUEST_PENDING');
         const filters = {...this.state.route.query};
         delete filters['date'];
-        const entriesRequestPromise = TimelineService.getEntries(timelineDate, filters)
+        const entriesRequestPromise = TimelineService.getEntries(timelineDate, filters, context.rootState.auth.accessToken)
           .then(entries => {
             context.commit('SET_ENTRIES', entries);
             context.commit('ENTRIES_REQUEST_SUCCESS');
@@ -80,17 +80,17 @@ export default {
       return context.state.entriesRequestPromise;
     },
     async addEntry(context, entry) {
-      TimelineService.saveEntry(entry).then(serverEntry => {
+      TimelineService.saveEntry(entry, context.rootState.auth.accessToken).then(serverEntry => {
         context.commit('ADD_ENTRY', serverEntry);
       });
     },
     async updateEntry(context, entry) {
-      TimelineService.saveEntry(entry).then(serverEntry => {
+      TimelineService.saveEntry(entry, context.rootState.auth.accessToken).then(serverEntry => {
         context.commit('UPDATE_ENTRY', serverEntry);
       });
     },
     async deleteEntry(context, entry) {
-      TimelineService.deleteEntry(entry).then(serverResponse => {
+      TimelineService.deleteEntry(entry, context.rootState.auth.accessToken).then(serverResponse => {
         context.commit('DELETE_ENTRY', entry);
       });
     },
