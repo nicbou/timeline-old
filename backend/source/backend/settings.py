@@ -209,6 +209,8 @@ OAUTH2_PROVIDER = {
 }
 
 LOGIN_URL = '/api/auth/login/'
+LOGIN_REDIRECT_URL = '/'
+
 
 # In bytes
 MAX_PLAINTEXT_PREVIEW_SIZE = 10000  # 2KB = 1 page of text

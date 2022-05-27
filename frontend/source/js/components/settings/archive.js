@@ -83,7 +83,7 @@ export default Vue.component('archive', {
   },
   template: `
     <div class="archive">
-      <div class="archive-preview" :class="{processed: !!archive.date_processed}" v-if="!isEditing && !isNew">
+      <div class="archive-preview form" :class="{processed: !!archive.date_processed}" v-if="!isEditing && !isNew">
         <i class="icon fas fa-file-archive"></i>
         <div class="archive-details">
           <h2>{{ archive.key || 'New archive' }}</h2>
@@ -95,7 +95,7 @@ export default Vue.component('archive', {
           <button class="button" @click="isEditing=true">Edit</button>
         </div>
       </div>
-      <div v-if="isEditing || isNew">
+      <div v-if="isEditing || isNew" class="form">
         <div class="input-group">
           <label for="archive-type">Type</label>
           <input type="text" :value="archiveTypes[archive.type]" disabled v-if="!isNew"/>
