@@ -5,10 +5,14 @@ export default {
   namespaced: true,
   state: {
     sources: [],
+    sourceEndpoints: [],
     sourcesRequestStatus: RequestStatus.NONE,
     sourcesRequestPromise: null,
   },
   mutations: {
+    SET_SOURCE_ENDPOINTS(state, sourceEndpoints) {
+      state.sourceEndpoints = sourceEndpoints;
+    },
     SET_SOURCES(state, sources) {
       state.sources = sources;
     },
@@ -35,10 +39,18 @@ export default {
     },
   },
   actions: {
+    async getSourceEndpoints(context) {
+      // TODO: remove "Source" from method names, merge with nearly identical archives.js
+      return SourceService.getEndpoints(context.rootState.auth.accessToken)
+        .then(sourceEndpoints => {
+          context.commit('SET_SOURCE_ENDPOINTS', sourceEndpoints);
+          return sourceEndpoints;
+        });
+    },
     async getSources(context, forceRefresh=false) {
       if (context.state.sourcesRequestStatus === RequestStatus.NONE || forceRefresh) {
         context.commit('SOURCES_REQUEST_PENDING');
-        const sourcesRequestPromise = SourceService.getSources()
+        const sourcesRequestPromise = SourceService.get(context.rootState.auth.accessToken)
           .then(sources => {
             context.commit('SET_SOURCES', sources);
             context.commit('SOURCES_REQUEST_SUCCESS');
@@ -55,7 +67,7 @@ export default {
       return context.state.sourcesRequestPromise;
     },
     async createSource(context, {source, files}) {
-      return SourceService.createSource(source, files)
+      return SourceService.create(source, files, context.rootState.auth.accessToken)
         .then((updatedSource) => {
           context.commit('ADD_SOURCE', updatedSource);
           return context.state.sources;
@@ -65,7 +77,7 @@ export default {
         });
     },
     async updateSource(context, {source, newFiles}) {
-      return SourceService.updateSource(source, newFiles)
+      return SourceService.update(source, newFiles, context.rootState.auth.accessToken)
         .then((updatedSource) => {
           context.commit('UPDATE_SOURCE', updatedSource);
           return context.state.sources;
@@ -75,7 +87,7 @@ export default {
         });
     },
     async deleteSource(context, source) {
-      return SourceService.deleteSource(source)
+      return SourceService.delete(source, context.rootState.auth.accessToken)
         .then(() => {
           context.commit('DELETE_SOURCE', source);
           return context.state.sources;

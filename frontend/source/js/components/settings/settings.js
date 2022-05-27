@@ -1,5 +1,4 @@
 import { RequestStatus } from './../../models/requests.js';
-import ArchiveService from './../../services/archive-service.js';
 
 export default Vue.component('settings', {
   data: function() {

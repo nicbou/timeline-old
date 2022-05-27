@@ -1,4 +1,3 @@
-const apiBase = `https://${window.location.hostname}/api/archive/`;
 import ApiObjectService from './object-service.js';
 
 export const archiveTypes = {
@@ -15,7 +14,7 @@ export const archiveTypes = {
 
 export default class extends ApiObjectService{
   static getApiBase() {
-    return super.getApiBase() + 'archive/';
+    return super.getApiBase() + '/archive';
   }
 
   static objectToFormData(archive, attachedFiles) {
@@ -31,13 +30,13 @@ export default class extends ApiObjectService{
     return formData;
   }
 
-  static async getEndpoints() {
-    const archiveEndpointsByType = await super.getEndpoints();
+  static async getEndpoints(accessToken) {
+    const archiveEndpointsByType = await super.getEndpoints(accessToken);
     delete archiveEndpointsByType.archivefile;
     return archiveEndpointsByType;
   }
 
-  static async deleteFile(fileId) {
-    return fetch(new URL(`archivefile/${fileId}/`, apiBase), { method: 'DELETE' });
+  static async deleteFile(fileId, accessToken) {
+    return this.fetchWithToken(this.getApiBase() + `/archivefile/${fileId}/`, { method: 'DELETE' }, accessToken);
   }
 }

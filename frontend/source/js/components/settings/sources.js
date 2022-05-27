@@ -1,11 +1,9 @@
 import { RequestStatus } from './../../models/requests.js';
 import SourceComponent from './source.js';
-import SourceService from './../../services/source-service.js';
 
 export default Vue.component('sources', {
   data: function() {
     return {
-      sourceEndpoints: [],
       isSaving: false,
       uploadedFiles: [],
       newSource: null,
@@ -13,13 +11,14 @@ export default Vue.component('sources', {
   },
   created: function() {
     this.$store.dispatch('sources/getSources');
-    SourceService.getSourceEndpoints().then(sourceEndpoints => {
-      this.sourceEndpoints = sourceEndpoints;
-    })
+    this.$store.dispatch('sources/getSourceEndpoints');
   },
   computed: {
     sources: function() {
       return this.$store.state.sources.sources;
+    },
+    sourceEndpoints: function() {
+      return this.$store.state.sources.sourceEndpoints;
     },
   },
   methods: {

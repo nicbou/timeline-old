@@ -1,6 +1,6 @@
 import { RequestStatus } from './../models/requests.js';
 import { filters } from './../models/filters.js';
-import AuthService from './../services/auth-service.js';
+import AuthService, { generateRandomString } from './../services/auth-service.js';
 
 export default {
   namespaced: true,
@@ -20,7 +20,7 @@ export default {
   },
   actions: {
     async getAuthorizationCodeUrl(context) {
-      const codeVerifier = AuthService.generateRandomString()
+      const codeVerifier = generateRandomString()
       context.commit('setCodeVerifier', codeVerifier);
       return await AuthService.getAuthorizationCodeUrl(codeVerifier);
     },

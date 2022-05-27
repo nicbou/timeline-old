@@ -1,11 +1,22 @@
 import ApiService from './api-service.js';
 import config from './../config.js';
 
+export function generateRandomString() {
+  const array = new Uint32Array(28);
+  window.crypto.getRandomValues(array);
+  return Array.from(array, dec => ('0' + dec.toString(16)).substr(-2)).join('');
+}
+
+function base64UrlEncode(string) {
+  return btoa(String.fromCharCode.apply(null, new Uint8Array(string)))
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
 export default class AuthService extends ApiService {
   static async getAuthorizationCodeUrl(codeVerifier) {
     const codeChallenge = await AuthService.pkceChallengeFromVerifier(codeVerifier);
 
-    const authorizationCodeUrl = new URL('oauth/authorize', AuthService.getApiBase());
+    const authorizationCodeUrl = new URL(AuthService.getApiBase() + '/oauth/authorize/');
     authorizationCodeUrl.search = new URLSearchParams({
       approval_prompt: 'auto',
       response_type: 'code',
@@ -19,7 +30,7 @@ export default class AuthService extends ApiService {
   }
 
   static async getToken(authorizationCode, codeVerifier) {
-    const tokenUrl = new URL(`oauth/token/`, AuthService.getApiBase());
+    const tokenUrl = AuthService.getApiBase() + '/oauth/token/';
     const bodyParams = new URLSearchParams({
       grant_type: 'authorization_code',
       code: authorizationCode,
@@ -34,23 +45,11 @@ export default class AuthService extends ApiService {
     }).then(response => response.json());
   }
 
-  static generateRandomString() {
-    const array = new Uint32Array(28);
-    window.crypto.getRandomValues(array);
-    return Array.from(array, dec => ('0' + dec.toString(16)).substr(-2)).join('');
-  }
-
-  static async sha256(string) {
-    const encoder = new TextEncoder();
-    return window.crypto.subtle.digest('SHA-256', encoder.encode(string));
-  }
-
-  static base64UrlEncode(string) {
-    return btoa(String.fromCharCode.apply(null, new Uint8Array(string)))
-      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-  }
-
   static async pkceChallengeFromVerifier(codeVerifier) {
-    return this.base64UrlEncode(await this.sha256(codeVerifier));
+    const encoder = new TextEncoder();
+    const sha256Verifier = await window.crypto.subtle.digest('SHA-256', encoder.encode(codeVerifier));
+    const encodedVerifier = btoa(String.fromCharCode.apply(null, new Uint8Array(sha256Verifier)))
+      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    return encodedVerifier;
   }
 }

@@ -1,8 +1,12 @@
 import ApiService from './api-service.js';
 
 export default class extends ApiService {
+  static getApiBase(){
+    return super.getApiBase() + '/timeline';
+  }
+
   static getEntries(date, filters, accessToken) {
-    const requestUrl = new URL('timeline/entries/', this.getApiBase());
+    const requestUrl = new URL(this.getApiBase() + '/entries/');
     requestUrl.search = new URLSearchParams({
       date_on_timeline__gte: moment(date).startOf('day').toJSON(),
       date_on_timeline__lt: moment(date).startOf('day').add(1, 'day').toJSON(),
@@ -14,17 +18,12 @@ export default class extends ApiService {
   }
 
   static saveEntry(entry, accessToken){
-    let url = '/api/timeline/entries/';
-    let method = 'POST';
-    if(entry.id !== null && entry.id !== undefined){
-      url += entry.id + '/';
-      method = 'PUT';
-    }
-    const requestUrl = new URL(url, `https://${window.location.hostname}`);
+    const isNewEntry = entry.id === null || entry.id === undefined;
+    const relativeUrl = isNewEntry ? '/entries/' : `/entries/${entry.id}/`
     return this.fetchWithToken(
-      requestUrl,
+      this.getApiBase() + relativeUrl,
       { 
-        method: method,
+        method: isNewEntry ? 'POST' : 'PUT',
         headers: { 'Content-Type': 'application/json', },
         body: JSON.stringify(entry),
       },
@@ -34,8 +33,11 @@ export default class extends ApiService {
     });
   }
 
-  static async deleteEntry(entry, accessToken) {
-    const entryUrl = new URL(`/api/timeline/entries/${entry.id}/`, `https://${window.location.hostname}/api/`);
-    return this.fetchWithToken(entryUrl, { method: 'DELETE' }, accessToken);
+  static deleteEntry(entry, accessToken) {
+    return this.fetchWithToken(
+      this.getApiBase() + `/entries/${entry.id}/`,
+      { method: 'DELETE' },
+      accessToken
+    );
   }
 }

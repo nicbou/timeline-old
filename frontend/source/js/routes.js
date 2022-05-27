@@ -2,7 +2,6 @@ import TimelineComponent from './components/timeline.js';
 import ArchivesComponent from './components/settings/archives.js';
 import SettingsComponent from './components/settings/settings.js';
 import SourcesComponent  from './components/settings/sources.js';
-import AuthService from './services/auth-service.js';
 import store from './store/store.js';
 
 

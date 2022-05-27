@@ -1,5 +1,4 @@
 import { RequestStatus } from './../../models/requests.js';
-import ArchiveService from './../../services/archive-service.js';
 import { archiveTypes } from './../../services/archive-service.js';
 
 export default Vue.component('archive', {
@@ -77,7 +76,7 @@ export default Vue.component('archive', {
       this.$store.dispatch('archives/deleteArchive', this.archive);
     },
     deleteArchiveFile: function(fileId) {
-      ArchiveService.deleteFile(fileId).then(response => {
+      this.$store.dispatch('archives/deleteArchiveFile', fileId).then(response => {
         this.archive.archive_files = archive.archive_files.filter(f => f.id !== fileId);
       });
     },

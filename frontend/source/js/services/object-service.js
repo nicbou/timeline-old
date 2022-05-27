@@ -2,14 +2,15 @@ import ApiService from './api-service.js';
 
 export default class extends ApiService {
   static objectToFormData(object, attachedFiles) {
+    throw new Exception('objectToFormData is not implemented');
   }
 
-  static async get() {
+  static async get(accessToken) {
     // Fetch objects from multiple endpoints. Return a list of objects of all types.
-    const objectEndpointsByType = await this.getEndpoints();
+    const objectEndpointsByType = await this.getEndpoints(accessToken);
     const allObjects = [];
     for (const [objectType, objectsOfTypeUrl] of Object.entries(objectEndpointsByType)) {
-      const objectsOfType = await fetch(objectsOfTypeUrl).then(response => response.json());
+      const objectsOfType = await this.fetchWithToken(objectsOfTypeUrl, {}, accessToken).then(response => response.json());
       objectsOfType.forEach(object => object.type = objectType);
       allObjects.push(...objectsOfType);
     }
@@ -17,32 +18,44 @@ export default class extends ApiService {
     return allObjects;
   }
 
-  static async getEndpoints() {
-    const objectEndpointsByType = await fetch(new URL('', this.getApiBase())).then(response => response.json());
+  static async getEndpoints(accessToken) {
+    const objectEndpointsByType = await this.fetchWithToken(this.getApiBase() + '/', {}, accessToken).then(response => response.json());
     return objectEndpointsByType;
   }
 
-  static async create(object, fileAttachments) {
-    return fetch(new URL(`${object.type}/`, this.getApiBase()), {
-      method: 'POST',
-      body: this.objectToFormData(object, fileAttachments),
-    }).then(response => response.json()).then(createdObject => {
+  static async create(object, fileAttachments, accessToken) {
+    return this.fetchWithToken(
+      this.getApiBase() + `/${object.type}/`,
+      {
+        method: 'POST',
+        body: this.objectToFormData(object, fileAttachments),
+      },
+      accessToken
+    ).then(response => response.json()).then(createdObject => {
       createdObject.type = object.type;
       return createdObject;
     });
   }
 
-  static async update(object, newFileAttachments) {
-    return fetch(object.url, {
-      method: 'PUT',
-      body: this.objectToFormData(object, newFileAttachments),
-    }).then(response => response.json()).then(updatedObject => {
+  static async update(object, newFileAttachments, accessToken) {
+    return this.fetchWithToken(
+      object.url,
+      {
+        method: 'PUT',
+        body: this.objectToFormData(object, newFileAttachments),
+      },
+      accessToken
+    ).then(response => response.json()).then(updatedObject => {
       updatedObject.type = object.type;
       return updatedObject;
     });
   }
 
-  static async delete(object) {
-    return fetch(object.url, { method: 'DELETE' });
+  static async delete(object, accessToken) {
+    return this.fetchWithToken(
+      object.url,
+      { method: 'DELETE' },
+      accessToken
+    );
   }
 }

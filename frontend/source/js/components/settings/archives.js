@@ -1,11 +1,9 @@
 import { RequestStatus } from './../../models/requests.js';
 import ArchiveComponent from './archive.js';
-import ArchiveService from './../../services/archive-service.js';
 
 export default Vue.component('archives', {
   data: function() {
     return {
-      archiveEndpoints: [],
       isSaving: false,
       uploadedFiles: [],
       newArchive: null,
@@ -13,13 +11,14 @@ export default Vue.component('archives', {
   },
   created: function() {
     this.$store.dispatch('archives/getArchives');
-    ArchiveService.getEndpoints().then(archiveEndpoints => {
-      this.archiveEndpoints = archiveEndpoints;
-    })
+    this.$store.dispatch('archives/getArchiveEndpoints');
   },
   computed: {
     archives: function() {
       return this.$store.state.archives.archives;
+    },
+    archiveEndpoints: function() {
+      return this.$store.state.archives.archiveEndpoints;
     },
   },
   methods: {
