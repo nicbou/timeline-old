@@ -1,6 +1,8 @@
+import config from './../config.js';
+
 export default class {
   static getApiBase() {
-    return `https://${window.location.hostname}/api`;
+    return `https://${config.domain}/api`;
   }
 
   static fetchWithToken(absoluteUrl, options, accessToken) {

@@ -4,7 +4,6 @@
 until nc -z timeline-db 5432; do echo Waiting for PostgreSQL; sleep 1; done
 
 python manage.py migrate                  # Apply database migrations
-python manage.py collectstatic --noinput  # Collect static files
 
 # Prepare log files and start outputting logs to stdout
 mkdir -p /var/log/backend
@@ -24,6 +23,12 @@ tail -f /tmp/stderr >&2 &
 
 crontab /etc/timeline-crontab
 service cron start
+
+# Make sure that there is an OAuth application for the frontend
+python manage.py get_or_create_oauth_app "${FRONTEND_CLIENT_ID}" "https://${FRONTEND_DOMAIN}/oauth-redirect" 'Frontend app'
+
+# Warn the user if there is no user
+python manage.py assert_app_has_users
 
 # Start Gunicorn processes
 echo Starting Gunicorn.

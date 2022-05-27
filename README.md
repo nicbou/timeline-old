@@ -32,8 +32,22 @@ You need [docker](https://www.docker.com/get-started) to run this project.
 0. Clone this repository.
 1. Create a `.env` file, and put it in the project root (next to `docker-compose.yml`). Here's a template:
     ```
-    # A long, random, secret key used by Django
+    # A long, random, secret key used by Django. You can choose any value you want.
     BACKEND_SECRET_KEY=5d41402abc4b2a...
+
+    # A long, random, unique string used by the frontend. You can choose any value you want.
+    # The frontend is an application you authorize to access the timeline API. This is the application's OAuth2 client ID.
+    # This application will be created automatically for you.
+    FRONTEND_CLIENT_ID=8ee2027983915e...
+
+    # The domain where your frontend is.
+    # It's required, because OAuth must redirect you *somewhere* after you log in.
+    # If you are developing on localhost, use lvh.me as the domain. It's an alias for localhost.
+    FRONTEND_DOMAIN=timeline.nicolasbouliane.com
+
+    # Google Map API key used to display Google Maps in the frontend
+    # How to get one: https://developers.google.com/maps/documentation/embed/get-api-key
+    GOOGLE_MAPS_API_KEY=AIzaSyBdUNg8Q...
     
     # Username and password for the MQTT client
     # OwnTracks connects to this client to log the phone's location
@@ -57,7 +71,8 @@ You need [docker](https://www.docker.com/get-started) to run this project.
     - Call the cert chain `cert-chain.crt`
     - Call the key `server.key`
 3. Run `docker-compose up --build -d` to build the project and start the server.
-4. Access the timeline at `https://localhost` (or wherever you run your server).
+4. Create a user account by calling `scripts/timeline-create-user.sh`.
+4. Access the timeline at `https://localhost` (or wherever you run your server). Log in with your user account.
 5. Create new Sources and upload new Archives to see new data appear on the timeline.
 
 If you need help setting up this project, just [email me](https://nicolasbouliane.com/contact). I don't expect this project to have many users, the documentation is not perfect.

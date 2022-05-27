@@ -20,7 +20,7 @@ export default class AuthService extends ApiService {
     authorizationCodeUrl.search = new URLSearchParams({
       approval_prompt: 'auto',
       response_type: 'code',
-      redirect_uri: `https://${window.location.hostname}/oauth-redirect`,
+      redirect_uri: `https://${config.domain}/oauth-redirect`,
       client_id: config.clientId,
       code_challenge: codeChallenge,
       code_challenge_method: 'S256',
