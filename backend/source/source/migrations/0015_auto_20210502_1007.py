@@ -10,13 +10,13 @@ from timeline.models import Entry
 
 
 @atomic
-def set_key(app, schema_editor):
-    for rsync_source in RsyncSource.objects.all():
+def set_key(apps, schema_editor):
+    for rsync_source in apps.get_model('source', 'RsyncSource').objects.all():
         for e in Entry.objects.filter(source=f"rsync/{rsync_source.id}"):
             e.source = rsync_source.entry_source
             e.save()
 
-    for filesystem_source in FileSystemSource.objects.all():
+    for filesystem_source in apps.get_model('source', 'FileSystemSource').objects.all():
         if not filesystem_source.key:
             filesystem_source.key = slugify(filesystem_source.path)[-80]
             filesystem_source.save()
@@ -24,7 +24,7 @@ def set_key(app, schema_editor):
             e.source = filesystem_source.entry_source
             e.save()
 
-    for rss_source in RssSource.objects.all():
+    for rss_source in apps.get_model('source', 'RssSource').objects.all():
         if not rss_source.key:
             rss_source.key = slugify(rss_source.feed_url)[:80]
             rss_source.save()
@@ -32,7 +32,7 @@ def set_key(app, schema_editor):
             e.source = rss_source.entry_source
             e.save()
 
-    for reddit_source in RedditSource.objects.all():
+    for reddit_source in apps.get_model('source', 'RedditSource').objects.all():
         if not reddit_source.key:
             reddit_source.key = reddit_source.reddit_username
             reddit_source.save()
@@ -40,7 +40,7 @@ def set_key(app, schema_editor):
             e.source = reddit_source.entry_source
             e.save()
 
-    for twitter_source in TwitterSource.objects.all():
+    for twitter_source in apps.get_model('source', 'TwitterSource').objects.all():
         if not twitter_source.key:
             twitter_source.key = twitter_source.twitter_username
             twitter_source.save()
@@ -48,7 +48,7 @@ def set_key(app, schema_editor):
             e.source = twitter_source.entry_source
             e.save()
 
-    for hackernews_source in HackerNewsSource.objects.all():
+    for hackernews_source in apps.get_model('source', 'HackerNewsSource').objects.all():
         if not hackernews_source.key:
             hackernews_source.key = hackernews_source.hackernews_username
             hackernews_source.save()
@@ -56,27 +56,27 @@ def set_key(app, schema_editor):
             e.source = hackernews_source.entry_source
             e.save()
 
-    for gpx_archive in GpxArchive.objects.all():
+    for gpx_archive in apps.get_model('archive', 'GpxArchive').objects.all():
         for e in Entry.objects.filter(source=f"archive/gpx/{gpx_archive.key}"):
             e.source = gpx_archive.entry_source
             e.save()
 
-    for json_archive in JsonArchive.objects.all():
+    for json_archive in apps.get_model('archive', 'JsonArchive').objects.all():
         for e in Entry.objects.filter(source=f"archive/json/{json_archive.key}"):
             e.source = json_archive.entry_source
             e.save()
 
-    for n26_archive in N26CsvArchive.objects.all():
+    for n26_archive in apps.get_model('archive', 'N26CsvArchive').objects.all():
         for e in Entry.objects.filter(source=f"archive/n26/{n26_archive.key}"):
             e.source = n26_archive.entry_source
             e.save()
 
-    for twitter_archive in TwitterArchive.objects.all():
+    for twitter_archive in apps.get_model('archive', 'TwitterArchive').objects.all():
         for e in Entry.objects.filter(source=f"archive/twitter/{twitter_archive.key}"):
             e.source = twitter_archive.entry_source
             e.save()
 
-    for googletakeout_archive in GoogleTakeoutArchive.objects.all():
+    for googletakeout_archive in apps.get_model('archive', 'GoogleTakeoutArchive').objects.all():
         for e in Entry.objects.filter(source=f"archive/google/{googletakeout_archive.key}"):
             e.source = googletakeout_archive.entry_source
             e.save()

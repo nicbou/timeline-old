@@ -2,27 +2,28 @@
 
 from django.db import migrations
 
-from archive.models import GpxArchive, JsonArchive, N26CsvArchive, TwitterArchive, GoogleTakeoutArchive, archive_path
+from archive.models import archive_path
 
 
-def update_path(*args, **kwargs):
-    for gpx_archive in GpxArchive.objects.all():
+def update_path(apps, schema_editor):
+
+    for gpx_archive in apps.get_model('archive', 'GpxArchive').objects.all():
         gpx_archive.archive_file = str(archive_path(gpx_archive, gpx_archive.archive_file.path))
         gpx_archive.save()
 
-    for json_archive in JsonArchive.objects.all():
+    for json_archive in apps.get_model('archive', 'JsonArchive').objects.all():
         json_archive.archive_file = str(archive_path(json_archive, json_archive.archive_file.path))
         json_archive.save()
 
-    for n26_archive in N26CsvArchive.objects.all():
+    for n26_archive in apps.get_model('archive', 'N26CsvArchive').objects.all():
         n26_archive.archive_file = str(archive_path(n26_archive, n26_archive.archive_file.path))
         n26_archive.save()
 
-    for twitter_archive in TwitterArchive.objects.all():
+    for twitter_archive in apps.get_model('archive', 'TwitterArchive').objects.all():
         twitter_archive.archive_file = str(archive_path(twitter_archive, twitter_archive.archive_file.path))
         twitter_archive.save()
 
-    for googletakeout_archive in GoogleTakeoutArchive.objects.all():
+    for googletakeout_archive in apps.get_model('archive', 'GoogleTakeoutArchive').objects.all():
         googletakeout_archive.archive_file = str(archive_path(googletakeout_archive, googletakeout_archive.archive_file.path))
         googletakeout_archive.save()
 
