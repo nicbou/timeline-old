@@ -1,7 +1,7 @@
 version: "3.5"
 services:
   timeline-db:
-    image: postgres:9.6
+    image: postgres:14
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_DB=timeline
