@@ -11,7 +11,7 @@ export const filters = {
     displayName: 'page view',
     displayNamePlural: 'page views',
     iconClass: 'fas fa-globe-americas',
-    filterFunction: (entry) => entry.schema.startsWith('activity.browsing'),
+    filterFunction: (entry) => entry.schema.startsWith('activity.browsing') && entry.schema !== 'activity.browsing.search',
   },
   commit: {
     displayName: 'commit',
@@ -72,6 +72,12 @@ export const filters = {
     displayNamePlural: 'reddit entries',
     iconClass: 'fab fa-reddit',
     filterFunction: (entry) => entry.schema.startsWith('social.reddit.'),
+  },
+  search: {
+    displayName: 'search',
+    displayNamePlural: 'searches',
+    iconClass: 'fas fa-search',
+    filterFunction: (entry) => entry.schema === 'activity.browsing.search',
   },
   show: {
     displayName: 'show',
