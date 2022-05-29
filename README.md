@@ -48,9 +48,15 @@ You need [docker](https://www.docker.com/get-started) to run this project.
     # Google Map API key used to display Google Maps in the frontend
     # How to get one: https://developers.google.com/maps/documentation/embed/get-api-key
     GOOGLE_MAPS_API_KEY=AIzaSyBdUNg8Q...
+
+    # Two long, random, unique string used by the geolocation client. You can choose any values you want.
+    # The geolocation client is an application you authorize to access the timeline API.
+    # This is the application's OAuth2 client ID and client secret. This application will be created automatically for you.
+    GEOLOCATION_CLIENT_ID=8ee2027983915e...
+    GEOLOCATION_CLIENT_SECRET=5d41402abc4b2a...
     
     # Username and password for the MQTT client
-    # OwnTracks connects to this client to log the phone's location
+    # OwnTracks connects to this client to log your phone's location
     MQTT_USERNAME=johntheuser
     MQTT_PASSWORD=superextrasecret
     

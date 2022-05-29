@@ -16,6 +16,8 @@ services:
       - BACKEND_SECRET_KEY
       - FRONTEND_CLIENT_ID
       - FRONTEND_DOMAIN
+      - GEOLOCATION_CLIENT_ID
+      - GEOLOCATION_CLIENT_SECRET
     depends_on:
       - timeline-db
     volumes:

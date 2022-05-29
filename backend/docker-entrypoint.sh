@@ -25,7 +25,20 @@ crontab /etc/timeline-crontab
 service cron start
 
 # Make sure that there is an OAuth application for the frontend
-python manage.py get_or_create_oauth_app "${FRONTEND_CLIENT_ID}" "https://${FRONTEND_DOMAIN}/oauth-redirect" 'Frontend app'
+python manage.py get_or_create_oauth_app \
+  --name='Frontend app' \
+  --client-id="${FRONTEND_CLIENT_ID}" \
+  --client-type="public" \
+  --authorization-grant='authorization-code' \
+  --redirect-uri="https://${FRONTEND_DOMAIN}/oauth-redirect"
+
+# Make sure that there is an OAuth application for the geolocation client
+python manage.py get_or_create_oauth_app \
+  --name='Geolocation client' \
+  --client-id="${GEOLOCATION_CLIENT_ID}" \
+  --client-secret="${GEOLOCATION_CLIENT_SECRET}" \
+  --client-type="confidential" \
+  --authorization-grant='client-credentials'
 
 # Warn the user if there is no user
 python manage.py assert_app_has_users

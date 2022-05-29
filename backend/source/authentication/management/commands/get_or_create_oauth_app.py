@@ -1,9 +1,16 @@
 import logging
+import secrets
+import string
 
 from django.core.management import BaseCommand
 from oauth2_provider.models import Application
 
 logger = logging.getLogger(__name__)
+
+
+def generate_random_string(length):
+    alphabet = string.ascii_letters + string.digits
+    return ''.join(secrets.choice(alphabet) for i in range(length))
 
 
 class Command(BaseCommand):
@@ -12,12 +19,13 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         app, is_new = Application.objects.get_or_create(
-            client_id=options['client_id'],
+            client_id=options['client_id'] or generate_random_string(20),
             defaults={
-                'authorization_grant_type': 'authorization-code',
-                'client_type': 'public',
                 'name': options['name'],
-                'redirect_uris': options['redirect_uri'],
+                'client_secret': options['client_secret'] or generate_random_string(20),
+                'client_type': options['client_type'],
+                'redirect_uris': options['redirect_uri'] or '',
+                'authorization_grant_type': options['authorization_grant'],
             })
         if is_new:
             logger.info(f"New OAuth application created for client_id {options['client_id']}")
@@ -25,18 +33,9 @@ class Command(BaseCommand):
             logger.info(f"There is already an OAuth application with client_id {options['client_id']}")
 
     def add_arguments(self, parser):
-        parser.add_argument(
-            'client_id',
-            type=str,
-            help='The client_id to check',
-        )
-        parser.add_argument(
-            'redirect_uri',
-            type=str,
-            help='The expected redirect_uri',
-        )
-        parser.add_argument(
-            'name',
-            type=str,
-            help='The app name to use if the app must be created',
-        )
+        parser.add_argument('--name', type=str)
+        parser.add_argument('--client-id', type=str)
+        parser.add_argument('--client-type', type=str)
+        parser.add_argument('--client-secret', type=str)
+        parser.add_argument('--redirect-uri', type=str)
+        parser.add_argument('--authorization-grant', type=str)
