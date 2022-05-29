@@ -43,10 +43,25 @@ def on_message(client, userdata, msg):
 
 
 def add_entry(entry: dict):
-    url = 'http://timeline-backend/timeline/entries/'
-    headers = {'content-type': 'application/json'}
-    json_entry = json.dumps(entry)
-    requests.post(url, data=json_entry, headers=headers)
+    try:
+        access_token_response = requests.post('http://timeline-backend/oauth/token/', data={
+            "client_id": os.environ['GEOLOCATION_CLIENT_ID'],
+            "client_secret": os.environ['GEOLOCATION_CLIENT_SECRET'],
+            "scope": "entry:write",
+            "grant_type": "client_credentials",
+        }).json()
+        timeline_response = requests.post(
+            'http://timeline-backend/timeline/entries/',
+            json=entry,
+            headers={
+                "Authorization": f"Bearer {access_token_response['access_token']}",
+            }
+        )
+        timeline_response.raise_for_status()
+    except KeyError:
+        logger.exception(f"Could not post geolocation on timeline. Unexpected token response: {access_token_response}")
+    except:
+        logger.exception("Could not post geolocation on timeline")
 
 
 mqtt_client = mqtt.Client()
