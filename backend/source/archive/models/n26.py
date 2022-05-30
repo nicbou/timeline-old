@@ -23,25 +23,34 @@ class N26CsvArchive(FileArchive):
         income_types = ('Income', 'Direct Debit Reversal')
 
         for csv_file in self.get_archive_files():
+            account_iban = None
+
+            # Loop once to find account owner's iban
+            for line in csv.DictReader(codecs.iterdecode(csv_file.open('rb'), 'utf-8'), delimiter=',', quotechar='"'):
+                if line['Transaction type'] in income_types and line['Account number']:
+                    account_iban = line['Account number']
+                    break
+
             for line in csv.DictReader(codecs.iterdecode(csv_file.open('rb'), 'utf-8'), delimiter=',', quotechar='"'):
                 schema = 'finance.income' if line['Transaction type'] in income_types else 'finance.expense'
 
-                you = {
-                    'currency': default_currency,
-                    'amount': Decimal(line['Amount (EUR)']).copy_abs(),
+                first_party = {
                     'name': None,
+                    'amount': str(Decimal(line['Amount (EUR)']).copy_abs()),
+                    'currency': default_currency,
                 }
+                if account_iban:
+                    first_party['iban'] = account_iban
 
-                other_party = {
-                    'currency': line['Type Foreign Currency'] or default_currency,
-                    'amount': Decimal(line['Amount (Foreign Currency)'] or line['Amount (EUR)']).copy_abs(),
+                third_party = {
                     'name': line['Payee'],
+                    'amount': str(Decimal(line['Amount (Foreign Currency)'] or line['Amount (EUR)']).copy_abs()),
+                    'currency': line['Type Foreign Currency'] or default_currency,
                 }
+                if line['Account number']:
+                    third_party['iban'] = line['Account number']
 
-                sender = you if schema == 'finance.expense' else other_party
-                recipient = other_party if schema == 'finance.expense' else you
-
-                # The transactions don't have a time. Set it to noon, Berlin time
+                # The transactions don't have a time. Set it to noon, local timezone
                 entry_date = pytz.timezone(default_timezone)\
                     .localize(datetime.strptime(line['Date'], '%Y-%m-%d'))\
                     .replace(hour=12)\
@@ -51,14 +60,11 @@ class N26CsvArchive(FileArchive):
                     schema=schema,
                     source=self.entry_source,
                     title=line['Transaction type'],
-                    description=line['Payment reference'],
+                    description='' if line['Payment reference'] == '-' else line['Payment reference'],
                     extra_attributes={
-                        'sender_amount': str(sender['amount']),
-                        'sender_currency': sender['currency'],
-                        'sender_name': sender['name'],
-                        'recipient_amount': str(recipient['amount']),
-                        'recipient_currency': recipient['currency'],
-                        'recipient_name': recipient['name'],
+                        'bank': {'name': 'N26'},
+                        'sender': first_party if schema == 'finance.expense' else third_party,
+                        'recipient': third_party if schema == 'finance.expense' else first_party,
                     },
                     date_on_timeline=entry_date
                 )

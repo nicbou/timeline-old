@@ -126,6 +126,27 @@ Describes a file on a filesystem.
 
 ### file.audio
 
+## finance
+
+### finance.income
+
+- `title`: Transaction type.
+- `description`: Transaction reference or description. 
+- `bank`:
+    - `name`: Name of the bank. For example, "Commerzbank".
+- `sender`:
+    - `name`: Readable account name. For example, "John McDuff".
+    - `iban`: Account IBAN, if applicable
+    - `currency`: Currency used by the payer. For example, "EUR".
+    - `amount`: Transaction amount in the payer's currency.
+- `recipient`:
+    - `name`: Readable account name. For example, "Amazon".
+    - `iban`: Account IBAN, if applicable
+    - `currency`: Currency used by the payee. For example, "USD".
+    - `amount`: Transaction amount in the payee's currency.
+
+### finance.expense
+
 ## journal
 
 A journal/diary entry
