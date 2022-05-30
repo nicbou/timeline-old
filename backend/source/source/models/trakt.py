@@ -12,6 +12,8 @@ from timeline.models import Entry
 # The url root to access trakt movie/show information
 trakt_site = 'https://trakt.tv/'
 
+logger = logging.getLogger(__name__)
+
 
 class TraktPin(object):
     """
@@ -32,7 +34,7 @@ class TraktPin(object):
         self.authenticate()
 
         if not self.authorization:
-            print('ERROR: Authentication required')
+            logger.error('ERROR: Authentication required')
             return 1
 
         with Trakt.configuration.oauth.from_response(self.authorization):
@@ -45,7 +47,7 @@ class TraktPin(object):
         Check the authentication credentials
         """
         if not self.has_auth():
-            print('ERROR: Authentication required')
+            logger.error('Authentication required')
             return False
 
         with Trakt.configuration.oauth.from_response(self.authorization):
@@ -58,7 +60,7 @@ class TraktPin(object):
             return True
 
         # Request authentication
-        print('Navigate to %s' % Trakt['oauth/pin'].url())
+        logger.info('Navigate to %s' % Trakt['oauth/pin'].url())
         pin = input('Pin: ')
 
         # Exchange `code` for `access_token`
@@ -67,7 +69,7 @@ class TraktPin(object):
         if not self.authorization:
             return False
 
-        print('Token exchanged - authorization: %r' % self.authorization)
+        logger.info('Token exchanged - authorization: %r' % self.authorization)
         return True
 
     def get_url_pin(self) -> str:
@@ -86,7 +88,7 @@ class TraktPin(object):
         self.authorization = response
         self.save_auth(response)
 
-        print('Token refreshed - authorization: %r' % self.authorization)
+        logger.info('Token refreshed - authorization: %r' % self.authorization)
 
     def has_auth(self) -> bool:
         # Check if have authentication information
