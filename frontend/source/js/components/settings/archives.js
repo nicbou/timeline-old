@@ -10,7 +10,11 @@ export default Vue.component('archives', {
     }
   },
   created: function() {
-    this.$store.dispatch('archives/getArchives');
+    this.$store.dispatch('archives/getArchives').catch(response => {
+      if([401, 403].includes(response.status)) {
+        this.$router.push({name: 'login'});
+      }
+    });
     this.$store.dispatch('archives/getArchiveEndpoints');
   },
   computed: {

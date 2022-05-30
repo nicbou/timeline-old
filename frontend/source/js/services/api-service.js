@@ -5,12 +5,13 @@ export default class {
     return `https://${config.domain}/api`;
   }
 
-  static fetchWithToken(absoluteUrl, options, accessToken) {
+  static fetchJsonWithToken(absoluteUrl, options, accessToken) {
     if(!accessToken){
-      throw new Error("fetchWithToken called without an access token");
+      throw new Error("fetchJsonWithToken called without an access token");
     }
     options.headers = options.headers || {};
     options.headers.Authorization = `Bearer ${accessToken}`;
-    return fetch(absoluteUrl, options);
+    return fetch(absoluteUrl, options)
+      .then(response => response.ok ? response.json() : Promise.reject(response));
   }
 }

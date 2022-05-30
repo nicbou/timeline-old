@@ -36,7 +36,7 @@ export default class extends ApiObjectService{
     return archiveEndpointsByType;
   }
 
-  static async deleteFile(fileId, accessToken) {
-    return this.fetchWithToken(this.getApiBase() + `/archivefile/${fileId}/`, { method: 'DELETE' }, accessToken);
+  static deleteFile(fileId, accessToken) {
+    return this.fetchJsonWithToken(this.getApiBase() + `/archivefile/${fileId}/`, { method: 'DELETE' }, accessToken);
   }
 }

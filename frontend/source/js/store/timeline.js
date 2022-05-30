@@ -69,10 +69,10 @@ export default {
             context.commit('ENTRIES_REQUEST_SUCCESS');
             return context.state.entries;
           })
-          .catch(err => {
+          .catch(async response => {
             context.commit('SET_ENTRIES', []);
             context.commit('ENTRIES_REQUEST_FAILURE');
-            return context.state.entries;
+            return Promise.reject(response);
           });
         context.commit('SET_ENTRIES_REQUEST_PROMISE', entriesRequestPromise);
         return entriesRequestPromise;

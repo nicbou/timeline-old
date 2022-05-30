@@ -43,7 +43,7 @@ const router = new VueRouter({
           store.dispatch('auth/getToken', to.query.code).then(_ => next({ name: 'timeline' }));
         }
         else {
-          next({ name: 'login' });
+          store.dispatch('auth/clearToken').then(_ => next({ name: 'login' }));
         }
       },
     }

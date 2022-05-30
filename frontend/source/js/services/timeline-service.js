@@ -12,15 +12,13 @@ export default class extends ApiService {
       date_on_timeline__lt: moment(date).startOf('day').add(1, 'day').toJSON(),
       ...filters
     });
-    return this.fetchWithToken(requestUrl, {}, accessToken).then((response) => {
-      return response.json();
-    });
+    return this.fetchJsonWithToken(requestUrl, {}, accessToken);
   }
 
   static saveEntry(entry, accessToken){
     const isNewEntry = entry.id === null || entry.id === undefined;
     const relativeUrl = isNewEntry ? '/entries/' : `/entries/${entry.id}/`
-    return this.fetchWithToken(
+    return this.fetchJsonWithToken(
       this.getApiBase() + relativeUrl,
       { 
         method: isNewEntry ? 'POST' : 'PUT',
@@ -28,13 +26,11 @@ export default class extends ApiService {
         body: JSON.stringify(entry),
       },
       accessToken
-    ).then((response) => {
-      return response.json();
-    });
+    );
   }
 
   static deleteEntry(entry, accessToken) {
-    return this.fetchWithToken(
+    return this.fetchJsonWithToken(
       this.getApiBase() + `/entries/${entry.id}/`,
       { method: 'DELETE' },
       accessToken

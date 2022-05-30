@@ -1,6 +1,6 @@
 import ApiService from './api-service.js';
 
-export default class extends ApiService {
+export default class ApiObjectService extends ApiService {
   static objectToFormData(object, attachedFiles) {
     throw new Exception('objectToFormData is not implemented');
   }
@@ -10,7 +10,7 @@ export default class extends ApiService {
     const objectEndpointsByType = await this.getEndpoints(accessToken);
     const allObjects = [];
     for (const [objectType, objectsOfTypeUrl] of Object.entries(objectEndpointsByType)) {
-      const objectsOfType = await this.fetchWithToken(objectsOfTypeUrl, {}, accessToken).then(response => response.json());
+      const objectsOfType = await this.fetchJsonWithToken(objectsOfTypeUrl, {}, accessToken);
       objectsOfType.forEach(object => object.type = objectType);
       allObjects.push(...objectsOfType);
     }
@@ -18,41 +18,40 @@ export default class extends ApiService {
     return allObjects;
   }
 
-  static async getEndpoints(accessToken) {
-    const objectEndpointsByType = await this.fetchWithToken(this.getApiBase() + '/', {}, accessToken).then(response => response.json());
-    return objectEndpointsByType;
+  static getEndpoints(accessToken) {
+    return this.fetchJsonWithToken(this.getApiBase() + '/', {}, accessToken);
   }
 
-  static async create(object, fileAttachments, accessToken) {
-    return this.fetchWithToken(
+  static create(object, fileAttachments, accessToken) {
+    return this.fetchJsonWithToken(
       this.getApiBase() + `/${object.type}/`,
       {
         method: 'POST',
         body: this.objectToFormData(object, fileAttachments),
       },
       accessToken
-    ).then(response => response.json()).then(createdObject => {
+    ).then(createdObject => {
       createdObject.type = object.type;
       return createdObject;
     });
   }
 
-  static async update(object, newFileAttachments, accessToken) {
-    return this.fetchWithToken(
+  static update(object, newFileAttachments, accessToken) {
+    return this.fetchJsonWithToken(
       object.url,
       {
         method: 'PUT',
         body: this.objectToFormData(object, newFileAttachments),
       },
       accessToken
-    ).then(response => response.json()).then(updatedObject => {
+    ).then(updatedObject => {
       updatedObject.type = object.type;
       return updatedObject;
     });
   }
 
-  static async delete(object, accessToken) {
-    return this.fetchWithToken(
+  static delete(object, accessToken) {
+    return this.fetchJsonWithToken(
       object.url,
       { method: 'DELETE' },
       accessToken

@@ -40,12 +40,20 @@ export default Vue.component('timeline', {
     }
   },
   created: function() {
-    this.$store.dispatch('timeline/getEntries');
+    this.$store.dispatch('timeline/getEntries').catch(response => {
+      if([401, 403].includes(response.status)) {
+        this.$router.push({name: 'login'});
+      }
+    });
   },
   watch: {
     '$route.query': function() {
       this.selectedEntry = null;
-      this.$store.dispatch('timeline/getEntries', true);
+      this.$store.dispatch('timeline/getEntries', true).catch(response => {
+        if([401, 403].includes(response.status)) {
+          this.$router.push({name: 'login'});
+        }
+      });
     }
   },
   beforeRouteEnter: makeRouteValid,

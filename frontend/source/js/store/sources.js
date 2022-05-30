@@ -56,10 +56,10 @@ export default {
             context.commit('SOURCES_REQUEST_SUCCESS');
             return context.state.sources;
           })
-          .catch(err => {
+          .catch(async response => {
             context.commit('SET_SOURCES', []);
             context.commit('SOURCES_REQUEST_FAILURE');
-            return context.state.sources;
+            return Promise.reject(response);
           });
         context.commit('SET_SOURCES_REQUEST_PROMISE', sourcesRequestPromise);
         return sourcesRequestPromise;

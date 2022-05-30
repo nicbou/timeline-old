@@ -42,7 +42,7 @@ export default class AuthService extends ApiService {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
       body: bodyParams.toString(),
-    }).then(response => response.json());
+    }).then(response => response.ok ? response.json() : Promise.reject(response));
   }
 
   static async pkceChallengeFromVerifier(codeVerifier) {

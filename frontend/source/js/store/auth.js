@@ -29,5 +29,9 @@ export default {
       context.commit('setAccessToken', access_token);
       context.commit('setCodeVerifier', null);
     },
+    async clearToken(context, authorizationCode) {
+      context.commit('setAccessToken', null);
+      context.commit('setCodeVerifier', null);
+    },
   }
 };

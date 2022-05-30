@@ -10,7 +10,11 @@ export default Vue.component('sources', {
     }
   },
   created: function() {
-    this.$store.dispatch('sources/getSources');
+    this.$store.dispatch('sources/getSources').catch(response => {
+      if([401, 403].includes(response.status)) {
+        this.$router.push({name: 'login'});
+      }
+    });
     this.$store.dispatch('sources/getSourceEndpoints');
   },
   computed: {

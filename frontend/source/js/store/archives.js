@@ -55,10 +55,10 @@ export default {
             context.commit('ARCHIVES_REQUEST_SUCCESS');
             return context.state.archives;
           })
-          .catch(err => {
+          .catch(async response => {
             context.commit('SET_ARCHIVES', []);
             context.commit('ARCHIVES_REQUEST_FAILURE');
-            return context.state.archives;
+            return Promise.reject(response);
           });
         context.commit('SET_ARCHIVES_REQUEST_PROMISE', archivesRequestPromise);
         return archivesRequestPromise;
@@ -70,9 +70,6 @@ export default {
         .then((updatedArchive) => {
           context.commit('ADD_ARCHIVE', updatedArchive);
           return context.state.archives;
-        })
-        .catch(err => {
-          return context.state.archives;
         });
     },
     async updateArchive(context, {archive, newFiles}) {
@@ -80,18 +77,12 @@ export default {
         .then((updatedArchive) => {
           context.commit('UPDATE_ARCHIVE', updatedArchive);
           return context.state.archives;
-        })
-        .catch(err => {
-          return context.state.archives;
         });
     },
     async deleteArchive(context, archive) {
       return ArchiveService.delete(archive, context.rootState.auth.accessToken)
         .then(() => {
           context.commit('DELETE_ARCHIVE', archive);
-          return context.state.archives;
-        })
-        .catch(err => {
           return context.state.archives;
         });
     },
