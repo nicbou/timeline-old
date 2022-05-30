@@ -95,7 +95,7 @@ export default {
           return context.state.archives;
         });
     },
-    async deleteArchiveFile(context, { fileId }) {
+    async deleteArchiveFile(context, fileId) {
       return ArchiveService.deleteFile(fileId, context.rootState.auth.accessToken);
     }
   }

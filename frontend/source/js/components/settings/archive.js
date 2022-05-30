@@ -77,7 +77,7 @@ export default Vue.component('archive', {
     },
     deleteArchiveFile: function(fileId) {
       this.$store.dispatch('archives/deleteArchiveFile', fileId).then(response => {
-        this.archive.archive_files = archive.archive_files.filter(f => f.id !== fileId);
+        this.archive.archive_files = this.archive.archive_files.filter(f => f.id !== fileId);
       });
     },
   },
@@ -106,8 +106,8 @@ export default Vue.component('archive', {
         <div class="input-group">
           <label for="archive-key">Key</label>
           <input type="text" id="archive-key" v-model="archive.key" v-if="isNew"/>
-          <router-link title="Show entries on the timeline" class="fake-input" :to="{ name: 'timeline', query: { source: archive.type + '/' + archive.key}}" v-if="!isNew">
-            {{ archive.type }}/{{ archive.key }}
+          <router-link title="Show entries on the timeline" class="fake-input" :to="{ name: 'timeline', query: { source: archive.source_name + '/' + archive.key}}" v-if="!isNew">
+            {{ archive.source_name }}/{{ archive.key }}
           </router-link>
         </div>
         <div class="input-group">

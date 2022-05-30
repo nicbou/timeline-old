@@ -33,6 +33,7 @@ class ArchiveFileRelatedField(serializers.RelatedField):
 
 class BaseArchiveSerializer(BaseSourceSerializer):
     archive_files = ArchiveFileRelatedField(many=True, queryset=ArchiveFile.objects.all())
+    source_name = serializers.ReadOnlyField()
 
     def create(self, validated_data):
         with transaction.atomic():
