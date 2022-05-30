@@ -17,6 +17,9 @@
             <form method="post" class="form" action="{% url 'login' %}">
                 {% csrf_token %}
                 <h1>Login required</h1>
+                {% if form.errors %}
+                <p>Your username and password did not match. Please try again.</p>
+                {% endif %}
                 <div class="input-group">
                     <input placeholder="Username" type="text" name="username" autocapitalize="none" autocomplete="username" required id="username">
                 </div>
