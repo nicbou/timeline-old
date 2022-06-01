@@ -90,12 +90,12 @@ class BaseSource(models.Model):
         if total_deleted > 0:
             range_message = f'Deleted {total_deleted} {str(self)} entries outside of date range '
             if self.date_from and self.date_until:
-                range_message = f'({self.date_from.strftime("%Y-%m-%d %H:%M")} ' \
+                range_message += f'({self.date_from.strftime("%Y-%m-%d %H:%M")} ' \
                                 f'to {self.date_until.strftime("%Y-%m-%d %H:%M")})'
             elif self.date_from:
-                range_message = f'(from {self.date_from.strftime("%Y-%m-%d %H:%M")})'
+                range_message += f'(from {self.date_from.strftime("%Y-%m-%d %H:%M")})'
             elif self.date_until:
-                range_message = f'(until {self.date_until.strftime("%Y-%m-%d %H:%M")})'
+                range_message += f'(until {self.date_until.strftime("%Y-%m-%d %H:%M")})'
             logger.info(range_message)
 
     def get_postprocessing_tasks(self) -> Iterable:
