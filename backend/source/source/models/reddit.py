@@ -68,28 +68,30 @@ class RedditSource(BaseSource):
         created_entries = []
         with transaction.atomic():
             for comment in comments:
-                entry, created = Entry.objects.update_or_create(
-                    schema='social.reddit.comment',
-                    extra_attributes__post_id=comment.id,
-                    defaults={
-                        'title': '',
-                        'description': comment.body,
-                        'source': self.entry_source,
-                        'date_on_timeline': datetime.fromtimestamp(comment.created_utc, pytz.UTC),
-                        'extra_attributes': {
-                            'post_id': comment.id,
-                            'post_score': comment.score,
-                            'post_body_html': comment.body_html,
-                            'post_parent_id': comment.parent_id,
-                            'post_thread_id': comment.submission.id,
-                            'post_community': comment.subreddit.display_name,
-                            'post_user': self.reddit_username,
+                date_on_timeline = datetime.fromtimestamp(comment.created_utc, pytz.UTC)
+                if self.is_date_in_date_range(date_on_timeline):
+                    entry, created = Entry.objects.update_or_create(
+                        schema='social.reddit.comment',
+                        extra_attributes__post_id=comment.id,
+                        defaults={
+                            'title': '',
+                            'description': comment.body,
+                            'source': self.entry_source,
+                            'date_on_timeline': date_on_timeline,
+                            'extra_attributes': {
+                                'post_id': comment.id,
+                                'post_score': comment.score,
+                                'post_body_html': comment.body_html,
+                                'post_parent_id': comment.parent_id,
+                                'post_thread_id': comment.submission.id,
+                                'post_community': comment.subreddit.display_name,
+                                'post_user': self.reddit_username,
+                            }
                         }
-                    }
-                )
-                if created:
-                    created_entries.append(entry)
-                else:
-                    updated_entries.append(entry)
+                    )
+                    if created:
+                        created_entries.append(entry)
+                    else:
+                        updated_entries.append(entry)
 
         return created_entries, updated_entries
