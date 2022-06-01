@@ -217,9 +217,10 @@ class RsyncSource(RsyncConnectionMixin, BaseSource):
         rsync_log_file = current_backup.rsync_log_path.open('w+')
         rsync_exit_code = subprocess.call(rsync_command, stdout=rsync_log_file, stderr=rsync_log_file)
 
-        if rsync_exit_code != 0:
+        if rsync_exit_code != 0 and rsync_exit_code != 24:
             # In case of failure, delete the backup. Only leave successful backups on the filesystem. /latest still
             # points to the latest successful backup.
+            # Exit code 24 is a warning, not an error.
             logger.error(f"{self.entry_source} backup failed (exit code {rsync_exit_code})")
             logger.info(f"Deleting backup files at {str(current_backup.root_path)}")
             current_backup.delete()
