@@ -270,7 +270,7 @@ class RsyncSource(RsyncConnectionMixin, BaseSource):
             logger.info(f"Creating entries for {str(latest_backup)} - ignoring cache")
 
         return len(create_entries_from_directory(
-            self.latest_backup.files_path,  # Use the .../latest/... path
+            latest_backup.files_path,
             source=self,
             backup_date=latest_backup.date,
             use_cache=use_cache
