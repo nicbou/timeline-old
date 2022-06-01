@@ -31,27 +31,29 @@ class RedditSource(BaseSource):
         created_entries = []
         with transaction.atomic():
             for submission in submissions:
-                entry, created = Entry.objects.update_or_create(
-                    schema='social.reddit.post',
-                    extra_attributes__post_id=submission.id,
-                    defaults={
-                        'title': submission.title,
-                        'description': submission.selftext,
-                        'source': self.entry_source,
-                        'date_on_timeline': datetime.fromtimestamp(submission.created_utc, pytz.UTC),
-                        'extra_attributes': {
-                            'post_id': submission.id,
-                            'post_score': submission.score,
-                            'post_community': submission.subreddit.display_name,
-                            'post_user': self.reddit_username,
-                            'post_url': submission.url,
+                date_on_timeline = datetime.fromtimestamp(submission.created_utc, pytz.UTC)
+                if self.is_date_in_date_range(date_on_timeline):
+                    entry, created = Entry.objects.update_or_create(
+                        schema='social.reddit.post',
+                        extra_attributes__post_id=submission.id,
+                        defaults={
+                            'title': submission.title,
+                            'description': submission.selftext,
+                            'source': self.entry_source,
+                            'date_on_timeline': date_on_timeline,
+                            'extra_attributes': {
+                                'post_id': submission.id,
+                                'post_score': submission.score,
+                                'post_community': submission.subreddit.display_name,
+                                'post_user': self.reddit_username,
+                                'post_url': submission.url,
+                            }
                         }
-                    }
-                )
-                if created:
-                    created_entries.append(entry)
-                else:
-                    updated_entries.append(entry)
+                    )
+                    if created:
+                        created_entries.append(entry)
+                    else:
+                        updated_entries.append(entry)
 
         return created_entries, updated_entries
 
