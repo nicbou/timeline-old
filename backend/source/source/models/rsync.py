@@ -204,6 +204,7 @@ class RsyncSource(RsyncConnectionMixin, BaseSource):
             "rsync",
             "-az",
             "--no-perms",
+            "--chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r",  # 755
             "--itemize-changes",
             "--delete",
             "-e", f"ssh -p {self.port}",
