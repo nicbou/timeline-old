@@ -37,6 +37,7 @@ ALLOWED_HOSTS = ['*']
 
 # Application definition
 INSTALLED_APPS = [
+    'django.contrib.staticfiles',
     'django.contrib.sessions',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -181,8 +182,8 @@ VIDEO_PREVIEW_SIZES = {
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
         'rest_framework.authentication.BasicAuthentication',
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'DEFAULT_RENDERER_CLASSES': [
@@ -191,7 +192,7 @@ REST_FRAMEWORK = {
         'timeline.renderers.GpxRenderer',
     ],
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
+        'timeline.permissions.AdminOrTokenMatchesOASRequirements',
     )
 }
 

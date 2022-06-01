@@ -1,5 +1,4 @@
-from oauth2_provider.contrib.rest_framework import TokenMatchesOASRequirements
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets
 
 from archive.models import JsonArchive, GpxArchive, N26CsvArchive, TelegramArchive, FacebookArchive, ArchiveFile, \
     ICalendarArchive, RedditArchive
@@ -11,7 +10,6 @@ from archive.serializers import GoogleTakeoutArchiveSerializer, TwitterArchiveSe
 
 
 class ArchiveModelViewSet(viewsets.ModelViewSet):
-    permission_classes = [TokenMatchesOASRequirements]
     required_alternate_scopes = {
         "GET": [["archive:read"]],
         "POST": [["archive:write"]],

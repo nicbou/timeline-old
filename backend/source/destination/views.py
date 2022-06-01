@@ -1,12 +1,9 @@
-from oauth2_provider.contrib.rest_framework import TokenMatchesOASRequirements
-
-from source.views import RsyncSourceViewSet
 from destination.models import RsyncDestination
 from destination.serializers import RsyncDestinationSerializer
+from source.views import RsyncSourceViewSet
 
 
 class RsyncDestinationViewSet(RsyncSourceViewSet):
-    permission_classes = [TokenMatchesOASRequirements]
     required_alternate_scopes = {
         "GET": [["destination:read"]],
         "POST": [["destination:write"]],

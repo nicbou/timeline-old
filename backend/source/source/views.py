@@ -1,11 +1,10 @@
 import logging
 
-from oauth2_provider.contrib.rest_framework import TokenMatchesOASRequirements
-from rest_framework import permissions, viewsets, status
+from django.forms.models import model_to_dict
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
 from rest_framework.exceptions import APIException, AuthenticationFailed
 from rest_framework.response import Response
-from rest_framework.decorators import action
-from django.forms.models import model_to_dict
 
 from .models import FileSystemSource
 from .models.git import GitSource
@@ -24,7 +23,6 @@ logger = logging.getLogger(__name__)
 
 
 class BaseSourceViewSet(viewsets.ModelViewSet):
-    permission_classes = [TokenMatchesOASRequirements]
     required_alternate_scopes = {
         "GET": [["source:read"]],
         "POST": [["source:write"]],
