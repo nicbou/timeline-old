@@ -203,6 +203,7 @@ class RsyncSource(RsyncConnectionMixin, BaseSource):
         rsync_command = [
             "rsync",
             "-az",
+            "--no-perms",
             "--itemize-changes",
             "--delete",
             "-e", f"ssh -p {self.port}",
