@@ -1,4 +1,5 @@
 import ImagePreview from './previews/image.js';
+import PdfPreview from './previews/pdf.js';
 import VideoPreview from './previews/video.js';
 import { hasGeolocation } from './../utils/entries.js';
 
@@ -12,11 +13,14 @@ export default Vue.component('preview', {
       return undefined;
     },
     previewType: function() {
-      if (this.mimetype.startsWith('image/') || this.mimetype === 'application/pdf') {
+      if (this.mimetype.startsWith('image/')) {
         return 'image-preview';
       }
       else if(this.mimetype.startsWith('video/')) {
         return 'video-preview';
+      }
+      else if(this.mimetype === 'application/pdf') {
+        return 'pdf-preview';
       }
     },
   },
@@ -71,7 +75,7 @@ export default Vue.component('preview', {
             <dl>
               <div class="input-group vertical">
                 <a v-if="entry.extra_attributes.file.path" class="button" title="Save this file to your device" :href="entry.extra_attributes.file.path" target="_blank">
-                  <i class="fas fa-download"></i>
+                  <i class="fas fa-search"></i>
                   Show original
                 </a>
                 <a v-if="entry.extra_attributes.file.path" class="button" title="Save this file to your device" :href="entry.extra_attributes.file.path" download>

@@ -197,7 +197,7 @@ input, button, textarea, select, .button, .files-input, .fake-input{font:var(--f
 .modal{padding:var(--spacing-m);border-radius:var(--border-radius);box-sizing:border-box;background:var(--color-background-03);box-shadow:var(--box-shadow-modal);position:fixed;top:var(--spacing-m);left:var(--spacing-l);width:calc(100% - var(--spacing-l) * 2);height:calc(100% - var(--spacing-m) * 2);z-index:1000;}
 .preview{padding:0}
     .preview .content{padding:0}
-        .preview .content img, .preview .content video{object-fit:contain;width:100%;height:100%;background:#000;display:block;}
+        .preview .content img, .preview .content video, .preview .content object{object-fit:contain;width:100%;height:100%;background:#000;display:block;}
         .preview .close{position:absolute;top:var(--spacing-m);right:var(--spacing-m);z-index:1;}
 
 /* Settings */

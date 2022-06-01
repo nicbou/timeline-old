@@ -28,6 +28,7 @@ export default Vue.component('gallery', {
             :title="new Date(subentry.date_on_timeline).toLocaleString()"></component>
           <div class="media-icons">
             <i v-if="hasGeolocation(subentry)" class="fas fa-map-marker-alt"></i>
+            <i v-if="subentry.extra_attributes.file.mimetype === 'application/pdf'" class="fas fa-file-pdf"></i>
           </div>
         </div>
       </div>
