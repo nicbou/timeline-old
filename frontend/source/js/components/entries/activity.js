@@ -5,7 +5,34 @@ export default Vue.component('activity-entry', {
   computed: {
     metaText: function() {
       if(this.entry.schema === 'activity.browsing.search') {
-        return 'Google search';
+        if(this.url.startsWith('https://maps.google.com')) {
+          return 'Google Maps search';
+        }
+        else if(this.url.startsWith('https://www.google.com/search?tbm=isch&q=')) {
+          return 'Google Images search';
+        }
+        else if(this.url.startsWith('https://translate.google.com/')) {
+          return 'Google Translate';
+        }
+        else if(this.url.startsWith('https://www.google.com')) {
+          return 'Google search';
+        }
+        else if(this.url.startsWith('https://youtube.com')) {
+          return 'YouTube search';
+        }
+        else if(this.url.startsWith('https://twitter.com')) {
+          return 'Twitter search';
+        }
+        else if(this.url.startsWith('https://www.urbandictionary.com/')) {
+          return 'Urban Dictionary search';
+        }
+        else if(this.url.startsWith('https://www.wikipedia.org/')) {
+          return 'Wikipedia search';
+        }
+        else if(this.url.startsWith('https://dict.cc')) {
+          return 'dict.cc search';
+        }
+        return 'Search';
       }
       else if(this.entry.schema === 'activity.browsing.watch') {
         return 'YouTube video';
