@@ -29,10 +29,10 @@ export default Vue.component('activity-entry', {
         else if(this.url.startsWith('https://www.wikipedia.org/')) {
           return 'Wikipedia search';
         }
-        else if(this.url.startsWith('https://dict.cc')) {
+        else if(this.url.startsWith('https://www.dict.cc')) {
           return 'dict.cc search';
         }
-        return 'Search';
+        return 'Other search';
       }
       else if(this.entry.schema === 'activity.browsing.watch') {
         return 'YouTube video';
