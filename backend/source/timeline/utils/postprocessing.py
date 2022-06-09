@@ -106,7 +106,7 @@ def _generate_video_previews(entry: Entry, overwrite=False):
 
 def _get_preview_processing_tasks(entry: Entry) -> List[Callable[[Entry], None]]:
     tasks = []
-    mimetype = entry.extra_attributes['file'].get('mimetype') or ''
+    mimetype = entry.extra_attributes['file'].get('mimetype') or 'unknown'
     if mimetype.startswith('image/'):
         tasks.append(_generate_image_previews)
     elif mimetype.startswith('video/'):
@@ -116,7 +116,9 @@ def _get_preview_processing_tasks(entry: Entry) -> List[Callable[[Entry], None]]
     elif mimetype.startswith('text/') or mimetype.startswith('audio/'):
         pass
     else:
-        logger.warning(f'Unrecognised mimetype for entry #{entry.pk}: {mimetype}')
+        file_extension = Path(entry.extra_attributes['file']['path']).suffix
+        logger.warning(f'Unrecognised mimetype for entry #{entry.pk}: {mimetype}. '
+                       f'File extension: {file_extension}')
     return tasks
 
 
