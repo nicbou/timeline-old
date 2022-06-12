@@ -29,31 +29,37 @@ class RedditSource(BaseSource):
         submissions = reddit.redditor(self.reddit_username).submissions.new(limit=None)
         updated_entries = []
         created_entries = []
+
+        submission_id_to_entry_id = dict(
+            self.get_entries().filter(schema='social.reddit.post').values_list('extra_attributes__post_id', 'id')
+        )
         with transaction.atomic():
             for submission in submissions:
                 date_on_timeline = datetime.fromtimestamp(submission.created_utc, pytz.UTC)
                 if self.is_date_in_date_range(date_on_timeline):
-                    entry, created = Entry.objects.update_or_create(
+                    entry = Entry(
+                        id=submission_id_to_entry_id[submission.id],
                         schema='social.reddit.post',
-                        extra_attributes__post_id=submission.id,
-                        defaults={
-                            'title': submission.title,
-                            'description': submission.selftext,
-                            'source': self.entry_source,
-                            'date_on_timeline': date_on_timeline,
-                            'extra_attributes': {
-                                'post_id': submission.id,
-                                'post_score': submission.score,
-                                'post_community': submission.subreddit.display_name,
-                                'post_user': self.reddit_username,
-                                'post_url': submission.url,
-                            }
+                        title=submission.title,
+                        description=submission.selftext,
+                        source=self.entry_source,
+                        date_on_timeline=date_on_timeline,
+                        extra_attributes={
+                            'post_id': submission.id,
+                            'post_score': submission.score,
+                            'post_community': submission.subreddit.display_name,
+                            'post_user': self.reddit_username,
+                            'post_url': submission.url,
                         }
                     )
-                    if created:
-                        created_entries.append(entry)
-                    else:
+                    entry_exists = submission.id in submission_id_to_entry_id
+                    if entry_exists:
                         updated_entries.append(entry)
+                    else:
+                        created_entries.append(entry)
+
+            Entry.objects.bulk_create(created_entries)
+            Entry.objects.bulk_update(updated_entries, ['title', 'description', 'date_on_timeline', 'extra_attributes'])
 
         return created_entries, updated_entries
 
@@ -66,32 +72,39 @@ class RedditSource(BaseSource):
         comments = reddit.redditor(self.reddit_username).comments.new(limit=None)
         updated_entries = []
         created_entries = []
+
+        comment_id_to_entry_id = dict(
+            self.get_entries().filter(schema='social.reddit.comment').values_list('extra_attributes__post_id', 'id')
+        )
+
         with transaction.atomic():
             for comment in comments:
                 date_on_timeline = datetime.fromtimestamp(comment.created_utc, pytz.UTC)
                 if self.is_date_in_date_range(date_on_timeline):
-                    entry, created = Entry.objects.update_or_create(
+                    entry = Entry(
+                        id=comment_id_to_entry_id[comment.id],
                         schema='social.reddit.comment',
-                        extra_attributes__post_id=comment.id,
-                        defaults={
-                            'title': '',
-                            'description': comment.body,
-                            'source': self.entry_source,
-                            'date_on_timeline': date_on_timeline,
-                            'extra_attributes': {
-                                'post_id': comment.id,
-                                'post_score': comment.score,
-                                'post_body_html': comment.body_html,
-                                'post_parent_id': comment.parent_id,
-                                'post_thread_id': comment.submission.id,
-                                'post_community': comment.subreddit.display_name,
-                                'post_user': self.reddit_username,
-                            }
+                        title='',
+                        description=comment.body,
+                        source=self.entry_source,
+                        date_on_timeline=date_on_timeline,
+                        extra_attributes={
+                           'post_id': comment.id,
+                           'post_score': comment.score,
+                           'post_body_html': comment.body_html,
+                           'post_parent_id': comment.parent_id,
+                           'post_thread_id': comment.submission.id,
+                           'post_community': comment.subreddit.display_name,
+                           'post_user': self.reddit_username,
                         }
                     )
-                    if created:
-                        created_entries.append(entry)
-                    else:
+                    entry_exists = comment.id in comment_id_to_entry_id
+                    if entry_exists:
                         updated_entries.append(entry)
+                    else:
+                        created_entries.append(entry)
+                        
+            Entry.objects.bulk_create(created_entries)
+            Entry.objects.bulk_update(updated_entries, ['title', 'description', 'date_on_timeline', 'extra_attributes'])
 
         return created_entries, updated_entries
