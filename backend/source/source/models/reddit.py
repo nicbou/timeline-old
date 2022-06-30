@@ -38,7 +38,6 @@ class RedditSource(BaseSource):
                 date_on_timeline = datetime.fromtimestamp(submission.created_utc, pytz.UTC)
                 if self.is_date_in_date_range(date_on_timeline):
                     entry = Entry(
-                        id=submission_id_to_entry_id[submission.id],
                         schema='social.reddit.post',
                         title=submission.title,
                         description=submission.selftext,
@@ -54,6 +53,7 @@ class RedditSource(BaseSource):
                     )
                     entry_exists = submission.id in submission_id_to_entry_id
                     if entry_exists:
+                        entry.id = submission_id_to_entry_id[submission.id]
                         updated_entries.append(entry)
                     else:
                         created_entries.append(entry)
@@ -82,7 +82,6 @@ class RedditSource(BaseSource):
                 date_on_timeline = datetime.fromtimestamp(comment.created_utc, pytz.UTC)
                 if self.is_date_in_date_range(date_on_timeline):
                     entry = Entry(
-                        id=comment_id_to_entry_id[comment.id],
                         schema='social.reddit.comment',
                         title='',
                         description=comment.body,
@@ -100,6 +99,7 @@ class RedditSource(BaseSource):
                     )
                     entry_exists = comment.id in comment_id_to_entry_id
                     if entry_exists:
+                        entry.id = comment_id_to_entry_id[comment.id]
                         updated_entries.append(entry)
                     else:
                         created_entries.append(entry)
