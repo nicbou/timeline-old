@@ -24,6 +24,16 @@ export default class AuthService extends ApiService {
       client_id: config.clientId,
       code_challenge: codeChallenge,
       code_challenge_method: 'S256',
+      scopes: [
+        'entry:read',
+        'entry:write',
+        'source:read',
+        'source:write',
+        'destination:read',
+        'destination:write',
+        'archive:read',
+        'archive:write',
+      ].join(' '),
     });
 
     return authorizationCodeUrl;

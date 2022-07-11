@@ -208,6 +208,7 @@ OAUTH2_PROVIDER = {
         'archive:write': 'Edit Archives',
     }
 }
+REQUEST_APPROVAL_PROMPT = 'auto'
 
 LOGIN_URL = '/api/auth/login/'
 LOGIN_REDIRECT_URL = '/'
