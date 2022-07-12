@@ -196,7 +196,7 @@ export default Vue.component('timeline', {
         </div>
         <div class="content entries">
           <spinner v-if="isLoading"></spinner>
-          <button class="button" @click="isJournalModalOpen=true"><i class="fas fa-pen"></i> Write something</button>
+          <button class="button" @click="isJournalModalOpen=true" v-show="!isLoading"><i class="fas fa-pen"></i> Write something</button>
           <div class="entry-group" v-for="group in groupedEntries" :data-group-title="entryGroupTitle(group)">
             <component
               :entry="entry"
