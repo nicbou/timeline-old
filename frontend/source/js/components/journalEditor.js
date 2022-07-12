@@ -36,7 +36,7 @@ export default Vue.component('journal-editor', {
   },
   template: `
     <div class="journal-editor modal">
-      <textarea ref="editor" class="journal-content" v-model="unsavedDescription" placeholder="What are you thinking?"></textarea>
+      <textarea ref="editor" class="journal-content" v-model="unsavedDescription" placeholder="What are you up to?"></textarea>
       <div class="input-group">
         <button class="button" @click.stop.prevent="saveChanges" :disabled="isSaving">Save changes</button>
         <button class="button" @click.stop.prevent="close" :disabled="isSaving">Cancel</button>
