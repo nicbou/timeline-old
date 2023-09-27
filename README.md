@@ -1,4 +1,6 @@
-# Personal timeline
+# Personal timeline (old version)
+
+This project is phased out in favour of the new timeline at https://github.com/nicbou/timeline. The new timeline is much simpler to run and work on.
 
 ## Introduction
 
